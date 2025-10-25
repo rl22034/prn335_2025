@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:comp="jakarta.faces.composite/componentes">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+    <ui:define name="pageTitle">
+        #{crud['pagina.proveedor']}
+    </ui:define>
+    <ui:define name="content">
+        <h:form id="form">
+
+
+            <p:growl id="messages" showDetail="true" life="3000"/>
+
+            <h:panelGroup id="tablaZone">
+                <!-- COMPONENTE TABLA REUTILIZABLE -->
+                <comp:Tabla beanName="#{proveedorBean}"
+                            lazyModel="#{proveedorBean.lazyModel}"
+                            seleccion="#{proveedorBean.filaSeleccionada}"
+                            titulo="#{crud['menu.proveedor']}"
+                            widgetVarDialog="dlgProveedor"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="3"
+                            table="tabla"
+                            rowKey="#{tipo.id}">
+
+                    <!-- Columnas dinámicas -->
+                    <p:column headerText="Id" style="width: 30px;">
+                        <h:outputText value="#{tipo.id}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.nombre']}" style="width: 80px;">
+                        <h:outputText value="#{tipo.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.razonSocial']}" style="width: 80px;">
+                        <h:outputText value="#{tipo.razonSocial}" />
+                    </p:column>
+
+                    <p:column headerText="Nit" style="width: 80px;">
+                        <h:outputText value="#{tipo.nit}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.activo']}" style="width: 30px;">
+                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.observaciones']}" style="width: 250px;">
+                        <h:outputText value="#{tipo.observaciones}" />
+                    </p:column>
+
+                </comp:Tabla>
+            </h:panelGroup>
+            <!--
+            * daialog esto es una ventana emejrgente
+            * id="dlgCrud" es el identificador para java
+            * widgetVar="dglTipoAlmacen" este es un apodo par la ventana debe llamarse igual que oncomplete="PF('dglTipoAlmacen').show()"
+            * header="Tipo de Almacen" el titulo de la ventana
+            * modal="True" hace que la pagina principal se oscuresca
+            * closable="True" muestra una X para que el usuario pueda salir de la ventana
+            * resizable="falso" no se puede cambiar el tamaño de la ventana
+            * width="600" el tamaño de la ventana
+            -->
+            <h:panelGroup id="dialogoWrapper">
+                <comp:DialogCrud beanName="#{proveedorBean}"
+                                 entidadSeleccionada="#{proveedorBean.filaSeleccionada}"
+                                 widgetVar="dlgProveedor"
+                                 dialogId="dlgCrud"
+                                 updateTabla=":form:tablaZone"
+                                 header="#{crud['pagina.proveedor']}"
+                                 width="500"
+                                 maxContentHeight="60vh"
+                                 labelId="#{crud['form.id']}"
+                                 labelNombre="#{crud['form.nombre']}"
+                                 labelActivo="#{crud['form.activo']}"
+                                 labelObservaciones="#{crud['form.observaciones']}"
+                                 atributoObservaciones="observaciones">
+
+                    <!-- Razón Social (después del Nombre) -->
+                    <f:facet name="razonSocial">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.razonSocial']}:"
+                                           for="txtRazonSocial"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtRazonSocial"
+                                         value="#{proveedorBean.filaSeleccionada.razonSocial}"
+                                         style="width: 100%;"/>
+                        </div>
+                    </f:facet>
+
+                    <!-- NIT (después de Razón Social) -->
+                    <f:facet name="nit">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="NIT:"
+                                           for="txtNit"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtNit"
+                                         value="#{proveedorBean.filaSeleccionada.nit}"
+                                         style="width: 100%;"/>
+                        </div>
+                    </f:facet>
+
+                </comp:DialogCrud>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+
+</html>

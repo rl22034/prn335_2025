@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:comp="jakarta.faces.composite/componentes">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="pageTitle">
+        #{crud['pagina.producto']}
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form id="form">
+
+
+            <p:growl id="messages" showDetail="true" life="3000"/>
+
+            <h:panelGroup id="tablaZone">
+                <!-- COMPONENTE TABLA REUTILIZABLE -->
+                <comp:Tabla beanName="#{productoBean}"
+                            lazyModel="#{productoBean.lazyModel}"
+                            seleccion="#{productoBean.filaSeleccionada}"
+                            titulo="#{crud['menu.producto']}"
+                            widgetVarDialog="dlgProducto"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="3"
+                            table="tabla"
+                            rowKey="#{tipo.id}">
+
+                    <!-- Columnas dinámicas -->
+                    <p:column headerText="Id" style="width: 30px;">
+                        <h:outputText value="#{tipo.id}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.nombre']}" style="width: 80px;">
+                        <h:outputText value="#{tipo.nombreProducto}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.referenciaExterna']}" style="width: 80px;">
+                        <h:outputText value="#{tipo.referenciaExterna}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.activo']}" style="width: 30px;">
+                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.comentarios']}" style="width: 80px;">
+                        <h:outputText value="#{tipo.comentarios}" />
+                    </p:column>
+
+                </comp:Tabla>
+            </h:panelGroup>
+            <h:panelGroup id="dialogoWrapper">
+                <comp:DialogCrud beanName="#{productoBean}"
+                                 entidadSeleccionada="#{productoBean.filaSeleccionada}"
+                                 widgetVar="dlgProducto"
+                                 dialogId="dlgCrud"
+                                 updateTabla=":form:tablaZone"
+                                 header="#{crud['pagina.producto']}"
+                                 width="500"
+                                 maxContentHeight="60vh"
+                                 labelId="#{crud['form.id']}"
+                                 atributoNombre="nombreProducto"
+                                 mostrarNombre="false"
+                                 labelActivo="#{crud['form.activo']}"
+                                 labelObservaciones="#{crud['form.observaciones']}"
+                                 atributoObservaciones="comentarios">
+
+                    <f:facet name="nombreProducto">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.nombre']}:"
+                                           for="txtNombreProducto"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtNombreProducto"
+                                         value="#{productoBean.filaSeleccionada.nombreProducto}"
+                                         style="width: 100%;"/>
+                        </div>
+                    </f:facet>
+                    <f:facet name="referenciaExterna">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.referenciaExterna']}:"
+                                           for="txtReferenciaExterna"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtReferenciaExterna"
+                                         value="#{productoBean.filaSeleccionada.referenciaExterna}"
+                                         style="width: 100%;"/>
+                        </div>
+                    </f:facet>
+                </comp:DialogCrud>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>
