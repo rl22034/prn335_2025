@@ -1,0 +1,145 @@
+body {
+    background-color: #f4f7f6;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.page-title {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #313a46;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 1.1em;
+    color: #666;
+}
+
+.tabla-container {
+    display: flex;
+    justify-content: center;
+}
+
+.tabla-moderna {
+    /* El ancho de la tabla se ajusta al contenido */
+    max-width: fit-content;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: 'Roboto', sans-serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px auto;
+}
+
+.tabla-moderna thead {
+    background-color: #313a46;
+    color: white;
+}
+
+.tabla-moderna th {
+    padding: 15px 10px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 1.0em;
+}
+
+.tabla-moderna tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.tabla-moderna tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.tabla-moderna td {
+    padding: 15px 10px;
+    border-bottom: 1px solid #e7e7e7;
+    color: #555;
+    font-size: 0.95em;
+}
+
+/* Filas intercaladas: las filas pares serán grises */
+.tabla-moderna tbody tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+.tabla-moderna tbody tr:nth-child(odd) {
+    background-color: #f5f5f5;
+}
+
+/* Anchos de las columnas */
+.tabla-moderna th:nth-child(1),
+.tabla-moderna td:nth-child(1) {
+    width: 10%;
+}
+.tabla-moderna th:nth-child(2),
+.tabla-moderna td:nth-child(2) {
+    width: 20%;
+}
+.tabla-moderna th:nth-child(3),
+.tabla-moderna td:nth-child(3) {
+    width: 10%;
+}
+.tabla-moderna th:nth-child(4),
+.tabla-moderna td:nth-child(4) {
+    width: 60%;
+}
+/* Quitar bordes del panelGrid en el footer */
+.ui-datatable-footer table,
+.ui-datatable-footer .ui-panelgrid {
+    border: none !important;
+    background: transparent !important;
+}
+
+.ui-datatable-footer table td {
+    border: none !important;
+    padding: 10px;
+}
+/* Estilo para la fila seleccionada */
+.tabla-moderna .ui-state-highlight {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+    font-weight: bold;
+}
+
+/* Cursor pointer al pasar sobre las filas */
+.tabla-moderna tbody tr {
+    cursor: pointer;
+}
+/* Selector de idioma */
+.sidebar-header form {
+    margin-top: 15px;
+}
+
+.sidebar-header .ui-selectonebutton {
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar-header .ui-selectonebutton .ui-button {
+    font-size: 11px;
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.sidebar-header .ui-selectonebutton .ui-button.ui-state-active {
+    background: #3498db;
+    border-color: #3498db;
+}

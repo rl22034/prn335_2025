@@ -1,0 +1,192 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+}
+
+.app-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    height: 100vh;
+}
+
+/* PANEL IZQUIERDO - MENÚ */
+.sidebar {
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header h2 {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.sidebar-header .icon {
+    font-size: 48px;
+}
+
+.menu-section {
+    padding: 20px 0;
+}
+
+.menu-title {
+    padding: 10px 20px;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #95a5a6;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.menu-item {
+    display: block;
+    padding: 12px 20px;
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.menu-item:hover {
+    background: rgba(255,255,255,0.1);
+    border-left-color: #3498db;
+    padding-left: 25px;
+}
+
+.menu-item.active {
+    background: rgba(52, 152, 219, 0.2);
+    border-left-color: #3498db;
+}
+
+.menu-item .icon {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+/* PANEL DERECHO - CONTENIDO */
+.content-area {
+    background: #ecf0f1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.content-header {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.content-header h1 {
+    color: #2c3e50;
+    font-size: 24px;
+}
+
+.content-body {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.sidebar-header .icon {
+    font-size: 48px;
+    color: #3498db; /* ⭐ Color para el icono del header */
+}
+
+.menu-item .icon {
+    margin-right: 10px;
+    font-size: 18px; /* ⭐ Tamaño de iconos del menú */
+    width: 24px; /* ⭐ Ancho fijo para alineación */
+    display: inline-block;
+    text-align: center;
+}
+
+/* Contenedor del SplitButton */
+.sidebar-header .splitbutton-idioma {
+    width: 100% !important;
+}
+
+/* Botón principal del SplitButton (muestra idioma actual) */
+.sidebar-header .splitbutton-idioma .ui-button-text-only .ui-button-text {
+    padding: 8px 12px !important;
+}
+
+.sidebar-header .splitbutton-idioma > button {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    border-radius: 4px 0 0 4px !important;
+}
+
+.sidebar-header .splitbutton-idioma > button:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Icono del globo */
+.sidebar-header .splitbutton-idioma .pi-globe {
+    font-size: 14px;
+    margin-right: 6px;
+}
+
+/* Botón de la flecha desplegable */
+.sidebar-header .splitbutton-idioma .ui-splitbutton-menubutton {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: white !important;
+    box-shadow: none !important;
+    border-radius: 0 4px 4px 0 !important;
+    width: 35px !important;
+}
+
+.sidebar-header .splitbutton-idioma .ui-splitbutton-menubutton:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Menú desplegable */
+.sidebar-header .splitbutton-idioma .ui-menu {
+    background: white !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 4px !important;
+    margin-top: 2px !important;
+    min-width: 140px !important;
+}
+
+/* Items del menú desplegable */
+.sidebar-header .splitbutton-idioma .ui-menu .ui-menuitem-link {
+    padding: 10px 15px !important;
+    color: #2c3e50 !important;
+    font-size: 13px !important;
+    transition: all 0.2s !important;
+}
+
+.sidebar-header .splitbutton-idioma .ui-menu .ui-menuitem-link:hover {
+    background: #ecf0f1 !important;
+    color: #3498db !important;
+}
+
+/* Item activo en el menú */
+.sidebar-header .splitbutton-idioma .ui-menu .ui-state-active {
+    background: #3498db !important;
+    color: white !important;
+}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title><ui:insert name="title">#{crud['sistema.titulo']}</ui:insert></title>
+    <h:outputStylesheet name="css/template.css"/>
+</h:head>
+
+<h:body>
+    <f:view locale="#{localeBean.locale}">
+        <div class="app-container">
+
+            <!-- ===== PANEL IZQUIERDO: MENÚ ===== -->
+            <div class="sidebar">
+
+                <!-- Header del Sidebar -->
+                <div class="sidebar-header">
+                    <i class="pi pi-box icon"></i>
+                    <h2>#{crud['sistema.titulo']}</h2>
+                    <!-- Selector de idioma -->
+                    <div style="margin-top: 15px;">
+                        <h:form>
+                            <p:splitButton value="#{localeBean.nombreIdiomaActual}"
+                                           icon="pi pi-globe"
+                                           model="#{localeBean.menuIdiomas}"
+                                           styleClass="splitbutton-idioma"/>
+                        </h:form>
+                    </div>
+                </div>
+
+
+
+                <!-- Menú de Catálogos -->
+                <div class="menu-section">
+                    <div class="menu-title">
+                        <i class="pi pi-list"></i> #{crud['menu.catalogos']}
+                    </div>
+
+                    <h:link outcome="/paginas/TipoAlmacen.xhtml" styleClass="menu-item">
+                        <i class="pi pi-box icon"></i>
+                        <span>#{crud['menu.tipoAlmacen']}</span>
+                    </h:link>
+
+
+                    <h:link outcome="/paginas/Cliente.xhtml" styleClass="menu-item">
+                        <i class="pi pi-user icon"></i>
+                        <span>#{crud['menu.cliente']}</span>
+                    </h:link>
+
+                    <h:link outcome="/paginas/TipoProducto.xhtml" styleClass="menu-item">
+                        <i class="pi pi-box icon"></i>
+                        <span>#{crud['menu.tipoProducto']}</span>
+                    </h:link>
+
+                    <h:link outcome="/paginas/Producto.xhtml" styleClass="menu-item">
+                        <i class="pi pi-tag icon"></i>
+                        <span>#{crud['menu.producto']}</span>
+                    </h:link>
+
+                    <h:link outcome="/paginas/Proveedor.xhtml" styleClass="menu-item">
+                        <i class="pi pi-truck icon"></i>
+                        <span>#{crud['menu.proveedor']}</span>
+                    </h:link>
+
+                    <h:link outcome="/paginas/TipoUnidadMedida.xhtml" styleClass="menu-item">
+                        <i class="pi pi-calculator icon"></i>
+                        <span>#{crud['menu.tipoUnidadMedida']}</span>
+                    </h:link>
+                </div>
+
+                <!-- Menú de Operaciones -->
+                <div class="menu-section">
+                    <div class="menu-title">
+                        <i class="pi pi-list"></i> #{crud['menu.operaciones']}</div>
+
+                    <!--
+                    <h:link outcome="/paginas/Compra.xhtml" styleClass="menu-item">
+                        <span class="icon">🛒</span>
+                        <span>Compras</span>
+                    </h:link>-->
+
+                </div>
+
+
+            </div>
+
+            <!-- ===== PANEL DERECHO: CONTENIDO ===== -->
+            <div class="content-area">
+                <div class="content-header">
+                    <h1><ui:insert name="pageTitle">#{crud['sistema.titulo']}</ui:insert></h1>
+                </div>
+
+                <div class="content-body">
+                    <ui:insert name="content">
+                        <!-- Aquí va el contenido de cada página -->
+                    </ui:insert>
+                </div>
+            </div>
+
+        </div>
+    </f:view>
+
+</h:body>
+</html>
