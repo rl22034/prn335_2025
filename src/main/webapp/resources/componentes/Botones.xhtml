@@ -1,0 +1,59 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:cc="jakarta.faces.composite"
+                xmlns:p="http://primefaces.org/ui">
+
+    <cc:interface>
+        <cc:attribute name="beanName"
+                      required="true"
+                      type="java.lang.Object"
+                      shortDescription="Bean controlador"/>
+
+        <cc:attribute name="widgetVar"
+                      required="true"
+                      type="java.lang.String"
+                      shortDescription="widgetVar del diálogo"/>
+
+        <cc:attribute name="updateTabla"
+                      required="true"
+                      type="java.lang.String"
+                      shortDescription="ID de la tabla a actualizar"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <div style="text-align: center; padding: 10px;">
+
+            <!-- Botón AGREGAR -->
+            <p:commandButton value="#{crud['boton.agregar']}"
+                             icon="pi pi-save"
+                             styleClass="ui-button-success"
+                             style="margin: 0 5px;"
+                             action="#{cc.attrs.beanName.btnAgregar}"
+                             update="#{cc.attrs.updateTabla} :form:messages"
+                             rendered="#{cc.attrs.beanName.estado.name() == 'CREAR'}"
+                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('#{cc.attrs.widgetVar}').hide();"/>
+
+            <!-- Botón ACTUALIZAR -->
+            <p:commandButton value="#{crud['boton.actualizar']}"
+                             icon="pi pi-refresh"
+                             styleClass="ui-button-info"
+                             style="margin: 0 5px;"
+                             action="#{cc.attrs.beanName.btnActualizar}"
+                             update="#{cc.attrs.updateTabla} :form:messages"
+                             rendered="#{cc.attrs.beanName.estado.name() == 'MODIFICAR'}"
+                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('#{cc.attrs.widgetVar}').hide();"/>
+
+            <!-- Botón ELIMINAR -->
+            <p:commandButton value="#{crud['boton.eliminar']}"
+                             icon="pi pi-trash"
+                             styleClass="ui-button-danger"
+                             style="margin: 0 5px;"
+                             action="#{cc.attrs.beanName.btnEliminar}"
+                             update="#{cc.attrs.updateTabla} :form:messages"
+                             rendered="#{cc.attrs.beanName.estado.name() == 'MODIFICAR'}"
+                             oncomplete="PF('#{cc.attrs.widgetVar}').hide();"/>
+
+
+        </div>
+    </cc:implementation>
+</ui:composition>

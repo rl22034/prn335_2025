@@ -1,0 +1,115 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:cc="jakarta.faces.composite"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:comp="jakarta.faces.composite/componentes">
+
+    <cc:interface>
+        <cc:attribute name="beanName" required="true" type="java.lang.Object"/>
+        <cc:attribute name="entidadSeleccionada" required="true"/>
+        <cc:attribute name="widgetVar" required="true" type="java.lang.String"/>
+        <cc:attribute name="dialogId" required="true" type="java.lang.String"/>
+        <cc:attribute name="updateTabla" required="true" type="java.lang.String"/>
+        <cc:attribute name="header" default="formulario" type="java.lang.Object"/>
+        <cc:attribute name="width" default="600" type="java.lang.String"/>
+        <cc:attribute name="height" type="java.lang.String"/>
+        <cc:attribute name="maxContentHeight" default="60vh" type="java.lang.String"/>
+        <cc:attribute name="modal" default="true" type="java.lang.Boolean"/>
+        <cc:attribute name="closable" default="true" type="java.lang.Boolean"/>
+        <cc:attribute name="resizable" default="false" type="java.lang.Boolean"/>
+        <cc:attribute name="labelId" default="Identificacion" type="java.lang.String"/>
+        <cc:attribute name="labelNombre" default="Nombre" type="java.lang.String"/>
+        <cc:attribute name="labelActivo" default="Activo" type="java.lang.String"/>
+        <cc:attribute name="labelObservaciones" default="Observaciones" type="java.lang.String"/>
+        <cc:attribute name="mostrarId" default="true" type="java.lang.Boolean"/>
+        <cc:attribute name="mostrarNombre" default="true" type="java.lang.Boolean"/>
+        <cc:attribute name="mostrarActivo" default="true" type="java.lang.Boolean"/>
+        <cc:attribute name="mostrarObservaciones" default="true" type="java.lang.Boolean"/>
+        <cc:attribute name="atributoId" default="id" type="java.lang.String"/>
+        <cc:attribute name="atributoNombre" default="nombre" type="java.lang.String"/>
+        <cc:attribute name="atributoActivo" default="activo" type="java.lang.String"/>
+        <cc:attribute name="atributoObservaciones" default="comentarios" type="java.lang.String"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <p:dialog id="#{cc.attrs.dialogId}"
+                  widgetVar="#{cc.attrs.widgetVar}"
+                  header="#{cc.attrs.header}"
+                  modal="#{cc.attrs.modal}"
+                  closable="#{cc.attrs.closable}"
+                  resizable="#{cc.attrs.resizable}"
+                  width="#{cc.attrs.width}"
+                  height="#{cc.attrs.height}">
+
+            <div style="max-height: #{cc.attrs.maxContentHeight}; overflow-y: auto; overflow-x: hidden; padding: 15px;">
+
+                <!-- CAMPO ID -->
+                <h:panelGroup rendered="#{cc.attrs.mostrarId}">
+                    <div style="margin-bottom: 15px;">
+                        <h:outputLabel value="#{cc.attrs.labelId}:" for="txtId"
+                                       style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                        <p:inputText id="txtId"
+                                     value="#{cc.attrs.entidadSeleccionada[cc.attrs.atributoId]}"
+                                     readonly="true" disabled="true"
+                                     style="width: 100%; background-color: #f0f0f0;"/>
+                    </div>
+                </h:panelGroup>
+                <cc:renderFacet name="nombreProducto"/>
+                <!-- CAMPO NOMBRE -->
+                <h:panelGroup rendered="#{cc.attrs.mostrarNombre}">
+
+
+
+                    <div style="margin-bottom: 15px;">
+                        <h:outputLabel value="#{cc.attrs.labelNombre}:" for="txtNombre"
+                                       style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                        <p:inputText id="txtNombre"
+                                     value="#{cc.attrs.entidadSeleccionada[cc.attrs.atributoNombre]}"
+                                     style="width: 100%;"/>
+                    </div>
+                </h:panelGroup>
+
+                <!-- FACETS -->
+                <cc:renderFacet name="razonSocial"/>
+                <cc:renderFacet name="dui"/>
+                <cc:renderFacet name="nit"/>
+                <cc:renderFacet name="referenciaExterna"/>
+
+                <!-- CAMPO ACTIVO -->
+                <h:panelGroup rendered="#{cc.attrs.mostrarActivo}">
+                    <div style="margin-bottom: 15px;">
+                        <h:outputLabel value="#{cc.attrs.labelActivo}:" for="chkActivo"
+                                       style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                        <p:selectBooleanCheckbox id="chkActivo"
+                                                 value="#{cc.attrs.entidadSeleccionada[cc.attrs.atributoActivo]}"/>
+                    </div>
+                </h:panelGroup>
+
+                <cc:renderFacet name="unidadBase"/>
+
+                <!-- CAMPO OBSERVACIONES -->
+                <h:panelGroup rendered="#{cc.attrs.mostrarObservaciones}">
+                    <div style="margin-bottom: 5px;">
+                        <h:outputLabel value="#{cc.attrs.labelObservaciones}:" for="txtObservaciones"
+                                       style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                        <p:inputTextarea id="txtObservaciones"
+                                         value="#{cc.attrs.entidadSeleccionada[cc.attrs.atributoObservaciones]}"
+                                         rows="3"
+                                         style="width: 100%;"/>
+                    </div>
+                </h:panelGroup>
+
+            </div>
+
+            <!-- FOOTER CON BOTONES -->
+            <f:facet name="footer">
+                <comp:Botones beanName="#{cc.attrs.beanName}"
+                              widgetVar="#{cc.attrs.widgetVar}"
+                              updateTabla="#{cc.attrs.updateTabla}"/>
+            </f:facet>
+
+        </p:dialog>
+    </cc:implementation>
+</ui:composition>

@@ -1,0 +1,119 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:cc="jakarta.faces.composite"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <cc:interface>
+        <!-- Parámetros obligatorios -->
+        <cc:attribute name="beanName"
+                      required="true"
+                      type="java.lang.Object"
+                      shortDescription="Bean controlador"/>
+
+        <cc:attribute name="lazyModel"
+                      required="true"
+                      type="java.lang.Object"
+                      shortDescription="LazyDataModel del bean"/>
+
+        <cc:attribute name="seleccion"
+                      required="true"
+                      type="java.lang.Object"
+                      shortDescription="Objeto seleccionado"/>
+
+        <cc:attribute name="widgetVarDialog"
+                      required="true"
+                      type="java.lang.String"
+                      shortDescription="widgetVar del diálogo"/>
+
+        <cc:attribute name="updateDialog"
+                      required="true"
+                      type="java.lang.String"
+                      shortDescription="ID del diálogo a actualizar"/>
+
+        <cc:attribute name="rowKey"
+                      required="true"
+                      type="java.lang.String"
+                      shortDescription="Expresión para rowKey (campo único)"/>
+
+        <!-- Parámetros opcionales -->
+        <cc:attribute name="titulo"
+                      default="Gestión"
+                      type="java.lang.String"/>
+
+        <cc:attribute name="rows"
+                      default="10"
+                      type="java.lang.Integer"
+                      shortDescription="Registros por página"/>
+
+        <cc:attribute name="table"
+                      default="tabla"
+                      type="java.lang.String"/>
+
+        <cc:attribute name="mostrarBotonNuevo"
+                      default="true"
+                      type="java.lang.Boolean"
+                      shortDescription="Mostrar botón Nuevo en el footer"/>
+
+        <cc:attribute name="textoBotonNuevo"
+                      default="Nuevo"
+                      type="java.lang.String"
+                      shortDescription="Texto del botón Nuevo"/>
+
+        <cc:attribute name="iconoBotonNuevo"
+                      default="pi pi-plus"
+                      type="java.lang.String"
+                      shortDescription="Icono del botón Nuevo"/>
+
+        <!-- Las columnas se pasarán como contenido hijo -->
+    </cc:interface>
+
+    <cc:implementation>
+        <div class="main-container">
+
+            <div class="header">
+                <h1 class="page-title">#{cc.attrs.titulo}</h1>
+            </div>
+
+            <div class="tabla-container">
+                <p:dataTable id="#{cc.attrs.table}"
+                             var="tipo"
+                             value="#{cc.attrs.lazyModel}"
+                             lazy="true"
+                             paginator="true"
+                             rows="#{cc.attrs.rows}"
+                             paginatorPosition="bottom"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             styleClass="tabla-moderna"
+                             selectionMode="single"
+                             selection="#{cc.attrs.seleccion}"
+                             rowKey="#{cc.attrs.rowKey}">
+
+                    <p:ajax event="rowSelect"
+                            listener="#{cc.attrs.beanName.onRowSelect}"
+                            update="#{cc.attrs.updateDialog}"
+                            immediate="true"
+                            oncomplete="PF('#{cc.attrs.widgetVarDialog}').show()"/>
+
+                    <!-- Aquí se insertan las columnas dinámicas -->
+                    <cc:insertChildren/>
+
+                    <f:facet name="footer">
+                        <f:facet name="footer">
+                            <h:panelGroup rendered="#{cc.attrs.mostrarBotonNuevo}">
+                                <p:commandButton value="#{crud['boton.nuevo']}"
+                                                 icon="pi pi-plus"
+                                                 styleClass="ui-button-success"
+                                                 action="#{cc.attrs.beanName.btnNuevo}"
+                                                 process="@this"
+                                                 update="#{cc.attrs.updateDialog}"
+                                                 oncomplete="PF('#{cc.attrs.widgetVarDialog}').show()"/>
+                            </h:panelGroup>
+                        </f:facet>
+                    </f:facet>
+                </p:dataTable>
+            </div>
+        </div>
+    </cc:implementation>
+</ui:composition>
