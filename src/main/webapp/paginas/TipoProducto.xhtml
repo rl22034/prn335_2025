@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:comp="jakarta.faces.composite/componentes" xmlns:ui="jakarta.faces.facelets">
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+<ui:define name="pageTitle">
+    #{crud['pagina.tipoProducto']}
+</ui:define>
+    <ui:define name="content">
+        <h:form id="form">
+
+            <p:growl id="messages" showDetail="true" life="3000"/>
+
+            <h:panelGroup id="tablaZone">
+                <comp:Tabla beanName="#{tipoProductoBean}"
+                            lazyModel="#{tipoProductoBean.lazyModel}"
+                            seleccion="#{tipoProductoBean.filaSeleccionada}"
+                            titulo="#{crud['menu.tipoProducto']}"
+                            widgetVarDialog="dlgTipoProducto"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="3"
+                            table="tabla"
+                            rowKey="#{tipo.id}">
+
+                    <!-- Columnas dinámicas -->
+                    <p:column headerText="Id">
+                        <h:outputText value="#{tipo.id}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.nombre']}">
+                        <h:outputText value="#{tipo.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.activo']}">
+                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.observaciones']}">
+                        <h:outputText value="#{tipo.comentarios}" />
+                    </p:column>
+
+                </comp:Tabla>
+            </h:panelGroup>
+            <h:panelGroup id="dialogoWrapper">
+                <comp:DialogCrud beanName="#{tipoProductoBean}"
+                                 entidadSeleccionada="#{tipoProductoBean.filaSeleccionada}"
+                                 widgetVar="dlgTipoProducto"
+                                 dialogId="dlgCrud"
+                                 updateTabla=":form:tablaZone"
+                                 header="#{crud['pagina.tipoProducto']} "
+                                 width="500"
+                                 maxContentHeight="60vh"
+                                 labelId="#{crud['form.id']}"
+                                 labelNombre="#{crud['form.nombre']}"
+                                 labelActivo="#{crud['form.activo']}"
+                                 labelObservaciones="#{crud['form.observaciones']}"
+                                 atributoObservaciones="comentarios"/>
+            </h:panelGroup>
+
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>
