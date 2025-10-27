@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProductoDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Producto;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProducto;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,6 +35,14 @@ public class ProductoFrm extends DefaultFrm<Producto> implements Serializable {
 
     @Override
     protected void eliminarEntidad(Producto entidad) throws Exception {
+        Producto original = productoDAO.finById(entidad.getId());
+        if (original ==  null){
+            throw new Exception("validacion.registro.no.existe");
+        }
+
+        if(!entidad.getNombreProducto().equals(original.getNombreProducto())){
+            throw new Exception("validacion.nombre.cambiado");
+        }
         productoDAO.delete(entidad);
     }
 

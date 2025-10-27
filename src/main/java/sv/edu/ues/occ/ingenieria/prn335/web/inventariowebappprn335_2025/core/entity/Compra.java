@@ -9,20 +9,18 @@ import java.time.OffsetDateTime;
 @Table(name = "compra", schema = "public")
 public class Compra {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_compra", nullable = false)
     private Long id;
 
-    @MapsId
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_compra", nullable = false)
+    //@OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_proveedor", referencedColumnName = "id_proveedor")
     private Proveedor proveedor;
 
     @Column(name = "fecha")
     private OffsetDateTime fecha;
 
-    @Column(name = "id_proveedor")
-    private Integer idProveedor;
 
     @Size(max = 10)
     @Column(name = "estado", length = 10)
@@ -56,13 +54,6 @@ public class Compra {
         this.fecha = fecha;
     }
 
-    public Integer getIdProveedor() {
-        return idProveedor;
-    }
-
-    public void setIdProveedor(Integer idProveedor) {
-        this.idProveedor = idProveedor;
-    }
 
     public String getEstado() {
         return estado;

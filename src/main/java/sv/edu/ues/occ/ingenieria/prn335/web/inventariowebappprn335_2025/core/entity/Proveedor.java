@@ -3,6 +3,8 @@ package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.en
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "proveedor", schema = "public")
 public class Proveedor {
@@ -78,4 +80,16 @@ public class Proveedor {
         this.observaciones = observaciones;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Proveedor proveedor = (Proveedor) o;
+        return Objects.equals(id, proveedor.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

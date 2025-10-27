@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:comp="jakarta.faces.composite/componentes">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="pageTitle">
+        #{crud['pagina.compra']}
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="form">
+
+            <p:growl id="messages" showDetail="true" life="3000"/>
+
+            <h:panelGroup id="tablaZone">
+                <!-- COMPONENTE TABLA REUTILIZABLE -->
+                <comp:Tabla beanName="#{compraBean}"
+                            lazyModel="#{compraBean.lazyModel}"
+                            seleccion="#{compraBean.filaSeleccionada}"
+                            titulo="#{crud['menu.compra']}"
+                            widgetVarDialog="dlgCompra"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="10"
+                            table="tabla"
+                            rowKey="#{tipo.id}">
+
+                    <!-- Columnas dinámicas -->
+                    <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                        <h:outputText value="#{tipo.id}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.proveedor']}" style="width: 200px;">
+                        <h:outputText value="#{tipo.proveedor.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.fecha']}" style="width: 150px;">
+                        <h:outputText value="#{tipo.fecha}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.estado']}" style="width: 120px;">
+                        <h:outputText value="#{tipo.estado}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.observaciones']}">
+                        <h:outputText value="#{tipo.observaciones}"
+                                      style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;"/>
+                    </p:column>
+
+                </comp:Tabla>
+            </h:panelGroup>
+
+            <h:panelGroup id="dialogoWrapper">
+                <comp:DialogCrud beanName="#{compraBean}"
+                                 entidadSeleccionada="#{compraBean.filaSeleccionada}"
+                                 widgetVar="dlgCompra"
+                                 dialogId="dlgCrud"
+                                 updateTabla=":form:tablaZone"
+                                 header="#{crud['pagina.compra']}"
+                                 width="600"
+                                 maxContentHeight="70vh"
+                                 labelId="#{crud['form.id']}"
+                                 mostrarNombre="false"
+                                 mostrarActivo="false"
+                                 mostrarObservaciones="true"
+                                 atributoObservaciones="observaciones">
+
+                    <!-- FACET: PROVEEDOR -->
+                    <f:facet name="proveedor">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.proveedor']}:"
+                                           for="selectProveedor"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectOneMenu id="selectProveedor"
+                                             value="#{compraBean.filaSeleccionada.proveedor}"
+                                             converter="proveedorConverter"
+                                             style="width: 100%;"
+                                             required="true"
+                                             requiredMessage="#{crud['validacion.proveedor.requerido']}">
+                                <f:selectItem itemLabel="-- Seleccione un proveedor --" itemValue="#{null}"/>
+                                <f:selectItems value="#{proveedorBean.entidadesList}"
+                                               var="p"
+                                               itemLabel="#{p.nombre}"
+                                               itemValue="#{p}"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </f:facet>
+
+                    <!-- FACET: FECHA -->
+                    <f:facet name="fecha">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.fecha']}:"
+                                           for="dateFecha"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:datePicker id="dateFecha"
+                                          value="#{compraBean.filaSeleccionada.fecha}"
+                                          converter="offsetDateTimeConverter"
+                                          pattern="dd/MM/yyyy HH:mm"
+                                          showTime="true"
+                                          hourFormat="24"
+                                          style="width: 100%;"
+                                          required="true"
+                                          requiredMessage="#{crud['validacion.fecha.requerida']}"/>
+                        </div>
+                    </f:facet>
+
+                    <!-- FACET: ESTADO -->
+                    <f:facet name="estado">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.estado']}:"
+                                           for="selectEstado"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectOneMenu id="selectEstado"
+                                             value="#{compraBean.filaSeleccionada.estado}"
+                                             style="width: 100%;"
+                                             required="true"
+                                             requiredMessage="#{crud['validacion.estado.requerido']}">
+                                <f:selectItem itemLabel="-- Seleccione un estado --" itemValue="#{null}"/>
+                                <f:selectItem itemLabel="PENDIENTE" itemValue="PENDIENTE"/>
+                                <f:selectItem itemLabel="COMPLETADA" itemValue="COMPLETADA"/>
+                                <f:selectItem itemLabel="CANCELADA" itemValue="CANCELADA"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </f:facet>
+
+
+                </comp:DialogCrud>
+            </h:panelGroup>
+
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>

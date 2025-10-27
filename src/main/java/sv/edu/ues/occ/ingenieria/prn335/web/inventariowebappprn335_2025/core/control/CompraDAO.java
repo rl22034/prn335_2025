@@ -4,37 +4,39 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Producto;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Compra;
 
 import java.io.Serializable;
 @Stateless
 @LocalBean
-public class ProductoDAO extends InventarioDefaultDataAccess<Producto> implements Serializable {
+public class CompraDAO extends InventarioDefaultDataAccess<Compra> implements Serializable {
     @PersistenceContext(unitName = "inventarioPU")
     private EntityManager em;
 
-    public ProductoDAO(){super(Producto.class);}
+    public CompraDAO(){super(Compra.class);}
 
     @Override
     public EntityManager getEntityManager() {return em;}
 
     @Override
-    public void delete(Producto entidad) {
+    public void delete(Compra entidad) {
         // Llamamos a la lógica de eliminación que ya está definida en la clase base.
         // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
         super.delete(entidad);
     }
 
     @Override
-    public void crear(Producto entidad) {
+    public void crear(Compra entidad) {
         // Llamamos a la lógica de eliminación que ya está definida en la clase base.
         // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
         super.crear(entidad);
     }
 
     @Override
-    public  Producto finById(Object id){
+    public  Compra finById(Object id){
 
         return super.finById(id);
+
     }
+
 }
