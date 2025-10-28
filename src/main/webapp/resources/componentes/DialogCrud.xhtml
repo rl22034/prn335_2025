@@ -61,12 +61,11 @@
                                      style="width: 100%; background-color: #f0f0f0;"/>
                     </div>
                 </h:panelGroup>
+
                 <cc:renderFacet name="nombreProducto"/>
+
                 <!-- CAMPO NOMBRE -->
                 <h:panelGroup rendered="#{cc.attrs.mostrarNombre}">
-
-
-
                     <div style="margin-bottom: 15px;">
                         <h:outputLabel value="#{cc.attrs.labelNombre}:" for="txtNombre"
                                        style="display: block; margin-bottom: 5px; font-weight: bold;"/>
@@ -76,7 +75,7 @@
                     </div>
                 </h:panelGroup>
 
-                <!-- FACETS -->
+                <!-- FACETS PERSONALIZADOS -->
                 <cc:renderFacet name="razonSocial"/>
                 <cc:renderFacet name="dui"/>
                 <cc:renderFacet name="nit"/>
@@ -85,6 +84,9 @@
                 <cc:renderFacet name="fecha"/>
                 <cc:renderFacet name="estado"/>
                 <cc:renderFacet name="tipoAlmacen"/>
+                <cc:renderFacet name="tipoUnidadMedida"/>
+                <cc:renderFacet name="equivalencia"/>
+                <cc:renderFacet name="expresionRegular"/>
 
                 <!-- CAMPO ACTIVO -->
                 <h:panelGroup rendered="#{cc.attrs.mostrarActivo}">

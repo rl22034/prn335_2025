@@ -53,17 +53,18 @@
                              oncomplete="if (args &amp;&amp; !args.validationFailed) PF('#{cc.attrs.widgetVar}').hide();"/>
 
             <!-- Botón ELIMINAR -->
+            <!-- Botón ELIMINAR -->
             <p:commandButton value="#{crud['boton.eliminar']}"
                              icon="pi pi-trash"
                              styleClass="ui-button-danger"
                              style="margin: 0 5px;"
                              action="#{cc.attrs.beanName.btnEliminar}"
                              update="#{cc.attrs.updateTabla} :form:messages"
-                             process="@this"
+                             process="#{cc.attrs.processDialog}"
                              rendered="#{cc.attrs.beanName.estado.name() == 'MODIFICAR'}"
-                             oncomplete="PF('#{cc.attrs.widgetVar}').hide();">
+                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('#{cc.attrs.widgetVar}').hide();">
                 <p:confirm header="#{crud['mensaje.confirmar']}"
-                           message="#{crud['mensaje.eliminar.confirmar']}"
+                           message="#{crud['mensaje.confirmacion.eliminar']}"
                            icon="pi pi-exclamation-triangle"/>
             </p:commandButton>
 

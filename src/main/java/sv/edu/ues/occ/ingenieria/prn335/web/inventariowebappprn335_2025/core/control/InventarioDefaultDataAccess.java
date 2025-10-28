@@ -120,26 +120,32 @@ public abstract class InventarioDefaultDataAccess<T> implements InventarioDAOInt
    }
 
     @Override
-    public List<T> findRange(int first, int max) throws IllegalArgumentException {
-        if(first< 0 || max<1){
-            throw new IllegalArgumentException("Los parametros first y max deben ser mayores que cero");
+    public List<T> findRange(int first, int max) {
+        if(first < 0 || max < 1){
+            throw new IllegalArgumentException("Tienes un error con los valores first y max");
         }
-        try{
-            EntityManager em = getEntityManager();
-            if(em != null){
-                CriteriaBuilder cb = em.getCriteriaBuilder();
-                CriteriaQuery<T> cq = cb.createQuery(entityClass);
-                Root<T> root = cq.from(entityClass);
-                CriteriaQuery<T> all = cq.select(root);
-                TypedQuery<T> allQuery = em.createQuery(all);
-                allQuery.setFirstResult(first);
-                allQuery.setMaxResults(max);
-                return allQuery.getResultList();
-            }
-        }catch(Exception e){
-            throw new IllegalStateException("Error al obtener el rango de registros", e);
+
+        EntityManager em = getEntityManager();
+        if (em == null) {
+            throw new IllegalStateException("EntityManager no disponible");
         }
-        throw new IllegalArgumentException("No se puede obtener los registros");
+
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery cq = cb.createQuery(entityClass);
+            Root<T> rootEntity = cq.from(entityClass);
+
+            // ⭐ SIEMPRE ordenar por ID de forma ASCENDENTE
+            CriteriaQuery<T> all = cq.select(rootEntity).orderBy(cb.asc(rootEntity.get("id")));
+
+            TypedQuery<T> allQuery = em.createQuery(all);
+            allQuery.setFirstResult(first);
+            allQuery.setMaxResults(max);
+            return allQuery.getResultList();
+
+        }catch (Exception ex){
+            throw new RuntimeException("No se puede acceder al repositorio", ex);
+        }
     }
 
     @Override

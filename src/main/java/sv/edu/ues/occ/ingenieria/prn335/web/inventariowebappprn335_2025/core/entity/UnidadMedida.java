@@ -1,13 +1,15 @@
 package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity;
 
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "unidad_medida", schema = "public")
 public class UnidadMedida {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_unidad_medida", nullable = false)
     private Integer id;
 
@@ -29,6 +31,7 @@ public class UnidadMedida {
     @Column(name = "comentarios")
     private String comentarios;
 
+    // Getters y Setters
     public Integer getId() {
         return id;
     }
@@ -77,4 +80,17 @@ public class UnidadMedida {
         this.comentarios = comentarios;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UnidadMedida that = (UnidadMedida) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
