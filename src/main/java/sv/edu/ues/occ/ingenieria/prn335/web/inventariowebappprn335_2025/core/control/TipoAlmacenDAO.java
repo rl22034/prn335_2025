@@ -15,7 +15,7 @@ import java.util.List;
 public class TipoAlmacenDAO extends InventarioDefaultDataAccess<TipoAlmacen> implements Serializable {
 
     @PersistenceContext(unitName = "inventarioPU")
-    private EntityManager em;
+    public EntityManager em;
     /**
      * Constructor que especifica la clase de entidad
      */
