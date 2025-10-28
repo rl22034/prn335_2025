@@ -25,10 +25,6 @@ public class UnidadMedidaFrm extends DefaultFrm<UnidadMedida> implements Seriali
 
     @Override
     protected void crearEntidad(UnidadMedida entidad) throws Exception {
-        // Validar TipoUnidadMedida
-        if (entidad.getIdTipoUnidadMedida() == null) {
-            throw new Exception("validacion.tipounidadmedida.requerido");
-        }
 
         // Validar equivalencia
         if (entidad.getEquivalencia() == null) {
@@ -40,10 +36,6 @@ public class UnidadMedidaFrm extends DefaultFrm<UnidadMedida> implements Seriali
 
     @Override
     protected void actualizarEntidad(UnidadMedida entidad) throws Exception {
-        // Validar TipoUnidadMedida
-        if (entidad.getIdTipoUnidadMedida() == null) {
-            throw new Exception("validacion.tipounidadmedida.requerido");
-        }
 
         // Validar equivalencia
         if (entidad.getEquivalencia() == null) {
@@ -87,23 +79,22 @@ public class UnidadMedidaFrm extends DefaultFrm<UnidadMedida> implements Seriali
     }
 
     /**
-     * Carga la lista de TipoUnidadMedida para el dropdown
+     * Carga la lista de TipoUnidadMedida ACTIVOS para el dropdown
      */
     public List<TipoUnidadMedida> getTipoUnidadMedidaList() {
         if (tipoUnidadMedidaList == null) {
             try {
-                tipoUnidadMedidaList = tipoUnidadMedidaDAO.findRange(0, 1000);
+                tipoUnidadMedidaList = tipoUnidadMedidaDAO.findRange(0, 1000)
+                        .stream()
+                        .filter(t -> t.getActivo() != null && t.getActivo())  // ← FILTRA SOLO ACTIVOS
+                        .collect(java.util.stream.Collectors.toList());
             } catch (Exception e) {
                 e.printStackTrace();
+                tipoUnidadMedidaList = new java.util.ArrayList<>();  // ← EVITA NULL
             }
         }
         return tipoUnidadMedidaList;
     }
-
-    public void setTipoUnidadMedidaList(List<TipoUnidadMedida> tipoUnidadMedidaList) {
-        this.tipoUnidadMedidaList = tipoUnidadMedidaList;
-    }
-
     // Getters y setters
 
     public UnidadMedida getFilaSeleccionada() {
