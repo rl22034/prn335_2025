@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:comp="jakarta.faces.composite/componentes">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="pageTitle">
+        #{crud['pagina.caracteristica']}
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="form">
+
+            <!-- MENSAJES -->
+            <p:growl id="messages" showDetail="true" life="3000"/>
+
+            <!-- CONFIRM DIALOG -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="#{crud['boton.si']}"
+                                 type="button"
+                                 styleClass="ui-confirmdialog-yes"
+                                 icon="pi pi-check"/>
+                <p:commandButton value="#{crud['boton.no']}"
+                                 type="button"
+                                 styleClass="ui-confirmdialog-no"
+                                 icon="pi pi-times"/>
+            </p:confirmDialog>
+
+            <!-- TABLA -->
+            <h:panelGroup id="tablaZone">
+                <comp:Tabla beanName="#{caracteristicaBean}"
+                            lazyModel="#{caracteristicaBean.lazyModel}"
+                            seleccion="#{caracteristicaBean.filaSeleccionada}"
+                            titulo="#{crud['menu.caracteristica']}"
+                            widgetVarDialog="dlgCaracteristica"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="5"
+                            table="tabla"
+                            rowKey="#{tipo.id}">
+
+                    <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                        <h:outputText value="#{tipo.id}"/>
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.nombre']}" style="width: 200px;">
+                        <h:outputText value="#{tipo.nombre}"/>
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.tipoUnidadMedida']}" style="width: 200px;">
+                        <h:outputText value="#{tipo.idTipoUnidadMedida.nombre}"/>
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.activo']}" style="width: 100px;">
+                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}"/>
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.descripcion']}" style="width: 250px;">
+                        <h:outputText value="#{tipo.descripcion}"/>
+                    </p:column>
+
+                </comp:Tabla>
+            </h:panelGroup>
+
+            <!-- DIALOG -->
+            <h:panelGroup id="dialogoWrapper">
+                <comp:DialogCrud beanName="#{caracteristicaBean}"
+                                 entidadSeleccionada="#{caracteristicaBean.filaSeleccionada}"
+                                 widgetVar="dlgCaracteristica"
+                                 dialogId="dlgCrud"
+                                 updateTabla=":form:tablaZone"
+                                 header="#{crud['pagina.caracteristica']}"
+                                 width="600"
+                                 maxContentHeight="70vh"
+                                 labelId="#{crud['form.id']}"
+                                 mostrarNombre="true"
+                                 mostrarActivo="true"
+                                 labelActivo="#{crud['form.activo']}"
+                                 atributoActivo="activo"
+                                 mostrarObservaciones="true"
+                                 labelObservaciones="#{crud['form.descripcion']}"
+                                 atributoObservaciones="descripcion">
+
+                    <!-- ⭐ FACET PERSONALIZADO: Selector de Tipo Unidad Medida -->
+                    <f:facet name="tipoUnidadMedida">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.tipoUnidadMedida']}:"
+                                           for="selectTipoUnidadMedida"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectOneMenu id="selectTipoUnidadMedida"
+                                             value="#{caracteristicaBean.filaSeleccionada.idTipoUnidadMedida}"
+                                             converter="tipoUnidadMedidaConverter"
+                                             style="width: 100%;"
+                                             required="true"
+                                             requiredMessage="#{crud['validacion.tipounidadmedida.requerido']}">
+                                <f:selectItem itemLabel="#{crud['form.seleccione']}" itemValue="#{null}"/>
+                                <f:selectItems value="#{caracteristicaBean.tipoUnidadMedidaList}"
+                                               var="t"
+                                               itemLabel="#{t.nombre}"
+                                               itemValue="#{t}"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </f:facet>
+
+                </comp:DialogCrud>
+            </h:panelGroup>
+
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>

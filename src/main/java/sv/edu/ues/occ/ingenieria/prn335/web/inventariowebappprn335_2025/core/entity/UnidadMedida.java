@@ -9,7 +9,7 @@ import java.util.Objects;
 public class UnidadMedida {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // ✅ AGREGAR ESTO
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_unidad_medida", nullable = false)
     private Integer id;
 

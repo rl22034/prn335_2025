@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "caracteristica", schema = "public")
 public class Caracteristica {
     @Id
-    @Column(name = "id_caracteristica", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_caracteristica")
     private Integer id;
 
     @Lob
@@ -28,7 +30,8 @@ public class Caracteristica {
     private String descripcion;
 
 
-    @OneToMany(mappedBy = "idCaracteristica", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //@OneToMany(mappedBy = "idCaracteristica", cascade = CascadeType.ALL, fetch = FetchType.LAZY) en cascada
+    @OneToMany(mappedBy = "idCaracteristica", fetch = FetchType.LAZY)
     private List<TipoProductoCaracteristica> TipoProductoCaracteristicas = new ArrayList<>();
 
 
@@ -80,5 +83,16 @@ public class Caracteristica {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Caracteristica that = (Caracteristica) o;
+        return Objects.equals(id, that.id);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
