@@ -69,6 +69,8 @@ public class ProveedorFrm extends DefaultFrm<Proveedor> implements Serializable 
         return nuevo;
     }
 
+
+
     // Getters y setters
 
     public Proveedor getFilaSeleccionada() {

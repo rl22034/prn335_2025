@@ -59,6 +59,12 @@
             <artifactId>omnifaces</artifactId>
             <version>4.4.1</version> <!-- para convertir de String a Objeto -->
         </dependency>
+        <dependency>
+            <groupId>javax.faces</groupId>
+            <artifactId>javax.faces-api</artifactId>
+            <version>2.3</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -71,7 +77,7 @@
                     <serverName>prn335_2025</serverName>
                     <looseApplication>true</looseApplication>
                     <deployPackages>all</deployPackages>
-                    <installDirectory>/usr/local/openliberty/wlp</installDirectory>
+                    <installDirectory>/home/arrocino/Descargas/wlp</installDirectory>
                 </configuration>
             </plugin>
             <plugin>

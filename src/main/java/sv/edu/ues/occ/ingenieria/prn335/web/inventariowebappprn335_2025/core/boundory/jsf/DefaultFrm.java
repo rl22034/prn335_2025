@@ -168,7 +168,7 @@ public abstract class DefaultFrm<T> implements Serializable {
      * @param errorKey Clave del mensaje de error base
      * @param e Excepcion capturada
      */
-    private void mostrarError(String errorKey, Exception e) {
+    void mostrarError(String errorKey, Exception e) {
         String errorMsg = e.getMessage();
 
         // Detectar si es una clave de i18n o un texto normal

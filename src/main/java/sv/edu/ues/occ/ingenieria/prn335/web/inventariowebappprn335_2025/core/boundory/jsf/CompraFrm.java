@@ -3,16 +3,23 @@ package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.bo
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.primefaces.PrimeFaces;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.CompraDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.CompraDetalleDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProductoDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProveedorDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Compra;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.CompraDetalle;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Producto;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Proveedor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Named("compraBean")
 @ViewScoped
@@ -20,9 +27,28 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
 
     @Inject
     private CompraDAO compraDAO;
+    // --- AÑADIR ESTAS INYECCIONES ---
+    @Inject
+    private CompraDetalleDAO compraDetalleDAO;
 
     @Inject
+    private ProductoDAO productoDAO;
+
+    // --- AÑADIR ESTAS PROPIEDADES ---
+    private List<CompraDetalle> detallesDeLaCompra;
+    private CompraDetalle detalleSeleccionado;
+    private List<Producto> productosDisponibles;
+    @Inject
     private ProveedorDAO proveedorDAO;
+
+
+    @Override // Sobreescribe este método de DefaultFrm
+    public void btnNuevo() {
+        super.btnNuevo(); // Llama al método original para instanciar la entidad
+        // Al crear una nueva compra, sus detalles deben estar vacíos
+        this.detallesDeLaCompra = new ArrayList<>();
+        this.detalleSeleccionado = null; // No hay detalle seleccionado inicialmente
+    }
 
     @Override
     protected void crearEntidad(Compra entidad) throws Exception {
@@ -92,6 +118,26 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
         return entidad.getId();
     }
 
+    public CompraDetalleDAO getCompraDetalleDAO() {
+        return compraDetalleDAO;
+    }
+
+    public ProductoDAO getProductoDAO() {
+        return productoDAO;
+    }
+
+    public void setProductoDAO(ProductoDAO productoDAO) {
+        this.productoDAO = productoDAO;
+    }
+
+    public void setCompraDetalleDAO(CompraDetalleDAO compraDetalleDAO) {
+        this.compraDetalleDAO = compraDetalleDAO;
+    }
+
+    public boolean isCompraNueva() {
+        return this.filaSeleccionada != null && this.filaSeleccionada.getId() == null;
+    }
+
     @Override
     protected Compra instanciarEntidad() {
         Compra nuevo = new Compra();
@@ -105,6 +151,114 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
     }
 
 
+    public void cargarDetallesCompra() {
+        if (this.filaSeleccionada != null && this.filaSeleccionada.getId() != null) {
+            // Usamos el método corregido del DAO
+            this.detallesDeLaCompra = compraDetalleDAO.getDetallesPorCompra(this.filaSeleccionada.getId());
+        } else {
+            this.detallesDeLaCompra = new ArrayList<>();
+        }
+    }
+
+    /**
+     * Prepara un nuevo objeto CompraDetalle para el diálogo.
+     * Se llama desde el botón "Nuevo" en la pestaña de detalle.
+     */
+    public void prepararNuevoDetalle() {
+        this.detalleSeleccionado = new CompraDetalle();
+
+        // Generamos el UUID ya que no es autoincremental [cite: 3]
+        this.detalleSeleccionado.setId(UUID.randomUUID());
+
+        // ¡Vínculo Maestro-Detalle!
+        this.detalleSeleccionado.setIdCompra(this.filaSeleccionada);
+
+        // Seteamos valores por defecto si lo deseas
+        this.detalleSeleccionado.setCantidad(BigDecimal.ONE);
+        this.detalleSeleccionado.setPrecio(BigDecimal.ZERO);
+
+        // Cargamos la lista de productos para el dropdown
+        try {
+            // Asumiendo que quieres mostrar todos los productos.
+            // Sería mejor un productoDAO.findActivos()
+            this.productosDisponibles = productoDAO.findRange(0, 1000);
+        } catch (Exception e) {
+            mostrarError("mensaje.cargar.error", e);
+            this.productosDisponibles = new ArrayList<>();
+        }
+    }
+
+    /**
+     * Guarda el nuevo CompraDetalle en la BBDD.
+     */
+    public void guardarDetalle() {
+        try {
+            // Validaciones
+            if (this.detalleSeleccionado.getIdProducto() == null) {
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "Debe seleccionar un producto");
+                return;
+            }
+            if (this.detalleSeleccionado.getCantidad().compareTo(BigDecimal.ZERO) <= 0) {
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "La cantidad debe ser mayor a cero");
+                return;
+            }
+
+            // Crear el registro
+            compraDetalleDAO.crear(this.detalleSeleccionado);
+
+            // Refrescar la tabla de detalles
+            cargarDetallesCompra();
+
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "Producto añadido a la compra");
+
+            // Ocultar el diálogo
+            PrimeFaces.current().executeScript("PF('dlgCompraDetalle').hide()");
+
+        } catch (Exception e) {
+            mostrarError("mensaje.crear.error", e);
+        }
+    }
+
+    /**
+     * Elimina un detalle de la compra.
+     * (Puedes añadir un p:commandButton en la tabla para llamar a este método)
+     */
+    public void eliminarDetalle(CompraDetalle detalle) {
+        try {
+            compraDetalleDAO.delete(detalle);
+            cargarDetallesCompra(); // Refrescar la tabla
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "Producto eliminado de la compra");
+        } catch (Exception e) {
+            mostrarError("mensaje.eliminar.error", e);
+        }
+    }
+
+
+    // --- AÑADIR GETTERS Y SETTERS PARA LAS NUEVAS PROPIEDADES ---
+
+    public List<CompraDetalle> getDetallesDeLaCompra() {
+        return detallesDeLaCompra;
+    }
+
+    public void setDetallesDeLaCompra(List<CompraDetalle> detallesDeLaCompra) {
+        this.detallesDeLaCompra = detallesDeLaCompra;
+    }
+
+    public CompraDetalle getDetalleSeleccionado() {
+        return detalleSeleccionado;
+    }
+
+    public void setDetalleSeleccionado(CompraDetalle detalleSeleccionado) {
+        this.detalleSeleccionado = detalleSeleccionado;
+    }
+
+    public List<Producto> getProductosDisponibles() {
+        return productosDisponibles;
+    }
+
+    public void setProductosDisponibles(List<Producto> productosDisponibles) {
+        this.productosDisponibles = productosDisponibles;
+    }
     /**
      * Obtiene solo los proveedores activos
      */

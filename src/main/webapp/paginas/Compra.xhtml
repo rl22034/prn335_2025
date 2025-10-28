@@ -59,80 +59,252 @@
             </h:panelGroup>
 
             <h:panelGroup id="dialogoWrapper">
-                <comp:DialogCrud beanName="#{compraBean}"
-                                 entidadSeleccionada="#{compraBean.filaSeleccionada}"
-                                 widgetVar="dlgCompra"
-                                 dialogId="dlgCrud"
-                                 updateTabla=":form:tablaZone"
-                                 header="#{crud['pagina.compra']}"
-                                 width="600"
-                                 maxContentHeight="70vh"
-                                 labelId="#{crud['form.id']}"
-                                 mostrarNombre="false"
-                                 mostrarActivo="false"
-                                 mostrarObservaciones="true"
-                                 atributoObservaciones="observaciones">
 
-                    <!-- FACET: PROVEEDOR -->
-                    <f:facet name="proveedor">
-                        <div style="margin-bottom: 15px;">
-                            <h:outputLabel value="#{crud['tabla.proveedor']}:"
-                                           for="selectProveedor"
-                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                            <p:selectOneMenu id="selectProveedor"
-                                             value="#{compraBean.filaSeleccionada.proveedor}"
-                                             converter="proveedorConverter"
-                                             style="width: 100%;"
-                                             required="true"
-                                             requiredMessage="#{crud['validacion.proveedor.requerido']}">
-                                <f:selectItem itemLabel="-- Seleccione un proveedor --" itemValue="#{null}"/>
-                                <f:selectItems value="#{compraBean.proveedoresActivos}"
-                                               var="p"
-                                               itemLabel="#{p.nombre}"
-                                               itemValue="#{p}"/>
-                            </p:selectOneMenu>
+                <p:dialog id="dlgCompra"
+                          widgetVar="dlgCompra"
+                          header="#{crud['pagina.compra']}"
+                          modal="true"
+                          width="800"
+                          height="600">
+
+                    <p:tabView id="tabsCompra" dynamic="true" activeIndex="#{compraBean.isCompraNueva() ? 0 : null}">
+
+                        <p:ajax event="tabChange"
+                                listener="#{compraBean.cargarDetallesCompra}"
+                                update=":form:tablaDetalleZone :form:messages"
+                                rendered="#{!compraBean.isCompraNueva()}" />
+
+                        <p:tab title="#{crud['tabs.generalidades']}" id="tabGeneralidades">
+                            <div style="padding: 20px;">
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtIdCompra" value="#{crud['form.id']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtIdCompra"
+                                                 value="#{compraBean.filaSeleccionada.id}"
+                                                 disabled="true"
+                                                 style="width: 100%; background-color: #f0f0f0;"/>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel value="#{crud['tabla.proveedor']}:"
+                                                   for="selectProveedor"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:selectOneMenu id="selectProveedor"
+                                                     value="#{compraBean.filaSeleccionada.proveedor}"
+                                                     converter="proveedorConverter"
+                                                     style="width: 100%;"
+                                                     required="true"
+                                                     requiredMessage="#{crud['validacion.proveedor.requerido']}">
+                                        <f:selectItem itemLabel="-- Seleccione un proveedor --" itemValue="#{null}"/>
+                                        <f:selectItems value="#{compraBean.proveedoresActivos}"
+                                                       var="p"
+                                                       itemLabel="#{p.nombre}"
+                                                       itemValue="#{p}"/>
+                                    </p:selectOneMenu>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel value="#{crud['tabla.fecha']}:"
+                                                   for="dateFecha"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:datePicker id="dateFecha"
+                                                  value="#{compraBean.filaSeleccionada.fecha}"
+                                                  converter="offsetDateTimeConverter"
+                                                  pattern="dd/MM/yyyy HH:mm"
+                                                  showTime="true"
+                                                  hourFormat="24"
+                                                  style="width: 100%;"
+                                                  required="true"
+                                                  requiredMessage="#{crud['validacion.fecha.requerida']}"/>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel value="#{crud['tabla.estado']}:"
+                                                   for="selectEstado"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:selectOneMenu id="selectEstado"
+                                                     value="#{compraBean.filaSeleccionada.estado}"
+                                                     style="width: 100%;"
+                                                     required="true"
+                                                     requiredMessage="#{crud['validacion.estado.requerido']}">
+                                        <f:selectItem itemLabel="-- Seleccione un estado --" itemValue="#{null}"/>
+                                        <f:selectItem itemLabel="PENDIENTE" itemValue="PENDIENTE"/>
+                                        <f:selectItem itemLabel="COMPLETADA" itemValue="COMPLETADA"/>
+                                        <f:selectItem itemLabel="CANCELADA" itemValue="CANCELADA"/>
+                                    </p:selectOneMenu>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel value="#{crud['tabla.observaciones']}:"
+                                                   for="txtObservacionesCompra"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputTextarea id="txtObservacionesCompra"
+                                                     value="#{compraBean.filaSeleccionada.observaciones}"
+                                                     rows="3"
+                                                     style="width: 100%;"/>
+                                </div>
+                                <div style="text-align: right; padding-top: 15px;">
+                                    <p:commandButton value="#{crud['boton.agregar']}"
+                                                     icon="pi pi-check"
+                                                     styleClass="ui-button-success"
+                                                     action="#{compraBean.btnAgregar()}"
+                                                     update=":form:tablaZone :form:messages"
+                                                     process="dlgCompra"
+                                                     oncomplete="if (!args.validationFailed) PF('dlgCompra').hide()"
+                                                     rendered="#{compraBean.isCompraNueva()}" />
+
+                                    <p:commandButton value="#{crud['boton.actualizar']}"
+                                                     icon="pi pi-check"
+                                                     styleClass="ui-button-success"
+                                                     action="#{compraBean.btnActualizar()}"
+                                                     update=":form:tablaZone :form:messages"
+                                                     process="dlgCompra"
+                                                     oncomplete="if (!args.validationFailed) PF('dlgCompra').hide()"
+                                                     rendered="#{!compraBean.isCompraNueva()}" />
+
+                                    <p:commandButton value="#{crud['boton.eliminar']}"
+                                                     icon="pi pi-times"
+                                                     styleClass="ui-button-danger"
+                                                     action="#{compraBean.btnEliminar()}"
+                                                     update=":form:tablaZone :form:messages"
+                                                     process="@this"
+                                                     oncomplete="if (!args.validationFailed) PF('dlgCompra').hide()"
+                                                     rendered="#{!compraBean.isCompraNueva()}" >
+                                        <p:confirm header="Confirmación"
+                                                   message="¿Está seguro de que desea eliminar esta compra?"
+                                                   icon="pi pi-info-circle"/>
+                                    </p:commandButton>
+
+                                    <p:commandButton value="#{crud['boton.cancelar']}"
+                                                     icon="pi pi-times"
+                                                     styleClass="ui-button-secondary"
+                                                     onclick="PF('dlgCompra').hide()"
+                                                     type="button" />
+                                </div>
+                            </div>
+                        </p:tab>
+
+                        <p:tab title="Detalle de Compra"
+                               id="tabProductos"
+                               disabled="#{compraBean.isCompraNueva()}" >
+
+                            <div style="padding: 20px;">
+                                <div style="text-align: right; margin-bottom: 10px;">
+                                    <p:commandButton value="#{crud['boton.nuevo']}"
+                                                     icon="pi pi-plus"
+                                                     styleClass="ui-button-success"
+                                                     action="#{compraBean.prepararNuevoDetalle}"
+                                                     process="@this"
+                                                     update=":form:dialogoDetalleWrapper"
+                                                     oncomplete="PF('dlgCompraDetalle').show()"
+                                                     disabled="#{compraBean.isCompraNueva()}" />
+                                </div>
+
+                                <h:panelGroup id="tablaDetalleZone">
+                                    <p:dataTable id="tablaDetalles"
+                                                 var="detalle"
+                                                 value="#{compraBean.detallesDeLaCompra}"
+                                                 emptyMessage="Aún no hay productos en esta compra. La compra debe estar guardada para añadir detalles.">
+
+                                        <p:column headerText="Producto">
+                                            <h:outputText value="#{detalle.idProducto.nombreProducto}" />
+                                        </p:column>
+                                        <p:column headerText="Cantidad" style="width: 100px; text-align: right;">
+                                            <h:outputText value="#{detalle.cantidad}" />
+                                        </p:column>
+                                        <p:column headerText="Precio Unitario" style="width: 120px; text-align: right;">
+                                            <h:outputText value="#{detalle.precio}">
+                                                <f:convertNumber type="currency" currencySymbol="$"/>
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column headerText="Subtotal" style="width: 120px; text-align: right;">
+                                            <h:outputText value="#{detalle.cantidad * detalle.precio}">
+                                                <f:convertNumber type="currency" currencySymbol="$"/>
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column style="width:60px; text-align:center">
+                                            <p:commandButton icon="pi pi-trash"
+                                                             styleClass="ui-button-danger rounded-button"
+                                                             process="@this"
+                                                             update=":form:tablaDetalleZone :form:messages"
+                                                             action="#{compraBean.eliminarDetalle(detalle)}">
+                                                <p:confirm header="Confirmación"
+                                                           message="¿Seguro que desea eliminar este producto de la compra?"
+                                                           icon="pi pi-info-circle"/>
+                                            </p:commandButton>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                            </div>
+                        </p:tab>
+
+                    </p:tabView>
+                </p:dialog>
+
+                <h:panelGroup id="dialogoDetalleWrapper">
+                    <p:dialog id="dlgCompraDetalle"
+                              widgetVar="dlgCompraDetalle"
+                              header="Añadir Producto a la Compra"
+                              modal="true"
+                              width="500">
+
+                        <div style="padding: 10px;">
+                            <p:panelGrid columns="2"
+                                         layout="grid"
+                                         styleClass="ui-panelgrid-blank"
+                                         columnClasses="ui-g-4, ui-g-8">
+
+                                <p:outputLabel value="Producto:" for="selectProducto" style="font-weight: bold;"/>
+                                <p:selectOneMenu id="selectProducto"
+                                                 value="#{compraBean.detalleSeleccionado.idProducto}"
+                                                 converter="#{productoConverter}"
+                                                 required="true"
+                                                 requiredMessage="Debe seleccionar un producto"
+                                                 style="width: 100%;">
+                                    <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                                    <f:selectItems value="#{compraBean.productosDisponibles}"
+                                                   var="prod"
+                                                   itemLabel="#{prod.nombreProducto}"
+                                                   itemValue="#{prod}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Cantidad:" for="txtCantidad" style="font-weight: bold;"/>
+                                <p:inputNumber id="txtCantidad"
+                                               value="#{compraBean.detalleSeleccionado.cantidad}"
+                                               decimalPlaces="2"
+                                               required="true"
+                                               requiredMessage="La cantidad es requerida"
+                                               style="width: 100%;"/>
+
+                                <p:outputLabel value="Precio:" for="txtPrecio" style="font-weight: bold;"/>
+                                <p:inputNumber id="txtPrecio"
+                                               value="#{compraBean.detalleSeleccionado.precio}"
+                                               symbol="$ "
+                                               decimalPlaces="2"
+                                               required="true"
+                                               requiredMessage="El precio es requerido"
+                                               style="width: 100%;"/>
+
+                            </p:panelGrid>
                         </div>
-                    </f:facet>
 
-                    <!-- FACET: FECHA -->
-                    <f:facet name="fecha">
-                        <div style="margin-bottom: 15px;">
-                            <h:outputLabel value="#{crud['tabla.fecha']}:"
-                                           for="dateFecha"
-                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                            <p:datePicker id="dateFecha"
-                                          value="#{compraBean.filaSeleccionada.fecha}"
-                                          converter="offsetDateTimeConverter"
-                                          pattern="dd/MM/yyyy HH:mm"
-                                          showTime="true"
-                                          hourFormat="24"
-                                          style="width: 100%;"
-                                          required="true"
-                                          requiredMessage="#{crud['validacion.fecha.requerida']}"/>
-                        </div>
-                    </f:facet>
+                        <f:facet name="footer">
+                            <p:commandButton value="#{crud['boton.guardar']}"
+                                             icon="pi pi-check"
+                                             action="#{compraBean.guardarDetalle}"
+                                             update=":form:tablaDetalleZone :form:messages"
+                                             process="dlgCompraDetalle @this" />
+                            <p:commandButton value="#{crud['boton.cancelar']}"
+                                             icon="pi pi-times"
+                                             styleClass="ui-button-secondary"
+                                             onclick="PF('dlgCompraDetalle').hide()"
+                                             type="button" />
+                        </f:facet>
 
-                    <!-- FACET: ESTADO -->
-                    <f:facet name="estado">
-                        <div style="margin-bottom: 15px;">
-                            <h:outputLabel value="#{crud['tabla.estado']}:"
-                                           for="selectEstado"
-                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                            <p:selectOneMenu id="selectEstado"
-                                             value="#{compraBean.filaSeleccionada.estado}"
-                                             style="width: 100%;"
-                                             required="true"
-                                             requiredMessage="#{crud['validacion.estado.requerido']}">
-                                <f:selectItem itemLabel="-- Seleccione un estado --" itemValue="#{null}"/>
-                                <f:selectItem itemLabel="PENDIENTE" itemValue="PENDIENTE"/>
-                                <f:selectItem itemLabel="COMPLETADA" itemValue="COMPLETADA"/>
-                                <f:selectItem itemLabel="CANCELADA" itemValue="CANCELADA"/>
-                            </p:selectOneMenu>
-                        </div>
-                    </f:facet>
+                    </p:dialog>
+                </h:panelGroup>
 
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"/>
+                    <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" />
+                </p:confirmDialog>
 
-                </comp:DialogCrud>
             </h:panelGroup>
 
         </h:form>

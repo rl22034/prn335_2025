@@ -7,6 +7,8 @@ import jakarta.persistence.PersistenceContext;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Producto;
 
 import java.io.Serializable;
+import java.util.List;
+
 @Stateless
 @LocalBean
 public class ProductoDAO extends InventarioDefaultDataAccess<Producto> implements Serializable {
@@ -36,5 +38,12 @@ public class ProductoDAO extends InventarioDefaultDataAccess<Producto> implement
     public  Producto finById(Object id){
 
         return super.finById(id);
+    }
+
+    public List<Producto> findByCompra(Long idCompra) {
+        return getEntityManager()
+                .createQuery("SELECT cd.idProducto FROM CompraDetalle cd WHERE cd.idCompra.id = :idCompra", Producto.class)
+                .setParameter("idCompra", idCompra)
+                .getResultList();
     }
 }

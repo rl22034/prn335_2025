@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="inventario_prn335@localhost" uuid="2774fa0c-d429-400b-a687-6f527cf99d7f">
+    <data-source source="LOCAL" name="Inventario_PRN335@localhost" uuid="5b63e268-0efe-434b-87b2-7e3700ff33c3">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/inventario_prn335</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/Inventario_PRN335</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
