@@ -120,53 +120,26 @@ public abstract class InventarioDefaultDataAccess<T> implements InventarioDAOInt
    }
 
     @Override
-    public List<T> findRange(int first, int max) {
-        if(first < 0 || max < 1){
-            throw new IllegalArgumentException("Tienes un error con los valores first y max");
+    public List<T> findRange(int first, int max) throws IllegalArgumentException {
+        if(first< 0 || max<1){
+            throw new IllegalArgumentException("Los parametros first y max deben ser mayores que cero");
         }
-
-        EntityManager em = getEntityManager();
-        if (em == null) {
-            throw new IllegalStateException("EntityManager no disponible");
-        }
-
-        try {
-
-                // Crea un "asistente" para construir consultas sin escribir SQL, cb es una variable que guarda esta herramienta
+        try{
+            EntityManager em = getEntityManager();
+            if(em != null){
                 CriteriaBuilder cb = em.getCriteriaBuilder();
-
-                // Crea una "consulta vacía" específica para tu tipo de entidad ejmplo
-                // CriteriaQuery cq = cb.createQuery(almacen);
-                CriteriaQuery cq = cb.createQuery(entityClass);
-
-                // Define de qué "tabla" vamos a sacar los datos
-                //En SQL sería: La parte FROM productos en una consulta
-                Root<T> rootEntity = cq.from(entityClass);
-
-                // Dice "quiero todos los campos de esta tabla"
-                // En SQL sería: SELECT * FROM productos
-                //orderBy(cb.asc(rootEntity.get("id"))) Esto ordena los resultados por ID de forma ascendente (1, 2, 3, 4...).
-                CriteriaQuery<T> all = cq.select(rootEntity).orderBy(cb.asc(rootEntity.get("id")));
-
-                /*
-                * Esta línea convierte tu consulta "genérica" (all) en una consulta lista para ser ejecutada.
-                * El em.createQuery() crea un objeto TypedQuery, que es la consulta final que la base de datos entiende.
-                */
+                CriteriaQuery<T> cq = cb.createQuery(entityClass);
+                Root<T> root = cq.from(entityClass);
+                CriteriaQuery<T> all = cq.select(root);
                 TypedQuery<T> allQuery = em.createQuery(all);
                 allQuery.setFirstResult(first);
-
-                /*
-                * es el método correcto para decirle a la consulta cuántos resultados máximos debe traer.
-                * Esto es esencial para la paginación.
-                * */
                 allQuery.setMaxResults(max);
                 return allQuery.getResultList();
-
-
-        }catch (Exception ex){
-            throw new RuntimeException("No se puede acceder al repositorio", ex);
+            }
+        }catch(Exception e){
+            throw new IllegalStateException("Error al obtener el rango de registros", e);
         }
-
+        throw new IllegalArgumentException("No se puede obtener los registros");
     }
 
     @Override

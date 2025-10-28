@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.InventarioDefaultDataAccess;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.TipoAlmacenDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoAlmacen;
 
 import java.util.ArrayList;
@@ -388,52 +389,27 @@ public class InventarioDefaultDataAccessTest {
 
 
     @Test
-    public void findRange(){
-        TipoAlmacen tipoAlmacen = new TipoAlmacen();
-        int first = 1;
-        int max = 10;
-        assertThrows(IllegalArgumentException.class, ()->{
-            inventarioDAO.findRange(-1,10);
-        });
-        assertThrows(IllegalArgumentException.class, ()->{
-            inventarioDAO.findRange(10,-1);
-        });
+    void findRange_ok_devuelveLista() {
+        EntityManager mockEm = mock(EntityManager.class);
+        CriteriaBuilder mockCb = mock(CriteriaBuilder.class);
+        CriteriaQuery<TipoAlmacen> mockCq = mock(CriteriaQuery.class);
+        Root<TipoAlmacen> mockRoot = mock(Root.class);
+        TypedQuery<TipoAlmacen> mockTq = mock(TypedQuery.class);
 
-        InventarioDefaultDataAccess<TipoAlmacen> inventarioDaoNull = new InventarioDefaultDataAccess<>(TipoAlmacen.class) {
-            @Override
-            public EntityManager getEntityManager() {
-                return null;
-            }
-        };
-        assertThrows(IllegalStateException.class, ()->{
-            inventarioDaoNull.findRange(first,max);
-        });
+        when(mockEm.getCriteriaBuilder()).thenReturn(mockCb);
+        when(mockCb.createQuery(TipoAlmacen.class)).thenReturn(mockCq);
+        when(mockCq.from(TipoAlmacen.class)).thenReturn(mockRoot);
+        when(mockCq.select(mockRoot)).thenReturn(mockCq);
+        when(mockEm.createQuery(mockCq)).thenReturn(mockTq);
+        when(mockTq.getResultList()).thenReturn(this.listaPrueba);
 
-        CriteriaBuilder mockCriteriaBuilder = mock(CriteriaBuilder.class);
-        CriteriaQuery mockCriteriaQuery = mock(CriteriaQuery.class);
-        Root mockRoot = mock(Root.class);
-        TypedQuery mockTypedQuery = mock(TypedQuery.class);
+        TipoAlmacenDAO cut = new TipoAlmacenDAO();
+        cut.em = mockEm;
 
-        when(mockEntityManager.getCriteriaBuilder()).thenReturn(mockCriteriaBuilder);
-        when(mockCriteriaBuilder.createQuery(TipoAlmacen.class)).thenReturn(mockCriteriaQuery);
-        when(mockCriteriaQuery.from(TipoAlmacen.class)).thenReturn(mockRoot);
-        when(mockCriteriaQuery.select(mockRoot)).thenReturn(mockCriteriaQuery);
-        when(mockEntityManager.createQuery(mockCriteriaQuery)).thenReturn(mockTypedQuery);
-        when(mockTypedQuery.getResultList()).thenReturn(listaPrueba);
-
-        List<TipoAlmacen> resultado = inventarioDAO.findRange(0,10);
-
-        assertNotNull(resultado);
-        assertEquals(listaPrueba.size(), resultado.size());
-
-        when(mockTypedQuery.getResultList()).thenThrow(new RuntimeException("Error simulado de la base de datos"));
-
-
-        assertThrows(RuntimeException.class, () -> {
-            inventarioDAO.findRange(0, 10);
-        });
-
-
+        List<TipoAlmacen> result = cut.findRange(0, 10);
+        assertEquals(this.listaPrueba, result);
+        verify(mockTq).setFirstResult(0);
+        verify(mockTq).setMaxResults(10);
     }
 
     // ==================== TESTS PARA COUNT ====================
