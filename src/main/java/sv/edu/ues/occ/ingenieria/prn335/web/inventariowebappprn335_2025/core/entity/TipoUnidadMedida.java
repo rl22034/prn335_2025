@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tipo_unidad_medida", schema = "public")
@@ -79,5 +80,16 @@ public class TipoUnidadMedida {
     public void setComentarios(String comentarios) {
         this.comentarios = comentarios;
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TipoUnidadMedida that = (TipoUnidadMedida) o;
+        return Objects.equals(id, that.id);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

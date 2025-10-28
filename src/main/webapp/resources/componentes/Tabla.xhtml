@@ -76,6 +76,15 @@
                 <h1 class="page-title">#{cc.attrs.titulo}</h1>
             </div>
 
+            <h:panelGroup rendered="#{cc.attrs.mostrarBotonNuevo}" styleClass="boton-nuevo-derecha">
+                <p:commandButton value="#{crud['boton.nuevo']}"
+                                 icon="pi pi-plus"
+                                 styleClass="ui-button-success"
+                                 action="#{cc.attrs.beanName.btnNuevo}"
+                                 process="@this"
+                                 update="#{cc.attrs.updateDialog}"
+                                 oncomplete="PF('#{cc.attrs.widgetVarDialog}').show()"/>
+            </h:panelGroup>
             <div class="tabla-container">
                 <p:dataTable id="#{cc.attrs.table}"
                              var="tipo"
@@ -99,17 +108,6 @@
                     <!-- Aquí se insertan las columnas dinámicas -->
                     <cc:insertChildren/>
 
-                    <f:facet name="footer">
-                        <h:panelGroup rendered="#{cc.attrs.mostrarBotonNuevo}">
-                            <p:commandButton value="#{crud['boton.nuevo']}"
-                                             icon="pi pi-plus"
-                                             styleClass="ui-button-success"
-                                             action="#{cc.attrs.beanName.btnNuevo}"
-                                             process="@this"
-                                             update="#{cc.attrs.updateDialog}"
-                                             oncomplete="PF('#{cc.attrs.widgetVarDialog}').show()"/>
-                        </h:panelGroup>
-                    </f:facet>
                 </p:dataTable>
             </div>
         </div>
