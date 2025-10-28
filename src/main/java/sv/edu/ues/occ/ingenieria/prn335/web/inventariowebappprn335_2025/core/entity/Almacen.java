@@ -2,6 +2,8 @@ package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.en
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "almacen", schema = "public")
 public class Almacen {
@@ -10,7 +12,7 @@ public class Almacen {
     @Column(name = "id_almacen", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_tipo_almacen")
     private TipoAlmacen idTipoAlmacen;
 
@@ -53,4 +55,16 @@ public class Almacen {
         this.observaciones = observaciones;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Almacen that = (Almacen) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

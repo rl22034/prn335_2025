@@ -104,6 +104,7 @@ public class TipoAlmacenFrm extends DefaultFrm<TipoAlmacen> implements Serializa
         return nuevo;
     }
 
+
     // Getters y setters
 
     public TipoAlmacen getFilaSeleccionada() {

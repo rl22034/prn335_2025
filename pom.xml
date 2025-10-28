@@ -54,6 +54,11 @@
             <version>15.0.0</version>
             <classifier>jakarta</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.omnifaces</groupId>
+            <artifactId>omnifaces</artifactId>
+            <version>4.4.1</version> <!-- para convertir de String a Objeto -->
+        </dependency>
     </dependencies>
 
     <build>

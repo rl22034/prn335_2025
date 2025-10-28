@@ -8,6 +8,8 @@ import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.ent
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoAlmacen;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 @LocalBean
@@ -49,6 +51,16 @@ public class ProveedorDAO extends InventarioDefaultDataAccess<Proveedor> impleme
     public  Proveedor finById(Object id){
 
         return super.finById(id);
+    }
+    public List<Proveedor> findProveedoresActivos() {
+        try {
+            return em.createQuery(
+                    "SELECT p FROM Proveedor p WHERE p.activo = true ORDER BY p.nombre",
+                    Proveedor.class
+            ).getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
 }

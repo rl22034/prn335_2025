@@ -7,6 +7,8 @@ import jakarta.persistence.PersistenceContext;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoAlmacen;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 @LocalBean
@@ -53,5 +55,17 @@ public class TipoAlmacenDAO extends InventarioDefaultDataAccess<TipoAlmacen> imp
         return super.finById(id);
     }
 
+    public List<TipoAlmacen> findTiposActivos() {
+        try {
+            return em.createQuery(
+                    "SELECT t FROM TipoAlmacen t WHERE t.activo = true ORDER BY t.nombre",
+                    TipoAlmacen.class
+            ).getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
 }
+
 

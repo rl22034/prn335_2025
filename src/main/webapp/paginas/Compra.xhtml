@@ -86,7 +86,7 @@
                                              required="true"
                                              requiredMessage="#{crud['validacion.proveedor.requerido']}">
                                 <f:selectItem itemLabel="-- Seleccione un proveedor --" itemValue="#{null}"/>
-                                <f:selectItems value="#{proveedorBean.entidadesList}"
+                                <f:selectItems value="#{compraBean.proveedoresActivos}"
                                                var="p"
                                                itemLabel="#{p.nombre}"
                                                itemValue="#{p}"/>

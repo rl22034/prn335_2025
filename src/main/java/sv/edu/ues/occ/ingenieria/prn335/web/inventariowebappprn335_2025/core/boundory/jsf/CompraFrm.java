@@ -4,11 +4,14 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.CompraDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProveedorDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Compra;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Proveedor;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 @Named("compraBean")
@@ -17,6 +20,9 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
 
     @Inject
     private CompraDAO compraDAO;
+
+    @Inject
+    private ProveedorDAO proveedorDAO;
 
     @Override
     protected void crearEntidad(Compra entidad) throws Exception {
@@ -96,6 +102,26 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
         nuevo.setEstado("PENDIENTE");
 
         return nuevo;
+    }
+
+
+    /**
+     * Obtiene solo los proveedores activos
+     */
+    public List<Proveedor> getProveedoresActivos() {
+        try {
+            return proveedorDAO.findProveedoresActivos();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    public ProveedorDAO getProveedorDAO() {
+        return proveedorDAO;
+    }
+
+    public void setProveedorDAO(ProveedorDAO proveedorDAO) {
+        this.proveedorDAO = proveedorDAO;
     }
 
     public Compra getFilaSeleccionada() {

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:comp="jakarta.faces.composite/componentes">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="pageTitle">
+        #{crud['pagina.almacen']}
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="form">
+
+            <p:growl id="messages" showDetail="true" life="3000"/>
+
+            <h:panelGroup id="tablaZone">
+                <comp:Tabla beanName="#{almacenBean}"
+                            lazyModel="#{almacenBean.lazyModel}"
+                            seleccion="#{almacenBean.filaSeleccionada}"
+                            titulo="#{crud['menu.almacen']}"
+                            widgetVarDialog="dlgAlmacen"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="10"
+                            table="tabla"
+                            rowKey="#{tipo.id}"> <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                    <h:outputText value="#{tipo.id}" /> </p:column>
+
+                    <p:column headerText="#{crud['tabla.tipoAlmacen']}" style="width: 200px;">
+                        <h:outputText value="#{tipo.idTipoAlmacen.nombre}" /> </p:column>
+
+                    <p:column headerText="#{crud['tabla.activo']}" style="width: 120px;">
+                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" /> </p:column>
+
+                    <p:column headerText="#{crud['tabla.observaciones']}">
+                        <h:outputText value="#{tipo.observaciones}" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;"/>
+                    </p:column>
+
+                </comp:Tabla>
+            </h:panelGroup>
+
+            <h:panelGroup id="dialogoWrapper">
+                <comp:DialogCrud beanName="#{almacenBean}"
+                                 entidadSeleccionada="#{almacenBean.filaSeleccionada}"
+                                 widgetVar="dlgAlmacen"
+                                 dialogId="dlgCrud"
+                                 updateTabla=":form:tablaZone"
+                                 header="#{crud['pagina.almacen']}"
+                                 width="600"
+                                 maxContentHeight="70vh"
+                                 labelId="#{crud['form.id']}"
+                                 mostrarNombre="false"
+                                 mostrarActivo="true"
+                                 labelActivo="#{crud['form.activo']}"
+                                 atributoActivo="activo"
+                                 mostrarObservaciones="true"
+                                 labelObservaciones="#{crud['form.observaciones']}"
+                                 atributoObservaciones="observaciones">
+
+                    <f:facet name="tipoAlmacen">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.tipoalmacen']}:"
+                                           for="selectTipoAlmacen"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectOneMenu id="selectTipoAlmacen"
+                                             value="#{almacenBean.filaSeleccionada.idTipoAlmacen}"
+                                             converter="tipoAlmacenConverter"
+                                             style="width: 100%;"
+                                             required="true"
+                                             requiredMessage="#{crud['validacion.tipoalmacen.requerido']}">
+                                <f:selectItem itemLabel="-- Seleccione un tipo --" itemValue="#{null}"/>
+                                <f:selectItems value="#{almacenBean.tiposAlmacenActivos}"
+                                               var="t"
+                                               itemLabel="#{t.nombre}"
+                                               itemValue="#{t}"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </f:facet>
+
+                </comp:DialogCrud>
+            </h:panelGroup>
+
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>
