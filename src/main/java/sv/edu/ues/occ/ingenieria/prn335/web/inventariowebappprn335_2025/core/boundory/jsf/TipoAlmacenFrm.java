@@ -19,19 +19,10 @@ public class TipoAlmacenFrm extends DefaultFrm<TipoAlmacen> implements Serializa
 
     @Override
     protected void crearEntidad(TipoAlmacen entidad) throws Exception {
-        try{
-            //  SOLUCIÓN: Validar ANTES de intentar crear
-            if (entidad.getNombre()==null || entidad.getNombre().trim().isEmpty()) {
-                //  Lanzar exception con CLAVE, no con texto traducido
-                throw new Exception("validacion.nombre.requerido");
-            }
-
-            tipoAlmacenDAO.crear(entidad);
-
-        }catch (Exception e){
-            //  Propagar la clave o el mensaje de error real de la BD
-            throw e;
+        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
+            throw new Exception("validacion.nombre.requerido");
         }
+        tipoAlmacenDAO.crear(entidad);
     }
 
     @Override
@@ -103,6 +94,8 @@ public class TipoAlmacenFrm extends DefaultFrm<TipoAlmacen> implements Serializa
         nuevo.setActivo(true);
         return nuevo;
     }
+
+
 
 
     // Getters y setters

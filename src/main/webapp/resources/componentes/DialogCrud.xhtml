@@ -31,6 +31,11 @@
         <cc:attribute name="atributoNombre" default="nombre" type="java.lang.String"/>
         <cc:attribute name="atributoActivo" default="activo" type="java.lang.String"/>
         <cc:attribute name="atributoObservaciones" default="comentarios" type="java.lang.String"/>
+        <cc:attribute name="processDialog"
+                      required="false"
+                      type="java.lang.String"
+                      default="@form"
+                      shortDescription="ID del dialog/componente a procesar"/>
     </cc:interface>
 
     <cc:implementation>

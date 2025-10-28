@@ -111,7 +111,7 @@ public abstract class DefaultFrm<T> implements Serializable {
         try {
             filaSeleccionada = instanciarEntidad();
             estado = CRUD.CREAR;
-            System.out.println("Nuevo objeto creado correctamente");
+
         } catch (Exception e) {
             System.out.println("Error en btnNuevo: " + e.getMessage());
             e.printStackTrace();

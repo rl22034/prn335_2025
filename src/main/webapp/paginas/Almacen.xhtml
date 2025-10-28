@@ -27,7 +27,8 @@
                             updateDialog=":form:dialogoWrapper"
                             rows="10"
                             table="tabla"
-                            rowKey="#{tipo.id}"> <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                            rowKey="#{tipo.id}">
+                    <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
                     <h:outputText value="#{tipo.id}" /> </p:column>
 
                     <p:column headerText="#{crud['tabla.tipoAlmacen']}" style="width: 200px;">
@@ -72,7 +73,7 @@
                                              style="width: 100%;"
                                              required="true"
                                              requiredMessage="#{crud['validacion.tipoalmacen.requerido']}">
-                                <f:selectItem itemLabel="-- Seleccione un tipo --" itemValue="#{null}"/>
+                                <f:selectItem itemLabel="#{crud['form.seleccione']}" itemValue="#{null}"/>
                                 <f:selectItems value="#{almacenBean.tiposAlmacenActivos}"
                                                var="t"
                                                itemLabel="#{t.nombre}"

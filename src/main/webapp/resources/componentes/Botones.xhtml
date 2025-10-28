@@ -1,7 +1,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="jakarta.faces.facelets"
                 xmlns:cc="jakarta.faces.composite"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="jakarta.faces.html">
 
     <cc:interface>
         <cc:attribute name="beanName"
@@ -18,6 +19,12 @@
                       required="true"
                       type="java.lang.String"
                       shortDescription="ID de la tabla a actualizar"/>
+
+        <cc:attribute name="processDialog"
+                      required="false"
+                      type="java.lang.String"
+                      default="@form"
+                      shortDescription="ID del dialog/componente a procesar. Default: @form"/>
     </cc:interface>
 
     <cc:implementation>
@@ -30,6 +37,7 @@
                              style="margin: 0 5px;"
                              action="#{cc.attrs.beanName.btnAgregar}"
                              update="#{cc.attrs.updateTabla} :form:messages"
+                             process="#{cc.attrs.processDialog}"
                              rendered="#{cc.attrs.beanName.estado.name() == 'CREAR'}"
                              oncomplete="if (args &amp;&amp; !args.validationFailed) PF('#{cc.attrs.widgetVar}').hide();"/>
 
@@ -40,6 +48,7 @@
                              style="margin: 0 5px;"
                              action="#{cc.attrs.beanName.btnActualizar}"
                              update="#{cc.attrs.updateTabla} :form:messages"
+                             process="#{cc.attrs.processDialog}"
                              rendered="#{cc.attrs.beanName.estado.name() == 'MODIFICAR'}"
                              oncomplete="if (args &amp;&amp; !args.validationFailed) PF('#{cc.attrs.widgetVar}').hide();"/>
 
@@ -50,10 +59,31 @@
                              style="margin: 0 5px;"
                              action="#{cc.attrs.beanName.btnEliminar}"
                              update="#{cc.attrs.updateTabla} :form:messages"
+                             process="@this"
                              rendered="#{cc.attrs.beanName.estado.name() == 'MODIFICAR'}"
-                             oncomplete="PF('#{cc.attrs.widgetVar}').hide();"/>
+                             oncomplete="PF('#{cc.attrs.widgetVar}').hide();">
+                <p:confirm header="#{crud['mensaje.confirmar']}"
+                           message="#{crud['mensaje.eliminar.confirmar']}"
+                           icon="pi pi-exclamation-triangle"/>
+            </p:commandButton>
 
+            <!-- Botón CANCELAR -->
+            <p:commandButton value="#{crud['boton.cancelar']}"
+                             icon="pi pi-times"
+                             styleClass="ui-button-secondary"
+                             style="margin: 0 5px;"
+                             onclick="PF('#{cc.attrs.widgetVar}').hide(); return false;"
+                             process="@none"/>
 
         </div>
+
+        <!-- ConfirmDialog específico para este componente -->
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+            <p:commandButton value="#{crud['estado.si']}" type="button"
+                             styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="#{crud['estado.no']}" type="button"
+                             styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+        </p:confirmDialog>
+
     </cc:implementation>
 </ui:composition>

@@ -2,16 +2,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="jakarta.faces.facelets"
       xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
       xmlns:p="http://primefaces.org/ui"
       xmlns:comp="jakarta.faces.composite/componentes">
 
 <ui:composition template="/WEB-INF/templates/template.xhtml">
 
-
     <ui:define name="pageTitle">
-            #{crud['pagina.tipoAlmacen']}
+        #{crud['pagina.tipoAlmacen']}
     </ui:define>
-
 
     <ui:define name="content">
 
@@ -23,7 +22,6 @@
                      autoUpdate="true"/>
 
             <h:panelGroup id="tablaZone">
-                <!-- COMPONENTE TABLA REUTILIZABLE -->
                 <comp:Tabla beanName="#{tipoAlmacenBean}"
                             lazyModel="#{tipoAlmacenBean.lazyModel}"
                             seleccion="#{tipoAlmacenBean.filaSeleccionada}"
@@ -34,7 +32,6 @@
                             table="tabla"
                             rowKey="#{tipo.id}">
 
-                    <!-- Columnas dinámicas -->
                     <p:column headerText="Id">
                         <h:outputText value="#{tipo.id}" />
                     </p:column>
@@ -55,21 +52,236 @@
             </h:panelGroup>
 
             <h:panelGroup id="dialogoWrapper">
-                <comp:DialogCrud beanName="#{tipoAlmacenBean}"
-                                 entidadSeleccionada="#{tipoAlmacenBean.filaSeleccionada}"
-                                 widgetVar="dlgTipoAlmacen"
-                                 dialogId="dlgCrud"
-                                 updateTabla=":form:tablaZone"
-                                 header="#{crud['pagina.tipoAlmacen']}"
-                                 width="500"
-                                 maxContentHeight="60vh"
-                                 labelId="#{crud['form.id']}"
-                                 labelNombre="#{crud['form.nombre']}"
-                                 labelActivo="#{crud['form.activo']}"
-                                 labelObservaciones="#{crud['form.observaciones']}"
-                                 atributoObservaciones="obsevaciones">
-                </comp:DialogCrud>
+                <p:dialog id="dlgTipoAlmacen"
+                          widgetVar="dlgTipoAlmacen"
+                          header="#{crud['pagina.tipoAlmacen']}"
+                          modal="true"
+                          width="800"
+                          height="600">
+
+                    <p:tabView id="tabsTipoAlmacen" dynamic="false">
+
+                        <p:tab title="#{crud['tabs.generalidades']}" id="tabGeneralidades">
+
+                            <div style="padding: 20px;">
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtId" value="#{crud['form.id']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtId"
+                                                 value="#{tipoAlmacenBean.filaSeleccionada.id}"
+                                                 disabled="true"
+                                                 style="width: 100%; background-color: #f0f0f0;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtNombre" value="#{crud['form.nombre']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtNombre"
+                                                 value="#{tipoAlmacenBean.filaSeleccionada.nombre}"
+                                                 required="true"
+                                                 requiredMessage="#{crud['validacion.nombre.requerido']}"
+                                                 style="width: 100%;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="chkActivo" value="#{crud['form.activo']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:selectBooleanCheckbox id="chkActivo"
+                                                             value="#{tipoAlmacenBean.filaSeleccionada.activo}"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtAreaObservaciones" value="#{crud['form.observaciones']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputTextarea id="txtAreaObservaciones"
+                                                     value="#{tipoAlmacenBean.filaSeleccionada.obsevaciones}"
+                                                     rows="4"
+                                                     style="width: 100%;"/>
+                                </div>
+
+                                <comp:Botones beanName="#{tipoAlmacenBean}"
+                                              widgetVar="dlgTipoAlmacen"
+                                              updateTabla=":form:tablaZone"
+                                              processDialog="dlgTipoAlmacen"/>
+
+                            </div>
+
+                        </p:tab>
+
+                        <p:tab title="#{crud['menu.almacen']}" id="tabAlmacenes">
+
+                            <div style="padding: 20px;">
+
+                                <!-- BOTÓN NUEVO EN LA PARTE SUPERIOR -->
+                                <div style="text-align: right; margin-bottom: 10px;">
+                                    <p:commandButton value="#{crud['boton.nuevo']}"
+                                                     icon="pi pi-plus"
+                                                     styleClass="ui-button-success"
+                                                     action="#{almacenBean.btnNuevo}"
+                                                     process="@this"
+                                                     update=":form:dialogAlmacenWrapper"
+                                                     oncomplete="PF('dlgAlmacenNested').show()"/>
+                                </div>
+
+                                <h:panelGroup id="tablaAlmacenesZone">
+                                    <comp:Tabla beanName="#{almacenBean}"
+                                                lazyModel="#{almacenBean.lazyModel}"
+                                                seleccion="#{almacenBean.filaSeleccionada}"
+                                                titulo="#{crud['menu.almacen']}"
+                                                widgetVarDialog="dlgAlmacenNested"
+                                                updateDialog=":form:dialogAlmacenWrapper"
+                                                rows="4"
+                                                table="tablaAlmacenes"
+                                                rowKey="#{tipo.id}"
+                                                mostrarBotonNuevo="false">
+
+                                        <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                                            <h:outputText value="#{tipo.id}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.tipoAlmacen']}">
+                                            <h:outputText value="#{tipo.idTipoAlmacen.nombre}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.activo']}" style="width: 100px;">
+                                            <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.observaciones']}">
+                                            <h:outputText value="#{tipo.observaciones}" />
+                                        </p:column>
+
+                                    </comp:Tabla>
+                                </h:panelGroup>
+
+                            </div>
+
+                        </p:tab>
+
+                    </p:tabView>
+
+                </p:dialog>
             </h:panelGroup>
+
+            <!-- ========== DIALOG DE ALMACÉN SIMPLE ========== -->
+            <h:panelGroup id="dialogAlmacenWrapper">
+                <p:dialog id="dlgAlmacenNested"
+                          widgetVar="dlgAlmacenNested"
+                          header="#{crud['pagina.almacen']}"
+                          modal="true"
+                          width="500">
+
+                    <div style="padding: 15px;">
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.id']}"
+                                           for="txtIdAlmacen"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtIdAlmacen"
+                                         value="#{almacenBean.filaSeleccionada.id}"
+                                         disabled="true"
+                                         style="width: 100%; background-color: #f0f0f0;"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.tipoAlmacen']}"
+                                           for="selectTipoAlmacen"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectOneMenu id="selectTipoAlmacen"
+                                             value="#{almacenBean.filaSeleccionada.idTipoAlmacen}"
+                                             converter="tipoAlmacenConverter"
+                                             style="width: 100%;"
+                                             required="true"
+                                             requiredMessage="#{crud['validacion.tipoalmacen.requerido']}">
+                                <f:selectItem itemLabel="#{crud['form.seleccione']}" itemValue="#{null}"/>
+                                <f:selectItems value="#{almacenBean.tiposAlmacenActivos}"
+                                               var="t"
+                                               itemLabel="#{t.nombre}"
+                                               itemValue="#{t}"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.activo']}"
+                                           for="chkActivoAlmacen"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectBooleanCheckbox id="chkActivoAlmacen"
+                                                     value="#{almacenBean.filaSeleccionada.activo}"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.observaciones']}"
+                                           for="txtObservacionesAlmacen"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputTextarea id="txtObservacionesAlmacen"
+                                             value="#{almacenBean.filaSeleccionada.observaciones}"
+                                             rows="3"
+                                             style="width: 100%;"/>
+                        </div>
+
+                    </div>
+
+                    <f:facet name="footer">
+                        <div style="text-align: center; padding: 10px;">
+
+                            <!-- Botón AGREGAR -->
+                            <p:commandButton value="#{crud['boton.agregar']}"
+                                             icon="pi pi-save"
+                                             styleClass="ui-button-success"
+                                             style="margin: 0 5px;"
+                                             action="#{almacenBean.btnAgregar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="dlgAlmacenNested"
+                                             rendered="#{almacenBean.estado.name() == 'CREAR'}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('dlgAlmacenNested').hide();"/>
+
+                            <!-- Botón ACTUALIZAR -->
+                            <p:commandButton value="#{crud['boton.actualizar']}"
+                                             icon="pi pi-refresh"
+                                             styleClass="ui-button-info"
+                                             style="margin: 0 5px;"
+                                             action="#{almacenBean.btnActualizar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="dlgAlmacenNested"
+                                             rendered="#{almacenBean.estado.name() == 'MODIFICAR'}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('dlgAlmacenNested').hide();"/>
+
+                            <!-- Botón ELIMINAR -->
+                            <p:commandButton value="#{crud['boton.eliminar']}"
+                                             icon="pi pi-trash"
+                                             styleClass="ui-button-danger"
+                                             style="margin: 0 5px;"
+                                             action="#{almacenBean.btnEliminar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="@this"
+                                             rendered="#{almacenBean.estado.name() == 'MODIFICAR'}"
+                                             oncomplete="PF('dlgAlmacenNested').hide();">
+                                <p:confirm header="#{crud['mensaje.confirmar']}"
+                                           message="#{crud['mensaje.eliminar.confirmar']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+
+                            <!-- Botón CANCELAR -->
+                            <p:commandButton value="#{crud['boton.cancelar']}"
+                                             icon="pi pi-times"
+                                             styleClass="ui-button-secondary"
+                                             style="margin: 0 5px;"
+                                             onclick="PF('dlgAlmacenNested').hide(); return false;"
+                                             process="@none"/>
+
+                        </div>
+                    </f:facet>
+
+                </p:dialog>
+            </h:panelGroup>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="#{crud['boton.si']}" type="button"
+                                 styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="#{crud['boton.no']}" type="button"
+                                 styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+            </p:confirmDialog>
 
         </h:form>
 

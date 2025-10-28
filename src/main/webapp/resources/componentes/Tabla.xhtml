@@ -100,17 +100,15 @@
                     <cc:insertChildren/>
 
                     <f:facet name="footer">
-                        <f:facet name="footer">
-                            <h:panelGroup rendered="#{cc.attrs.mostrarBotonNuevo}">
-                                <p:commandButton value="#{crud['boton.nuevo']}"
-                                                 icon="pi pi-plus"
-                                                 styleClass="ui-button-success"
-                                                 action="#{cc.attrs.beanName.btnNuevo}"
-                                                 process="@this"
-                                                 update="#{cc.attrs.updateDialog}"
-                                                 oncomplete="PF('#{cc.attrs.widgetVarDialog}').show()"/>
-                            </h:panelGroup>
-                        </f:facet>
+                        <h:panelGroup rendered="#{cc.attrs.mostrarBotonNuevo}">
+                            <p:commandButton value="#{crud['boton.nuevo']}"
+                                             icon="pi pi-plus"
+                                             styleClass="ui-button-success"
+                                             action="#{cc.attrs.beanName.btnNuevo}"
+                                             process="@this"
+                                             update="#{cc.attrs.updateDialog}"
+                                             oncomplete="PF('#{cc.attrs.widgetVarDialog}').show()"/>
+                        </h:panelGroup>
                     </f:facet>
                 </p:dataTable>
             </div>
