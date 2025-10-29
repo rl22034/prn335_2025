@@ -1,67 +1,320 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:comp="jakarta.faces.composite/componentes" xmlns:ui="jakarta.faces.facelets">
+      xmlns:comp="jakarta.faces.composite/componentes">
+
 <ui:composition template="/WEB-INF/templates/template.xhtml">
 
-<ui:define name="pageTitle">
-    #{crud['pagina.tipoProducto']}
-</ui:define>
+    <ui:define name="pageTitle">
+        #{crud['pagina.tipoProducto']}
+    </ui:define>
+
     <ui:define name="content">
+
         <h:form id="form">
 
-            <p:growl id="messages" showDetail="true" life="3000"/>
+            <p:growl id="messages"
+                     showDetail="true"
+                     life="3000"
+                     autoUpdate="true"/>
 
             <h:panelGroup id="tablaZone">
-                <comp:Tabla beanName="#{tipoProductoBean}"
-                            lazyModel="#{tipoProductoBean.lazyModel}"
-                            seleccion="#{tipoProductoBean.filaSeleccionada}"
-                            titulo="#{crud['menu.tipoProducto']}"
-                            widgetVarDialog="dlgTipoProducto"
-                            updateDialog=":form:dialogoWrapper"
-                            rows="3"
-                            table="tabla"
-                            rowKey="#{tipo.id}">
+                <!-- TreeTable en lugar de comp:Tabla -->
+                <div class="main-container">
 
-                    <!-- Columnas dinámicas -->
-                    <p:column headerText="Id">
-                        <h:outputText value="#{tipo.id}" />
-                    </p:column>
+                    <div class="header">
+                        <h1 class="page-title">#{crud['menu.tipoProducto']}</h1>
+                    </div>
 
-                    <p:column headerText="#{crud['tabla.nombre']}">
-                        <h:outputText value="#{tipo.nombre}" />
-                    </p:column>
+                    <div class="boton-nuevo-derecha">
+                        <p:commandButton value="#{crud['boton.nuevo']}"
+                                         icon="pi pi-plus"
+                                         styleClass="ui-button-success"
+                                         action="#{tipoProductoBean.btnNuevo}"
+                                         process="@this"
+                                         update=":form:dialogoWrapper"
+                                         oncomplete="PF('dlgTipoProducto').show()"/>
+                    </div>
 
-                    <p:column headerText="#{crud['tabla.activo']}">
-                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
-                    </p:column>
+                    <div class="tabla-container">
+                        <p:treeTable id="treeTabla"
+                                     value="#{tipoProductoBean.rootNode}"
+                                     var="tipo"
+                                     selectionMode="single"
+                                     selection="#{tipoProductoBean.selectedNode}"
+                                     styleClass="tabla-moderna"
+                                     paginator="true"
+                                     rows="10"
+                                     paginatorPosition="bottom"
+                                     paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}">
 
-                    <p:column headerText="#{crud['tabla.observaciones']}">
-                        <h:outputText value="#{tipo.comentarios}" />
-                    </p:column>
+                            <p:ajax event="select"
+                                    listener="#{tipoProductoBean.onNodeSelect}"
+                                    update=":form:dialogoWrapper"
+                                    immediate="true"
+                                    oncomplete="PF('dlgTipoProducto').show()"/>
 
-                </comp:Tabla>
+                            <!-- Columna: Nombre (con jerarquía) -->
+                            <p:column headerText="#{crud['tabla.nombre']}">
+                                <h:outputText value="#{tipo.nombre}" />
+                            </p:column>
+
+                            <!-- Columna: Tipo Padre -->
+                            <p:column headerText="#{crud['tabla.padre']}">
+                                <h:outputText value="#{tipo.idTipoProductoPadre != null ? tipo.idTipoProductoPadre.nombre : crud['texto.sin.padre']}" />
+                            </p:column>
+
+                            <!-- Columna: Activo -->
+                            <p:column headerText="#{crud['tabla.activo']}">
+                                <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
+                            </p:column>
+
+                            <!-- Columna: Comentarios -->
+                            <p:column headerText="#{crud['tabla.observaciones']}">
+                                <h:outputText value="#{tipo.comentarios}" />
+                            </p:column>
+
+                        </p:treeTable>
+                    </div>
+                </div>
             </h:panelGroup>
+
             <h:panelGroup id="dialogoWrapper">
-                <comp:DialogCrud beanName="#{tipoProductoBean}"
-                                 entidadSeleccionada="#{tipoProductoBean.filaSeleccionada}"
-                                 widgetVar="dlgTipoProducto"
-                                 dialogId="dlgCrud"
-                                 updateTabla=":form:tablaZone"
-                                 header="#{crud['pagina.tipoProducto']} "
-                                 width="500"
-                                 maxContentHeight="60vh"
-                                 labelId="#{crud['form.id']}"
-                                 labelNombre="#{crud['form.nombre']}"
-                                 labelActivo="#{crud['form.activo']}"
-                                 labelObservaciones="#{crud['form.observaciones']}"
-                                 atributoObservaciones="comentarios"/>
+                <p:dialog id="dlgTipoProducto"
+                          widgetVar="dlgTipoProducto"
+                          header="#{crud['pagina.tipoProducto']}"
+                          modal="true"
+                          width="800"
+                          height="600">
+
+                    <p:tabView id="tabsTipoProducto" dynamic="false">
+
+                        <!-- ========== TAB 1: GENERALIDADES ========== -->
+                        <p:tab title="#{crud['tabs.generalidades']}" id="tabGeneralidades">
+
+                            <div style="padding: 20px;">
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtId" value="#{crud['form.id']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtId"
+                                                 value="#{tipoProductoBean.filaSeleccionada.id}"
+                                                 disabled="true"
+                                                 style="width: 100%; background-color: #f0f0f0;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtNombre" value="#{crud['form.nombre']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtNombre"
+                                                 value="#{tipoProductoBean.filaSeleccionada.nombre}"
+                                                 required="true"
+                                                 requiredMessage="#{crud['validacion.nombre.requerido']}"
+                                                 style="width: 100%;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="selectPadre" value="#{crud['form.padre']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:selectOneMenu id="selectPadre"
+                                                     value="#{tipoProductoBean.filaSeleccionada.idTipoProductoPadre}"
+                                                     converter="tipoProductoConverter"
+                                                     style="width: 100%;">
+                                        <f:selectItem itemLabel="#{crud['texto.sin.padre']}" itemValue="#{null}"/>
+                                        <f:selectItems value="#{tipoProductoBean.tipoProductoList}"
+                                                       var="t"
+                                                       itemLabel="#{t.nombre}"
+                                                       itemValue="#{t}"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="chkActivo" value="#{crud['form.activo']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:selectBooleanCheckbox id="chkActivo"
+                                                             value="#{tipoProductoBean.filaSeleccionada.activo}"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtAreaComentarios" value="#{crud['form.comentarios']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputTextarea id="txtAreaComentarios"
+                                                     value="#{tipoProductoBean.filaSeleccionada.comentarios}"
+                                                     rows="4"
+                                                     style="width: 100%;"/>
+                                </div>
+
+                                <comp:Botones beanName="#{tipoProductoBean}"
+                                              widgetVar="dlgTipoProducto"
+                                              updateTabla=":form:tablaZone"
+                                              processDialog="dlgTipoProducto"/>
+
+                            </div>
+
+                        </p:tab>
+
+                        <!-- ========== TAB 2: CARACTERÍSTICAS ========== -->
+                        <p:tab title="#{crud['tabs.caracteristicas']}" id="tabCaracteristicas">
+
+                            <div style="padding: 20px;">
+
+                                <!-- BOTÓN NUEVO EN LA PARTE SUPERIOR -->
+                                <div style="text-align: right; margin-bottom: 10px;">
+                                    <p:commandButton value="#{crud['boton.nuevo']}"
+                                                     icon="pi pi-plus"
+                                                     styleClass="ui-button-success"
+                                                     action="#{caracteristicaBean.btnNuevo}"
+                                                     process="@this"
+                                                     update=":form:dialogCaracteristicaWrapper"
+                                                     oncomplete="PF('dlgCaracteristicaNested').show()"/>
+                                </div>
+
+                                <!-- Tabla de características -->
+                                <h:panelGroup id="tablaCaracteristicasZone">
+                                    <p:dataTable id="tablaCaracteristicas"
+                                                 var="carac"
+                                                 value="#{tipoProductoBean.caracteristicasList}"
+                                                 styleClass="tabla-moderna"
+                                                 paginator="true"
+                                                 rows="5"
+                                                 paginatorPosition="bottom"
+                                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                                 selectionMode="single"
+                                                 selection="#{caracteristicaBean.filaSeleccionada}"
+                                                 rowKey="#{carac.id}"
+                                                 emptyMessage="#{crud['mensaje.sin.registros']}">
+
+                                        <p:ajax event="rowSelect"
+                                                listener="#{caracteristicaBean.onRowSelect}"
+                                                update=":form:dialogCaracteristicaWrapper"
+                                                immediate="true"
+                                                oncomplete="PF('dlgCaracteristicaNested').show()"/>
+
+                                        <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                                            <h:outputText value="#{carac.id}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.nombre']}">
+                                            <h:outputText value="#{carac.nombre}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.unidadMedida']}">
+                                            <h:outputText value="#{carac.idTipoUnidadMedida.nombre}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.activo']}" style="width: 100px;">
+                                            <h:outputText value="#{carac.activo ? crud['estado.si'] : crud['estado.no']}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.descripcion']}">
+                                            <h:outputText value="#{carac.descripcion}" />
+                                        </p:column>
+
+                                    </p:dataTable>
+                                </h:panelGroup>
+
+                            </div>
+
+                        </p:tab>
+
+                    </p:tabView>
+
+                </p:dialog>
             </h:panelGroup>
+
+            <!-- ========== DIALOG DE CARACTERÍSTICA ANIDADO ========== -->
+            <h:panelGroup id="dialogCaracteristicaWrapper">
+                <p:dialog id="dlgCaracteristicaNested"
+                          widgetVar="dlgCaracteristicaNested"
+                          header="#{crud['pagina.caracteristica']}"
+                          modal="true"
+                          width="500"
+                          appendTo="@(body)">
+
+                    <div style="padding: 15px;">
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.id']}"
+                                           for="txtIdCarac"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtIdCarac"
+                                         value="#{caracteristicaBean.filaSeleccionada.id}"
+                                         disabled="true"
+                                         style="width: 100%; background-color: #f0f0f0;"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.nombre']}"
+                                           for="txtNombreCarac"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtNombreCarac"
+                                         value="#{caracteristicaBean.filaSeleccionada.nombre}"
+                                         required="true"
+                                         requiredMessage="#{crud['validacion.nombre.requerido']}"
+                                         style="width: 100%;"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.tipoUnidadMedida']}"
+                                           for="selectUnidadMedida"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectOneMenu id="selectUnidadMedida"
+                                             value="#{caracteristicaBean.filaSeleccionada.idTipoUnidadMedida}"
+                                             converter="tipoUnidadMedidaConverter"
+                                             style="width: 100%;"
+                                             required="true"
+                                             requiredMessage="#{crud['validacion.tipounidadmedida.requerido']}">
+                                <f:selectItem itemLabel="#{crud['form.seleccione']}" itemValue="#{null}"/>
+                                <f:selectItems value="#{caracteristicaBean.tipoUnidadMedidaList}"
+                                               var="u"
+                                               itemLabel="#{u.nombre}"
+                                               itemValue="#{u}"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.activo']}"
+                                           for="chkActivoCarac"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectBooleanCheckbox id="chkActivoCarac"
+                                                     value="#{caracteristicaBean.filaSeleccionada.activo}"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.descripcion']}"
+                                           for="txtDescripcionCarac"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputTextarea id="txtDescripcionCarac"
+                                             value="#{caracteristicaBean.filaSeleccionada.descripcion}"
+                                             rows="3"
+                                             style="width: 100%;"/>
+                        </div>
+
+                    </div>
+
+                    <f:facet name="footer">
+                        <comp:Botones beanName="#{caracteristicaBean}"
+                                      widgetVar="dlgCaracteristicaNested"
+                                      updateTabla=":form:dialogoWrapper"
+                                      processDialog="dlgCaracteristicaNested"/>
+                    </f:facet>
+
+                </p:dialog>
+            </h:panelGroup>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="#{crud['boton.si']}" type="button"
+                                 styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="#{crud['boton.no']}" type="button"
+                                 styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+            </p:confirmDialog>
 
         </h:form>
+
     </ui:define>
+
 </ui:composition>
 </html>

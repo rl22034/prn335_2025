@@ -390,23 +390,32 @@ public class InventarioDefaultDataAccessTest {
 
     @Test
     void findRange_ok_devuelveLista() {
-        EntityManager mockEm = mock(EntityManager.class);
+        // Mocks necesarios
         CriteriaBuilder mockCb = mock(CriteriaBuilder.class);
         CriteriaQuery<TipoAlmacen> mockCq = mock(CriteriaQuery.class);
         Root<TipoAlmacen> mockRoot = mock(Root.class);
         TypedQuery<TipoAlmacen> mockTq = mock(TypedQuery.class);
+        jakarta.persistence.criteria.Path mockPath = mock(jakarta.persistence.criteria.Path.class);
+        jakarta.persistence.criteria.Order mockOrder = mock(jakarta.persistence.criteria.Order.class);
 
-        when(mockEm.getCriteriaBuilder()).thenReturn(mockCb);
+        // Configurar todos los mocks necesarios
+        when(mockEntityManager.getCriteriaBuilder()).thenReturn(mockCb);
         when(mockCb.createQuery(TipoAlmacen.class)).thenReturn(mockCq);
         when(mockCq.from(TipoAlmacen.class)).thenReturn(mockRoot);
         when(mockCq.select(mockRoot)).thenReturn(mockCq);
-        when(mockEm.createQuery(mockCq)).thenReturn(mockTq);
+
+        // ⭐ Configurar el mock para orderBy
+        when(mockRoot.get("id")).thenReturn(mockPath);
+        when(mockCb.asc(any())).thenReturn(mockOrder);
+        when(mockCq.orderBy(mockOrder)).thenReturn(mockCq);
+
+        when(mockEntityManager.createQuery(mockCq)).thenReturn(mockTq);
         when(mockTq.getResultList()).thenReturn(this.listaPrueba);
 
-        TipoAlmacenDAO cut = new TipoAlmacenDAO();
-        cut.em = mockEm;
+        // Ejecutar el método
+        List<TipoAlmacen> result = inventarioDAO.findRange(0, 10);
 
-        List<TipoAlmacen> result = cut.findRange(0, 10);
+        // Verificaciones
         assertEquals(this.listaPrueba, result);
         verify(mockTq).setFirstResult(0);
         verify(mockTq).setMaxResults(10);
