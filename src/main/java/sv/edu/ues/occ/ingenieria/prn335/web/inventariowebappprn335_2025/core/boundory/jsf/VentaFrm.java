@@ -144,14 +144,10 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         }
     }
 
-    /**
-     * Método helper para el XHTML, para deshabilitar pestañas/botones
-     * si la venta aún no se ha guardado (ID es nulo).
-     */
-    public boolean isVentaNueva() {
-        // Comprueba si la fila seleccionada no es nula y si su ID es nulo
-        return this.filaSeleccionada != null && this.filaSeleccionada.getId() == null;
 
+    public boolean isVentaNueva() {
+        // Usamos el estado gestionado por la clase padre DefaultFrm
+        return this.getEstado() == CRUD.CREAR;
     }
 
     // ========================================================== //
