@@ -349,7 +349,7 @@
                                                  rendered="#{tipoProductoCaracteristicaBean.estado == 'MODIFICAR'}"
                                                  style="margin: 0 5px;">
                                     <p:confirm header="#{crud['confirmacion.titulo']}"
-                                               message="#{crud['confirmacion.eliminar.mensaje']}"
+                                               message="#{crud['mensaje.confirmacion.eliminar']}"
                                                icon="pi pi-exclamation-triangle"/>
                                 </p:commandButton>
 
@@ -367,9 +367,9 @@
             </h:panelGroup>
 
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                <p:commandButton value="#{crud['boton.si']}" type="button"
+                <p:commandButton value="#{crud['estado.si']}" type="button"
                                  styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
-                <p:commandButton value="#{crud['boton.no']}" type="button"
+                <p:commandButton value="#{crud['estado.no']}" type="button"
                                  styleClass="ui-confirmdialog-no" icon="pi pi-times" />
             </p:confirmDialog>
 
