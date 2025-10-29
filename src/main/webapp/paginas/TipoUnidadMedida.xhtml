@@ -122,7 +122,7 @@
 
                         </p:tab>
 
-                        <p:tab title="#{crud['menu.unidadMedida']}" id="tabUnidadesMedida">
+                        <p:tab title="#{crud['menu.unidadMedida']}" id="tabUnidadesMedida" disabled="#{tipoUnidadMedidaBean.filaSeleccionada.id == null}">
 
                             <div style="padding: 20px;">
 
@@ -134,7 +134,7 @@
                                                      action="#{unidadMedidaBean.btnNuevo}"
                                                      process="@this"
                                                      update=":form:dialogUnidadMedidaWrapper"
-                                                     oncomplete="PF('dlgUnidadMedidaNested').show()"/>
+                                                     oncomplete="PF('dlgboton.nuevoUnidadMedidaNested').show()"/>
                                 </div>
 
                                 <h:panelGroup id="tablaUnidadesMedidaZone">

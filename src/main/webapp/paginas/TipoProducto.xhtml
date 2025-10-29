@@ -143,26 +143,26 @@
                                                      style="width: 100%;"/>
                                 </div>
 
-                                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: right;">
+                                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
                                     <p:commandButton value="#{crud['boton.agregar']}"
-                                                     icon="pi pi-check"
+                                                     icon="pi pi-save"
                                                      styleClass="ui-button-success"
                                                      action="#{tipoProductoBean.btnAgregar}"
                                                      process="dlgTipoProducto"
                                                      update=":form:messages :form:tablaZone :form:dialogoWrapper"
                                                      oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('dlgTipoProducto').hide(); }"
                                                      rendered="#{tipoProductoBean.estado == 'CREAR'}"
-                                                     style="margin-right: 5px;"/>
+                                                     style="margin: 0 5px;"/>
 
                                     <p:commandButton value="#{crud['boton.actualizar']}"
                                                      icon="pi pi-refresh"
-                                                     styleClass="ui-button-warning"
+                                                     styleClass="ui-button-info"
                                                      action="#{tipoProductoBean.btnActualizar}"
                                                      process="dlgTipoProducto"
                                                      update=":form:messages :form:tablaZone :form:dialogoWrapper"
                                                      oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('dlgTipoProducto').hide(); }"
                                                      rendered="#{tipoProductoBean.estado == 'MODIFICAR'}"
-                                                     style="margin-right: 5px;"/>
+                                                     style="margin: 0 5px;"/>
 
                                     <p:commandButton value="#{crud['boton.eliminar']}"
                                                      icon="pi pi-trash"
@@ -171,9 +171,9 @@
                                                      process="@this"
                                                      update=":form:messages :form:tablaZone :form:dialogoWrapper"
                                                      rendered="#{tipoProductoBean.estado == 'MODIFICAR'}"
-                                                     style="margin-right: 5px;">
-                                        <p:confirm header="#{crud['confirmacion.titulo']}"
-                                                   message="#{crud['confirmacion.eliminar.mensaje']}"
+                                                     style="margin: 0 5px;">
+                                        <p:confirm header="#{crud['mensaje.confirmar']}"
+                                                   message="#{crud['mensaje.confirmacion.eliminar']}"
                                                    icon="pi pi-exclamation-triangle"/>
                                     </p:commandButton>
 
@@ -181,14 +181,17 @@
                                                      icon="pi pi-times"
                                                      styleClass="ui-button-secondary"
                                                      onclick="PF('dlgTipoProducto').hide(); return false;"
-                                                     process="@none"/>
+                                                     process="@none"
+                                                     style="margin: 0 5px;"/>
                                 </div>
 
                             </div>
 
                         </p:tab>
 
-                        <p:tab title="#{crud['tabs.caracteristicas']}" id="tabCaracteristicas">
+                        <p:tab title="#{crud['tabs.caracteristicas']}"
+                               id="tabCaracteristicas"
+                               disabled="#{tipoProductoBean.estado == 'CREAR' or tipoProductoBean.filaSeleccionada.id == null}">
 
                             <div style="padding: 20px;">
 
@@ -308,38 +311,34 @@
                                 <h:outputLabel value="Fecha de creación"
                                                for="txtFechaCreacion"
                                                style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                                <p:calendar id="txtFechaCreacion"
-                                            value="#{tipoProductoCaracteristicaBean.filaSeleccionada.fechaCreacion}"
-                                            converter="offsetDateTimeConverter"
-                                            pattern="dd/MM/yyyy HH:mm"
-                                            showButtonBar="true"
-                                            showTime="true"
-                                            hourFormat="24"
-                                            locale="es"
-                                            timeZone="America/El_Salvador"
-                                            style="width: 100%;"/>
+                                <p:inputText id="txtFechaCreacion"
+                                             value="#{tipoProductoCaracteristicaBean.filaSeleccionada.fechaCreacion}"
+                                             disabled="true"
+                                             style="width: 100%; background-color: #f0f0f0;">
+                                    <f:converter converterId="offsetDateTimeConverter"/>
+                                </p:inputText>
                             </div>
 
-                            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: right;">
+                            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
                                 <p:commandButton value="#{crud['boton.agregar']}"
-                                                 icon="pi pi-check"
+                                                 icon="pi pi-save"
                                                  styleClass="ui-button-success"
                                                  action="#{tipoProductoCaracteristicaBean.btnAgregar}"
                                                  process="@form"
                                                  update="@form :form:messages :form:dialogoWrapper"
                                                  oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('dlgCaracteristicaNested').hide(); }"
                                                  rendered="#{tipoProductoCaracteristicaBean.estado == 'CREAR'}"
-                                                 style="margin-right: 5px;"/>
+                                                 style="margin: 0 5px;"/>
 
                                 <p:commandButton value="#{crud['boton.actualizar']}"
                                                  icon="pi pi-refresh"
-                                                 styleClass="ui-button-warning"
+                                                 styleClass="ui-button-info"
                                                  action="#{tipoProductoCaracteristicaBean.btnActualizar}"
                                                  process="@form"
                                                  update="@form :form:messages :form:dialogoWrapper"
                                                  oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('dlgCaracteristicaNested').hide(); }"
                                                  rendered="#{tipoProductoCaracteristicaBean.estado == 'MODIFICAR'}"
-                                                 style="margin-right: 5px;"/>
+                                                 style="margin: 0 5px;"/>
 
                                 <p:commandButton value="#{crud['boton.eliminar']}"
                                                  icon="pi pi-trash"
@@ -347,11 +346,10 @@
                                                  action="#{tipoProductoCaracteristicaBean.btnEliminar}"
                                                  process="@this"
                                                  update=":form:messages :form:dialogoWrapper"
-                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('dlgCaracteristicaNested').hide(); }"
                                                  rendered="#{tipoProductoCaracteristicaBean.estado == 'MODIFICAR'}"
-                                                 style="margin-right: 5px;">
-                                    <p:confirm header="#{crud['mensaje.confirmar']}"
-                                               message="#{crud['mensaje.confirmacion.eliminar']}"
+                                                 style="margin: 0 5px;">
+                                    <p:confirm header="#{crud['confirmacion.titulo']}"
+                                               message="#{crud['confirmacion.eliminar.mensaje']}"
                                                icon="pi pi-exclamation-triangle"/>
                                 </p:commandButton>
 
@@ -359,7 +357,8 @@
                                                  icon="pi pi-times"
                                                  styleClass="ui-button-secondary"
                                                  onclick="PF('dlgCaracteristicaNested').hide(); return false;"
-                                                 process="@none"/>
+                                                 process="@none"
+                                                 style="margin: 0 5px;"/>
                             </div>
 
                         </div>

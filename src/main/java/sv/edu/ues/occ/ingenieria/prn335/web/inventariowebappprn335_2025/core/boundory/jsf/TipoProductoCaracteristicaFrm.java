@@ -80,6 +80,7 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
     protected TipoProductoCaracteristica instanciarEntidad() {
         TipoProductoCaracteristica nuevo = new TipoProductoCaracteristica();
         nuevo.setObligatorio(false);
+        nuevo.setFechaCreacion(OffsetDateTime.now());
         return nuevo;
     }
 

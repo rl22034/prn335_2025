@@ -30,7 +30,7 @@ public class CaracteristicaFrm extends DefaultFrm<Caracteristica> implements Ser
             throw new Exception("validacion.tipounidadmedida.requerido");
         }
 
-        if (entidad.getNombre() == null) {
+        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
             throw new Exception("validacion.nombre.requerido");
         }
 
@@ -45,7 +45,7 @@ public class CaracteristicaFrm extends DefaultFrm<Caracteristica> implements Ser
         }
 
 
-        if (entidad.getNombre() == null) {
+        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
             throw new Exception("validacion.nombre.requerido");
         }
 
@@ -58,6 +58,10 @@ public class CaracteristicaFrm extends DefaultFrm<Caracteristica> implements Ser
 
         if (original == null) {
             throw new Exception("validacion.registro.no.existe");
+        }
+
+        if (!entidad.getNombre().equals(original.getNombre())) {
+            throw new Exception("validacion.nombre.cambiado");
         }
 
         caracteristicaDAO.delete(entidad);
