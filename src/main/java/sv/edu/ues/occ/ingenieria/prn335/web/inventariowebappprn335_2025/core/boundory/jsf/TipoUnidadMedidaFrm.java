@@ -3,23 +3,40 @@ package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.bo
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.primefaces.PrimeFaces;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.TipoUnidadMedidaDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.UnidadMedidaDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoUnidadMedida;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.UnidadMedida;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Named("tipoUnidadMedidaBean")
 @ViewScoped
 public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements Serializable {
 
+    // --- Inyecciones DAO Maestro ---
     @Inject
     private TipoUnidadMedidaDAO tipoUnidadMedidaDAO;
+
+    // --- Inyecciones DAO Detalle ---
+    @Inject
+    private UnidadMedidaDAO unidadMedidaDAO; // DAO para el detalle
+
+    // --- Propiedades para el Detalle ---
+    private List<UnidadMedida> unidadesDeMedida = new ArrayList<>(); // Lista de detalles
+    private UnidadMedida detalleSeleccionado; // El detalle que se está creando/editando
+
+    // ========================================================== //
+    //    MÉTODOS ABSTRACTOS (LÓGICA MAESTRO: TIPOUNIDADMEDIDA)
+    // ========================================================== //
 
     @Override
     protected void crearEntidad(TipoUnidadMedida entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("validacion.nombre.requerido");
+            throw new Exception("El nombre es obligatorio");
         }
         tipoUnidadMedidaDAO.crear(entidad);
     }
@@ -27,65 +44,162 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
     @Override
     protected void actualizarEntidad(TipoUnidadMedida entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("validacion.nombre.requerido");
+            throw new Exception("El nombre es obligatorio");
         }
         tipoUnidadMedidaDAO.update(entidad);
     }
 
     @Override
     protected void eliminarEntidad(TipoUnidadMedida entidad) throws Exception {
-        TipoUnidadMedida original = tipoUnidadMedidaDAO.finById(entidad.getId());
-
-        if (original == null) {
-            throw new Exception("validacion.registro.no.existe");
+        // Verificamos que no tenga detalles antes de borrar
+        List<UnidadMedida> detalles = unidadMedidaDAO.getUnidadesPorTipoUnidadMedida(entidad.getId());
+        if (detalles != null && !detalles.isEmpty()) {
+            throw new Exception("No se puede eliminar, tiene unidades de medida asociadas.");
         }
-
-        if (!entidad.getNombre().equals(original.getNombre())) {
-            throw new Exception("validacion.nombre.cambiado");
-        }
-
         tipoUnidadMedidaDAO.delete(entidad);
     }
 
     @Override
     protected List<TipoUnidadMedida> buscarEntidades(int first, int pageSize) throws Exception {
+        if (tipoUnidadMedidaDAO == null) {
+            throw new IllegalStateException("TipoUnidadMedidaDAO no fue inyectado.");
+        }
         return tipoUnidadMedidaDAO.findRange(first, pageSize);
     }
 
     @Override
     protected Long contarEntidades() throws Exception {
+        if (tipoUnidadMedidaDAO == null) {
+            throw new IllegalStateException("TipoUnidadMedidaDAO no fue inyectado.");
+        }
         return tipoUnidadMedidaDAO.count();
     }
 
     @Override
     protected Object obtenerIdEntidad(TipoUnidadMedida entidad) {
-        return entidad.getId();
+        return entidad.getId(); // El ID es Integer según DDL
     }
 
     @Override
     protected TipoUnidadMedida instanciarEntidad() {
-        TipoUnidadMedida nuevo = new TipoUnidadMedida();
-        nuevo.setActivo(true);
-        return nuevo;
+        TipoUnidadMedida nueva = new TipoUnidadMedida();
+        nueva.setActivo(true);
+        // El ID (Integer) es autoincremental, no se genera aquí
+        return nueva;
     }
 
-    // Getters y setters
+    // ========================================================== //
+    //    MÉTODOS DEL BEAN (LÓGICA MAESTRO)
+    // ========================================================== //
 
-    public TipoUnidadMedida getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
+    @Override
+    public void btnNuevo() {
+        super.btnNuevo(); // Llama a instanciarEntidad()
+        // Limpiamos la lista de detalles para el nuevo Tipo
+        this.unidadesDeMedida = new ArrayList<>();
+        this.detalleSeleccionado = null;
     }
 
-    public void setFilaSeleccionada(TipoUnidadMedida filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
+    /**
+     * Método helper para el XHTML, para deshabilitar pestañas/botones
+     * si el Tipo de Unidad de Medida aún no se ha guardado.
+     */
+    public boolean isTipoNuevo() {
+        // Usa el estado del formulario (CREAR), no el ID null
+        return this.getEstado() == CRUD.CREAR;
     }
 
-    public List<TipoUnidadMedida> getEntidadesList() {
-        return super.getEntidadesList();
+    // ========================================================== //
+    //    MÉTODOS DEL BEAN (LÓGICA DETALLE: UNIDADMEDIDA)
+    // ========================================================== //
+
+    /**
+     * Carga los detalles (UnidadMedida) del Tipo que se está viendo.
+     */
+    public void cargarDetalles() {
+        if (this.filaSeleccionada != null && this.filaSeleccionada.getId() != null) {
+            try {
+                if (unidadMedidaDAO == null) {
+                    throw new IllegalStateException("UnidadMedidaDAO no fue inyectado.");
+                }
+                // Usamos el método que creamos en el DAO
+                this.unidadesDeMedida = unidadMedidaDAO.getUnidadesPorTipoUnidadMedida(this.filaSeleccionada.getId());
+            } catch (Exception e) {
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al cargar unidades de medida");
+                this.unidadesDeMedida = new ArrayList<>();
+            }
+        } else {
+            this.unidadesDeMedida = new ArrayList<>();
+        }
     }
 
-    public void setEntidadesList(List<TipoUnidadMedida> almacenList) {
-        super.setEntidadesList(entidadesList);
+    /**
+     * Prepara un nuevo objeto UnidadMedida para el diálogo "Añadir Unidad".
+     */
+    public void prepararNuevoDetalle() {
+        this.detalleSeleccionado = new UnidadMedida();
+
+        // ¡Vínculo Maestro-Detalle!
+        // Asume que UnidadMedida.java tiene un setIdTipoUnidadMedida(TipoUnidadMedida obj)
+        this.detalleSeleccionado.setIdTipoUnidadMedida(this.filaSeleccionada);
+
+        // Valores por defecto
+        this.detalleSeleccionado.setActivo(true);
+        // El ID (Integer) es autoincremental
     }
+
+    /**
+     * Guarda la nueva UnidadMedida en la BBDD.
+     */
+    public void guardarDetalle() {
+        try {
+            // Validaciones
+            if (this.detalleSeleccionado.getEquivalencia() == null) {
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "Debe definir una equivalencia");
+                return;
+            }
+            // ... (otras validaciones si son necesarias)
+
+            if (unidadMedidaDAO == null) {
+                throw new IllegalStateException("UnidadMedidaDAO no fue inyectado.");
+            }
+
+            // Crear el registro
+            unidadMedidaDAO.crear(this.detalleSeleccionado);
+
+            // Refrescar la tabla de detalles en la vista
+            cargarDetalles();
+
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "Unidad añadida");
+
+            // Ocultar el diálogo (asumiendo widgetVar="dlgUnidadMedida")
+            PrimeFaces.current().executeScript("PF('dlgUnidadMedida').hide()");
+
+        } catch (Exception e) {
+            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al guardar detalle: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Elimina una UnidadMedida (detalle) del Tipo.
+     */
+    public void eliminarDetalle(UnidadMedida detalle) {
+        try {
+            if (unidadMedidaDAO == null) {
+                throw new IllegalStateException("UnidadMedidaDAO no fue inyectado.");
+            }
+            unidadMedidaDAO.delete(detalle);
+            cargarDetalles(); // Refrescar la tabla
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "Unidad eliminada");
+        } catch (Exception e) {
+            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al eliminar detalle: " + e.getMessage());
+        }
+    }
+
+
+    // ========================================================== //
+    //    GETTERS Y SETTERS (GENERADOS)
+    // ========================================================== //
 
     public TipoUnidadMedidaDAO getTipoUnidadMedidaDAO() {
         return tipoUnidadMedidaDAO;
@@ -93,5 +207,32 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
 
     public void setTipoUnidadMedidaDAO(TipoUnidadMedidaDAO tipoUnidadMedidaDAO) {
         this.tipoUnidadMedidaDAO = tipoUnidadMedidaDAO;
+    }
+
+    public UnidadMedidaDAO getUnidadMedidaDAO() {
+        return unidadMedidaDAO;
+    }
+
+    public void setUnidadMedidaDAO(UnidadMedidaDAO unidadMedidaDAO) {
+        this.unidadMedidaDAO = unidadMedidaDAO;
+    }
+
+    public List<UnidadMedida> getUnidadesDeMedida() {
+        return unidadesDeMedida;
+    }
+
+    public void setUnidadesDeMedida(List<UnidadMedida> unidadesDeMedida) {
+        this.unidadesDeMedida = unidadesDeMedida;
+    }
+
+    public UnidadMedida getDetalleSeleccionado() {
+        if (detalleSeleccionado == null) {
+            detalleSeleccionado = new UnidadMedida();
+        }
+        return detalleSeleccionado;
+    }
+
+    public void setDetalleSeleccionado(UnidadMedida detalleSeleccionado) {
+        this.detalleSeleccionado = detalleSeleccionado;
     }
 }
