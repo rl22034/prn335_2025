@@ -68,4 +68,25 @@ public class Cliente {
         this.activo = activo;
     }
 
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cliente cliente = (Cliente) o;
+
+        // Si el ID es nulo en ambos, no son iguales
+        if (id == null || cliente.id == null) {
+            return false;
+        }
+
+        // La comparación clave: se basa solo en el ID
+        return id.equals(cliente.id);
+    }
+
+    @Override
+    public int hashCode() {
+        // Si el ID no es nulo, usa su hashCode.
+        // Si es nulo, usa el hashCode por defecto del objeto.
+        return id != null ? id.hashCode() : super.hashCode();
+    }
 }

@@ -4,20 +4,20 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Cliente;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Venta;
 
 import java.io.Serializable;
-import java.util.List; // <-- ¡Asegúrate de importar List!
+import java.util.List;
 
-@LocalBean
 @Stateless
-public class ClienteDAO extends InventarioDefaultDataAccess<Cliente> implements Serializable {
+@LocalBean
+public class VentaDAO extends InventarioDefaultDataAccess<Venta> implements Serializable {
 
     @PersistenceContext(unitName = "inventarioPU")
     private EntityManager em;
 
-    public ClienteDAO() {
-        super(Cliente.class);
+    public VentaDAO() {
+        super(Venta.class);
     }
 
     @Override
@@ -25,32 +25,29 @@ public class ClienteDAO extends InventarioDefaultDataAccess<Cliente> implements 
         return em;
     }
 
+    // Sobrescribimos los métodos básicos para que el EJB los exponga
+
     @Override
-    public void crear(Cliente entidad) {
+    public void crear(Venta entidad) {
         super.crear(entidad);
     }
 
     @Override
-    public void delete(Cliente entidad) {
+    public void delete(Venta entidad) {
         super.delete(entidad);
     }
 
     @Override
-    public  Cliente finById(Object id){
+    public Venta finById(Object id) {
         return super.finById(id);
     }
 
-    // ========================================================== //
-    //    ¡¡¡AÑADE ESTOS MÉTODOS FALTANTES AQUÍ!!!
-    // ========================================================== //
-
     @Override
-    public Cliente update(Cliente entidad) {
+    public Venta update(Venta entidad) {
         return super.update(entidad);
     }
-
     @Override
-    public List<Cliente> findRange(int first, int pageSize) {
+    public List<Venta> findRange(int first, int pageSize) {
         return super.findRange(first, pageSize);
     }
 

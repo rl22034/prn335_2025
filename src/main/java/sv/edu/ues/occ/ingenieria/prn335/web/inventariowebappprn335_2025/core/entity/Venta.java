@@ -68,4 +68,26 @@ public class Venta {
         this.observaciones = observaciones;
     }
 
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Venta venta = (Venta) o;
+
+        // Si el ID es nulo en ambos, no son iguales
+        if (id == null || venta.id == null) {
+            return false;
+        }
+
+        // La comparación clave: se basa solo en el ID
+        return id.equals(venta.id);
+    }
+
+    @Override
+    public int hashCode() {
+        // Si el ID no es nulo, usa su hashCode.
+        // Si es nulo, usa el hashCode por defecto del objeto.
+        return id != null ? id.hashCode() : super.hashCode();
+    }
+
 }
