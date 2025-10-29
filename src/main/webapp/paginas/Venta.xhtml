@@ -1,10 +1,13 @@
-<ui:composition template="/WEB-INF/templates/template.xhtml"
-                xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:ui="jakarta.faces.facelets"
-                xmlns:comp="jakarta.faces.composite/componentes">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:comp="jakarta.faces.composite/componentes">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
 
     <ui:define name="pageTitle">
         #{crud['pagina.venta']}
@@ -22,15 +25,17 @@
                             seleccion="#{ventaBean.filaSeleccionada}"
                             titulo="#{crud['menu.venta']}"
                             widgetVarDialog="dlgVenta"
-                            updateDialog=":form:dlgVenta" rows="10"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="10"
                             table="tablaVentas"
                             rowKey="#{tipo.id}">
 
-                    <p:column headerText="#{crud['tabla.cliente']}" style="width: 200px;">
-                        <h:outputText value="#{tipo.idCliente.nombre}" /> </p:column>
-
                     <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
                         <h:outputText value="#{tipo.id}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.cliente']}" style="width: 200px;">
+                        <h:outputText value="#{tipo.idCliente.nombre}" />
                     </p:column>
 
                     <p:column headerText="#{crud['tabla.fecha']}" style="width: 150px;">
@@ -51,7 +56,6 @@
                 </comp:Tabla>
             </h:panelGroup>
 
-
             <h:panelGroup id="dialogoWrapper">
 
                 <p:dialog id="dlgVenta"
@@ -65,7 +69,7 @@
 
                         <p:ajax event="tabChange"
                                 listener="#{ventaBean.cargarDetallesVenta}"
-                                update=":form:tablaDetalleVentaZone"
+                                update=":form:tablaDetalleZone :form:messages"
                                 rendered="#{!ventaBean.isVentaNueva()}" />
 
                         <p:tab title="#{crud['tabs.generalidades']}" id="tabGeneralidades">
@@ -97,9 +101,9 @@
                                 </div>
                                 <div style="margin-bottom: 15px;">
                                     <h:outputLabel value="#{crud['tabla.fecha']}:"
-                                                   for="dateFechaVenta"
+                                                   for="dateFecha"
                                                    style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                                    <p:datePicker id="dateFechaVenta"
+                                    <p:datePicker id="dateFecha"
                                                   value="#{ventaBean.filaSeleccionada.fecha}"
                                                   converter="offsetDateTimeConverter"
                                                   pattern="dd/MM/yyyy HH:mm"
@@ -111,9 +115,9 @@
                                 </div>
                                 <div style="margin-bottom: 15px;">
                                     <h:outputLabel value="#{crud['tabla.estado']}:"
-                                                   for="selectEstadoVenta"
+                                                   for="selectEstado"
                                                    style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                                    <p:selectOneMenu id="selectEstadoVenta"
+                                    <p:selectOneMenu id="selectEstado"
                                                      value="#{ventaBean.filaSeleccionada.estado}"
                                                      style="width: 100%;"
                                                      required="true"
@@ -133,7 +137,6 @@
                                                      rows="3"
                                                      style="width: 100%;"/>
                                 </div>
-
                                 <div style="text-align: right; padding-top: 15px;">
                                     <p:commandButton value="#{crud['boton.agregar']}"
                                                      icon="pi pi-check"
@@ -144,7 +147,7 @@
                                                      oncomplete="if (!args.validationFailed) PF('dlgVenta').hide()"
                                                      rendered="#{ventaBean.isVentaNueva()}" />
 
-                                    <p:commandButton value="#{crud['boton.actualizar']}"
+                                    <p:commandButton value="#{crud['boton.agregar']}"
                                                      icon="pi pi-check"
                                                      styleClass="ui-button-success"
                                                      action="#{ventaBean.btnActualizar()}"
@@ -153,18 +156,7 @@
                                                      oncomplete="if (!args.validationFailed) PF('dlgVenta').hide()"
                                                      rendered="#{!ventaBean.isVentaNueva()}" />
 
-                                    <p:commandButton value="#{crud['boton.eliminar']}"
-                                                     icon="pi pi-times"
-                                                     styleClass="ui-button-danger"
-                                                     action="#{ventaBean.btnEliminar()}"
-                                                     update=":form:tablaZone :form:messages"
-                                                     process="@this"
-                                                     oncomplete="if (!args.validationFailed) PF('dlgVenta').hide()"
-                                                     rendered="#{!ventaBean.isVentaNueva()}" >
-                                        <p:confirm header="Confirmación"
-                                                   message="¿Está seguro de que desea eliminar esta venta?"
-                                                   icon="pi pi-info-circle"/>
-                                    </p:commandButton>
+
 
                                     <p:commandButton value="#{crud['boton.cancelar']}"
                                                      icon="pi pi-times"
@@ -176,61 +168,54 @@
                         </p:tab>
 
                         <p:tab title="Detalle de Venta"
-                               id="tabProductosVenta"
-                               disabled="#{ventaBean.isVentaNueva()}">
+                               id="tabProductos"
+                               disabled="#{ventaBean.isVentaNueva()}" >
 
                             <div style="padding: 20px;">
                                 <div style="text-align: right; margin-bottom: 10px;">
-
                                     <p:commandButton value="#{crud['boton.nuevo']}"
                                                      icon="pi pi-plus"
                                                      styleClass="ui-button-success"
                                                      action="#{ventaBean.prepararNuevoDetalle}"
                                                      process="@this"
-                                                     update=":form:dialogoDetalleVentaWrapper"
+                                                     update=":form:dialogoDetalleWrapper"
                                                      oncomplete="PF('dlgVentaDetalle').show()"
-                                                     disabled="#{ventaBean.isVentaNueva()}"/>
+                                                     disabled="#{ventaBean.isVentaNueva()}" />
                                 </div>
 
-                                <h:panelGroup id="tablaDetalleVentaZone">
-
-                                    <p:dataTable id="tablaVentaDetalles"
+                                <h:panelGroup id="tablaDetalleZone">
+                                    <p:dataTable id="tablaDetalles"
                                                  var="detalle"
                                                  value="#{ventaBean.detallesDeLaVenta}"
-                                                 emptyMessage="Aún no hay productos en esta venta.">
+                                                 emptyMessage="Aún no hay productos en esta venta. La venta debe estar guardada para añadir detalles.">
 
                                         <p:column headerText="Producto">
                                             <h:outputText value="#{detalle.idProducto.nombreProducto}" />
                                         </p:column>
-
                                         <p:column headerText="Cantidad" style="width: 100px; text-align: right;">
                                             <h:outputText value="#{detalle.cantidad}" />
                                         </p:column>
-
                                         <p:column headerText="Precio Unitario" style="width: 120px; text-align: right;">
                                             <h:outputText value="#{detalle.precio}">
                                                 <f:convertNumber type="currency" currencySymbol="$"/>
                                             </h:outputText>
                                         </p:column>
-
                                         <p:column headerText="Subtotal" style="width: 120px; text-align: right;">
                                             <h:outputText value="#{detalle.cantidad * detalle.precio}">
                                                 <f:convertNumber type="currency" currencySymbol="$"/>
                                             </h:outputText>
                                         </p:column>
-
                                         <p:column style="width:60px; text-align:center">
                                             <p:commandButton icon="pi pi-trash"
                                                              styleClass="ui-button-danger rounded-button"
                                                              process="@this"
-                                                             update=":form:tablaDetalleVentaZone :form:messages"
+                                                             update=":form:tablaDetalleZone :form:messages"
                                                              action="#{ventaBean.eliminarDetalle(detalle)}">
                                                 <p:confirm header="Confirmación"
                                                            message="¿Seguro que desea eliminar este producto de la venta?"
                                                            icon="pi pi-info-circle"/>
                                             </p:commandButton>
                                         </p:column>
-
                                     </p:dataTable>
                                 </h:panelGroup>
                             </div>
@@ -239,8 +224,7 @@
                     </p:tabView>
                 </p:dialog>
 
-
-                <h:panelGroup id="dialogoDetalleVentaWrapper">
+                <h:panelGroup id="dialogoDetalleWrapper">
                     <p:dialog id="dlgVentaDetalle"
                               widgetVar="dlgVentaDetalle"
                               header="Añadir Producto a la Venta"
@@ -253,8 +237,8 @@
                                          styleClass="ui-panelgrid-blank"
                                          columnClasses="ui-g-4, ui-g-8">
 
-                                <p:outputLabel value="Producto:" for="selectProductoVenta" style="font-weight: bold;"/>
-                                <p:selectOneMenu id="selectProductoVenta"
+                                <p:outputLabel value="Producto:" for="selectProducto" style="font-weight: bold;"/>
+                                <p:selectOneMenu id="selectProducto"
                                                  value="#{ventaBean.detalleSeleccionado.idProducto}"
                                                  converter="#{productoConverter}"
                                                  required="true"
@@ -267,16 +251,16 @@
                                                    itemValue="#{prod}" />
                                 </p:selectOneMenu>
 
-                                <p:outputLabel value="Cantidad:" for="txtCantidadVenta" style="font-weight: bold;"/>
-                                <p:inputNumber id="txtCantidadVenta"
+                                <p:outputLabel value="Cantidad:" for="txtCantidad" style="font-weight: bold;"/>
+                                <p:inputNumber id="txtCantidad"
                                                value="#{ventaBean.detalleSeleccionado.cantidad}"
                                                decimalPlaces="2"
                                                required="true"
                                                requiredMessage="La cantidad es requerida"
                                                style="width: 100%;"/>
 
-                                <p:outputLabel value="Precio:" for="txtPrecioVenta" style="font-weight: bold;"/>
-                                <p:inputNumber id="txtPrecioVenta"
+                                <p:outputLabel value="Precio:" for="txtPrecio" style="font-weight: bold;"/>
+                                <p:inputNumber id="txtPrecio"
                                                value="#{ventaBean.detalleSeleccionado.precio}"
                                                symbol="$ "
                                                decimalPlaces="2"
@@ -291,7 +275,7 @@
                             <p:commandButton value="#{crud['boton.guardar']}"
                                              icon="pi pi-check"
                                              action="#{ventaBean.guardarDetalle}"
-                                             update=":form:tablaDetalleVentaZone :form:messages"
+                                             update=":form:tablaDetalleZone :form:messages"
                                              process="dlgVentaDetalle @this" />
                             <p:commandButton value="#{crud['boton.cancelar']}"
                                              icon="pi pi-times"
@@ -314,3 +298,4 @@
     </ui:define>
 
 </ui:composition>
+</html>

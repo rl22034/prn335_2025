@@ -9,6 +9,7 @@
         <entry key="file://$PROJECT_DIR$/src/main/webapp/paginas/TipoAlmacen.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/paginas" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/paginas/TipoProducto.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/paginas" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/paginas/TipoUnidadMedida.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/paginas" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/paginas/Venta.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/paginas" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/resources/componentes/Botones.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/resources/componentes" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/resources/componentes/DialogCrud.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/resources/componentes" />
       </map>

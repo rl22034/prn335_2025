@@ -20,6 +20,13 @@
             <supported-locale>en</supported-locale>
         </locale-config>
 
-    </application>
 
+    </application>
+    <converter>
+        <converter-id>clienteConverter</converter-id>
+
+        <converter-class>
+            sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.jsf.converter.ClienteConverter
+        </converter-class>
+    </converter>
 </faces-config>

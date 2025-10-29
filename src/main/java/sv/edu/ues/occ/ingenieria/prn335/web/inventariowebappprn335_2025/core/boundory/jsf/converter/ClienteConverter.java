@@ -16,7 +16,7 @@ import java.util.UUID;
  * Convertidor para la entidad Cliente.
  * Traduce entre un objeto Cliente y su representación String (UUID).
  */
-@Named("clienteConverter") // El ID que usarás en el XHTML
+@Named // El ID que usarás en el XHTML
 @ApplicationScoped
 public class ClienteConverter implements Converter<Cliente>, Serializable {
 

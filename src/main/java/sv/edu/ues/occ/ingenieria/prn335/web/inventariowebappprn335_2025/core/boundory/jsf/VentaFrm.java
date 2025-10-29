@@ -151,6 +151,7 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     public boolean isVentaNueva() {
         // Comprueba si la fila seleccionada no es nula y si su ID es nulo
         return this.filaSeleccionada != null && this.filaSeleccionada.getId() == null;
+
     }
 
     // ========================================================== //
