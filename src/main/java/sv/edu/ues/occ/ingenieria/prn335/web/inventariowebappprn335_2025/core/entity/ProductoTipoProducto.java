@@ -9,7 +9,7 @@ import java.util.UUID;
 @Table(name = "producto_tipo_producto", schema = "public")
 public class ProductoTipoProducto {
     @Id
-    @Column(name = "id_producto_tipo_producto", nullable = false)
+    @Column(name = "id_producto_tipo_producto", nullable = false, columnDefinition = "uuid")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)

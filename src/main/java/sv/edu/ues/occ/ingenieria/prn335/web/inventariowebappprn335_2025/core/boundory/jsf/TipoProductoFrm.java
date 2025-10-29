@@ -153,7 +153,7 @@ public class TipoProductoFrm implements Serializable {
 
     private void construirNodo(TipoProducto tipo, TreeNode<TipoProducto> nodoPadre, List<TipoProducto> todos) {
         TreeNode<TipoProducto> nodoActual = new DefaultTreeNode<>(tipo, nodoPadre);
-        nodoActual.setExpanded(true);
+        nodoActual.setExpanded(false);
 
         List<TipoProducto> hijos = todos.stream()
                 .filter(tp -> tp.getIdTipoProductoPadre() != null &&
