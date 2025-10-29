@@ -1,4 +1,4 @@
-package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.jsf;
+package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.jsf.converter;
 
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;

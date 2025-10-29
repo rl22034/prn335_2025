@@ -9,10 +9,14 @@ import java.util.List;
 @Entity
 @Table(name = "tipo_producto", schema = "public")
 public class TipoProducto {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_tipo_producto", nullable = false)
     private Long id;
+
+    @OneToMany(mappedBy = "idTipoProductoPadre", fetch = FetchType.LAZY)
+    private List<TipoProducto> tipoProductoList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_producto_padre")
@@ -90,6 +94,14 @@ public class TipoProducto {
 
     public void setComentarios(String comentarios) {
         this.comentarios = comentarios;
+    }
+
+    public List<TipoProducto> getTipoProductoList() {
+        return tipoProductoList;
+    }
+
+    public void setTipoProductoList(List<TipoProducto> tipoProductoList) {
+        this.tipoProductoList = tipoProductoList;
     }
 
 }

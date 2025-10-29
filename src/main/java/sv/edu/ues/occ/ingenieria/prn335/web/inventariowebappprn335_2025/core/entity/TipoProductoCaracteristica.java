@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 @Table(name = "tipo_producto_caracteristica", schema = "public")
 public class TipoProductoCaracteristica {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_tipo_producto_caracteristica", nullable = false)
     private Long id;
 
