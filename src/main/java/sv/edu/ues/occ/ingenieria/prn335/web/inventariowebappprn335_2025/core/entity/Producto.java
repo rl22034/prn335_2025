@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_producto", nullable = false)
+    @Column(name = "id_producto", nullable = false, columnDefinition = "uuid")
     private UUID id;
 
     @Size(max = 155)
