@@ -40,6 +40,7 @@ public class TipoProductoFrm implements Serializable {
         filaSeleccionada = new TipoProducto();
         filaSeleccionada.setActivo(true);
         cargarArbol();
+        getTipoProductoList();
     }
 
     public void btnNuevo() {
@@ -47,7 +48,7 @@ public class TipoProductoFrm implements Serializable {
         filaSeleccionada.setActivo(true);
         estado = CRUD.CREAR;
         selectedNode = null;
-        tipoProductoList = null;
+        //tipoProductoList = null;
         tipoProductoCaracteristicasList = new ArrayList<>();
         idPadreSeleccionado = null;
     }

@@ -22,6 +22,9 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
     @Inject
     private TipoAlmacenDAO tipoAlmacenDAO;
 
+    // INYECTAR EL BEAN PADRE
+    @Inject
+    private TipoAlmacenFrm tipoAlmacenBean;
 
     @Override
     protected void crearEntidad(Almacen entidad) throws Exception {
@@ -70,19 +73,41 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
         }
     }
 
+    // MODIFICAR PARA FILTRAR POR TIPO ALMACEN
     @Override
     protected List<Almacen> buscarEntidades(int first, int pageSize) throws Exception {
         try {
-            return almacenDAO.findRange(first, pageSize);
+            // Obtener el TipoAlmacen seleccionado del bean padre
+            TipoAlmacen tipoSeleccionado = tipoAlmacenBean != null ? tipoAlmacenBean.getFilaSeleccionada() : null;
+
+            if (tipoSeleccionado != null && tipoSeleccionado.getId() != null) {
+                // Filtrar por el TipoAlmacen seleccionado
+                return almacenDAO.findByTipoAlmacen(tipoSeleccionado.getId(), first, pageSize);
+            }
+
+            // Si no hay selección, devolver lista vacía
+            return new ArrayList<>();
+
         } catch (Exception e) {
             throw e;
         }
     }
 
+    // ⭐ MODIFICAR PARA CONTAR SOLO LOS DEL TIPO SELECCIONADO
     @Override
     protected Long contarEntidades() throws Exception {
         try {
-            return almacenDAO.count();
+            // Obtener el TipoAlmacen seleccionado del bean padre
+            TipoAlmacen tipoSeleccionado = tipoAlmacenBean != null ? tipoAlmacenBean.getFilaSeleccionada() : null;
+
+            if (tipoSeleccionado != null && tipoSeleccionado.getId() != null) {
+                // Contar solo los del TipoAlmacen seleccionado
+                return almacenDAO.countByTipoAlmacen(tipoSeleccionado.getId());
+            }
+
+            // Si no hay selección, devolver 0
+            return 0L;
+
         } catch (Exception e) {
             throw e;
         }
@@ -92,7 +117,6 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
     protected Object obtenerIdEntidad(Almacen entidad) {
         return entidad.getId();
     }
-
 
     /**
      * Obtiene solo los tipos de almacén activos
@@ -105,21 +129,21 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
         }
     }
 
-    public TipoAlmacenDAO getTipoAlmacenDAO() {
-        return tipoAlmacenDAO;
-    }
-
-    public void setTipoAlmacenDAO(TipoAlmacenDAO tipoAlmacenDAO) {
-        this.tipoAlmacenDAO = tipoAlmacenDAO;
-    }
-
     @Override
     protected Almacen instanciarEntidad() {
         Almacen nuevo = new Almacen();
         nuevo.setActivo(true);
+
+        // ASIGNAR AUTOMÁTICAMENTE EL TIPO ALMACEN SELECCIONADO
+        TipoAlmacen tipoSeleccionado = tipoAlmacenBean != null ? tipoAlmacenBean.getFilaSeleccionada() : null;
+        if (tipoSeleccionado != null) {
+            nuevo.setIdTipoAlmacen(tipoSeleccionado);
+        }
+
         return nuevo;
     }
 
+    // Getters y Setters
     public Almacen getFilaSeleccionada() {
         return super.getFilaSeleccionada();
     }
@@ -142,5 +166,13 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
 
     public void setAlmacenDAO(AlmacenDAO almacenDAO) {
         this.almacenDAO = almacenDAO;
+    }
+
+    public TipoAlmacenDAO getTipoAlmacenDAO() {
+        return tipoAlmacenDAO;
+    }
+
+    public void setTipoAlmacenDAO(TipoAlmacenDAO tipoAlmacenDAO) {
+        this.tipoAlmacenDAO = tipoAlmacenDAO;
     }
 }

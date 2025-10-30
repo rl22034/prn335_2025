@@ -17,6 +17,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Managed Bean para gestionar Productos con TipoProducto y Características
@@ -253,9 +254,10 @@ public class ProductoFrm extends DefaultFrm<Producto> implements Serializable {
                     );
 
             // Convertir las asignadas a TipoProductoCaracteristica
+            // ✅ LÍNEA CORREGIDA (funciona en Java 8+)
             List<TipoProductoCaracteristica> asignadasList = asignadas.stream()
                     .map(ProductoTipoProductoCaracteristica::getIdTipoProductoCaracteristica)
-                    .toList();
+                    .collect(Collectors.toList());
 
             // Cargar los valores existentes
             valoresCaracteristicas.clear();
