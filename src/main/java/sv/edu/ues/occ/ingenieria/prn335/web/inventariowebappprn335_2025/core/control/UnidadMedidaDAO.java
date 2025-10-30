@@ -99,4 +99,31 @@ public class UnidadMedidaDAO extends InventarioDefaultDataAccess<UnidadMedida> i
             return Collections.emptyList();
         }
     }
+
+// ... dentro de tu clase UnidadMedidaDAO ...
+
+    public List<UnidadMedida> getUnidadesPorTipoUnidadMedida(Integer id) {
+        if (id == null) {
+            return Collections.emptyList();
+        }
+        try {
+            // Esta consulta JPQL asume que en tu entidad 'UnidadMedida.java'
+            // tienes una propiedad llamada 'idTipoUnidadMedida' que es un objeto de tipo 'TipoUnidadMedida',
+            // y que el ID de 'TipoUnidadMedida' se llama 'id'.
+
+            // Ejemplo de cómo debería ser el campo en UnidadMedida.java:
+            // @ManyToOne
+            // @JoinColumn(name="id_tipo_unidad_medida")
+            // private TipoUnidadMedida idTipoUnidadMedida;
+
+            return getEntityManager()
+                    .createQuery("SELECT um FROM UnidadMedida um WHERE um.idTipoUnidadMedida.id = :idTipo", UnidadMedida.class)
+                    .setParameter("idTipo", id)
+                    .getResultList();
+        } catch (Exception e) {
+            // Es buena práctica loguear el error
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
 }

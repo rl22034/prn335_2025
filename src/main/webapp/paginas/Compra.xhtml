@@ -218,17 +218,6 @@
                                                 <f:convertNumber type="currency" currencySymbol="$"/>
                                             </h:outputText>
                                         </p:column>
-                                        <p:column style="width:60px; text-align:center">
-                                            <p:commandButton icon="pi pi-trash"
-                                                             styleClass="ui-button-danger rounded-button"
-                                                             process="@this"
-                                                             update=":form:tablaDetalleZone :form:messages"
-                                                             action="#{compraBean.eliminarDetalle(detalle)}">
-                                                <p:confirm header="Confirmación"
-                                                           message="¿Seguro que desea eliminar este producto de la compra?"
-                                                           icon="pi pi-info-circle"/>
-                                            </p:commandButton>
-                                        </p:column>
                                     </p:dataTable>
                                 </h:panelGroup>
                             </div>

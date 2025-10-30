@@ -4,11 +4,10 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProductoCaracteristica;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProductoCaracteristica; // Ensure this entity exists
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Stateless
@@ -18,20 +17,19 @@ public class TipoProductoCaracteristicaDAO extends InventarioDefaultDataAccess<T
     @PersistenceContext(unitName = "inventarioPU")
     private EntityManager em;
 
-    /**
-     * Constructor que especifica la clase de entidad
-     */
     public TipoProductoCaracteristicaDAO() {
         super(TipoProductoCaracteristica.class);
     }
 
-    /**
-     * Implementación requerida del método abstracto
-     * Devuelve el EntityManager inyectado
-     */
     @Override
     public EntityManager getEntityManager() {
         return em;
+    }
+
+    // --- Standard CRUD Overrides ---
+    @Override
+    public void crear(TipoProductoCaracteristica entidad) {
+        super.crear(entidad);
     }
 
     @Override
@@ -40,28 +38,54 @@ public class TipoProductoCaracteristicaDAO extends InventarioDefaultDataAccess<T
     }
 
     @Override
-    public void crear(TipoProductoCaracteristica entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
     public TipoProductoCaracteristica finById(Object id) {
+        // ID is Bigint according to DDL, usually mapped to Long in Java
         return super.finById(id);
     }
 
+    @Override
+    public TipoProductoCaracteristica update(TipoProductoCaracteristica entidad) {
+        return super.update(entidad);
+    }
+
+    @Override
+    public List<TipoProductoCaracteristica> findRange(int first, int pageSize) {
+        return super.findRange(first, pageSize);
+    }
+
+    @Override
+    public Long count() {
+        return super.count();
+    }
+
+    // --- Custom Query Method ---
+
     /**
-     * Busca todas las características de un tipo de producto específico
+     * Finds all characteristic definitions associated with a specific TipoProducto.
+     * This is essential for displaying the characteristics in the TipoProducto screen's detail tab.
+     *
+     * @param idTipoProducto The ID (Long) of the TipoProducto.
+     * @return A list of TipoProductoCaracteristica definitions.
      */
     public List<TipoProductoCaracteristica> findByTipoProducto(Long idTipoProducto) {
+        if (idTipoProducto == null) {
+            return Collections.emptyList();
+        }
         try {
-            return em.createQuery(
-                            "SELECT tpc FROM TipoProductoCaracteristica tpc WHERE tpc.idTipoProducto.id = :idTipoProducto ORDER BY tpc.id",
-                            TipoProductoCaracteristica.class)
-                    .setParameter("idTipoProducto", idTipoProducto)
+            // JPQL assumes your TipoProductoCaracteristica entity has a field
+            // named 'idTipoProducto' which is of type 'TipoProducto'
+            // and that TipoProducto's ID field is named 'id'.
+            // Example in TipoProductoCaracteristica.java:
+            // @ManyToOne @JoinColumn(name="id_tipo_producto")
+            // private TipoProducto idTipoProducto;
+
+            return getEntityManager()
+                    .createQuery("SELECT tpc FROM TipoProductoCaracteristica tpc WHERE tpc.idTipoProducto.id = :idTipo", TipoProductoCaracteristica.class)
+                    .setParameter("idTipo", idTipoProducto)
                     .getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+            e.printStackTrace(); // Log the error
+            return Collections.emptyList();
         }
     }
 }

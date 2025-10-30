@@ -8,6 +8,7 @@ import jakarta.persistence.TypedQuery;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProducto;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 @Stateless
@@ -58,5 +59,26 @@ public class TipoProductoDAO extends InventarioDefaultDataAccess<TipoProducto> i
     @Override
     public TipoProducto finById(Object id) {
         return super.finById(id);
+    }
+
+    public List<TipoProducto> findHijos(Long idPadre) {
+        if (idPadre == null) {
+            return Collections.emptyList();
+        }
+        try {
+            // Asume que la entidad TipoProducto tiene un campo 'idTipoProductoPadre' de tipo TipoProducto
+            // y que el ID de TipoProducto se llama 'id'.
+            // Ejemplo:
+            // @ManyToOne @JoinColumn(name="id_tipo_producto_padre")
+            // private TipoProducto idTipoProductoPadre;
+
+            return getEntityManager()
+                    .createQuery("SELECT tp FROM TipoProducto tp WHERE tp.idTipoProductoPadre.id = :idPadre", TipoProducto.class)
+                    .setParameter("idPadre", idPadre)
+                    .getResultList();
+        } catch (Exception e) {
+            e.printStackTrace(); // Log del error
+            return Collections.emptyList();
+        }
     }
 }

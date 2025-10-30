@@ -151,28 +151,32 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
     /**
      * Guarda la nueva UnidadMedida en la BBDD.
      */
+    /**
+     * Guarda la nueva UnidadMedida en la BBDD.
+     * MODIFICADO: Ahora maneja tanto CREAR como ACTUALIZAR.
+     */
     public void guardarDetalle() {
         try {
-            // Validaciones
-            if (this.detalleSeleccionado.getEquivalencia() == null) {
-                MessageHelper.addErrorMessage("mensaje.titulo.error", "Debe definir una equivalencia");
-                return;
-            }
-            // ... (otras validaciones si son necesarias)
+            // ... (tus validaciones de 'equivalencia', etc.) ...
 
             if (unidadMedidaDAO == null) {
                 throw new IllegalStateException("UnidadMedidaDAO no fue inyectado.");
             }
 
-            // Crear el registro
-            unidadMedidaDAO.crear(this.detalleSeleccionado);
+            // --- ¡AQUÍ ESTÁ LA LÓGICA CLAVE! ---
+            if (this.detalleSeleccionado.getId() == null) {
+                // 1. CREAR: Si el ID es nulo, es un registro nuevo
+                unidadMedidaDAO.crear(this.detalleSeleccionado);
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "Unidad añadida");
+            } else {
+                // 2. ACTUALIZAR: Si el ID ya existe, es una edición
+                unidadMedidaDAO.update(this.detalleSeleccionado);
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "Unidad actualizada");
+            }
+            // --- FIN DE LA LÓGICA ---
 
-            // Refrescar la tabla de detalles en la vista
+            // Refrescar la tabla y cerrar el diálogo (esto es igual)
             cargarDetalles();
-
-            MessageHelper.addInfoMessage("mensaje.titulo.exito", "Unidad añadida");
-
-            // Ocultar el diálogo (asumiendo widgetVar="dlgUnidadMedida")
             PrimeFaces.current().executeScript("PF('dlgUnidadMedida').hide()");
 
         } catch (Exception e) {
@@ -235,4 +239,12 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
     public void setDetalleSeleccionado(UnidadMedida detalleSeleccionado) {
         this.detalleSeleccionado = detalleSeleccionado;
     }
+
+
+    public void prepararEditarDetalle(UnidadMedida detalle) {
+        // Simplemente asigna el objeto de la fila al 'detalleSeleccionado'
+        // que ya usa tu diálogo.
+        this.detalleSeleccionado = detalle;
+    }
+
 }

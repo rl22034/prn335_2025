@@ -7,9 +7,9 @@ import jakarta.inject.Named;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.TipoProductoDAO;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.TipoProductoCaracteristicaDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.CaracteristicaDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProducto;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProductoCaracteristica;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Caracteristica;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,243 +24,113 @@ public class TipoProductoFrm implements Serializable {
     private TipoProductoDAO tipoProductoDAO;
 
     @Inject
-    private TipoProductoCaracteristicaDAO tipoProductoCaracteristicaDAO;
+    private CaracteristicaDAO caracteristicaDAO;
 
+    // Para el TreeTable
     private TreeNode<TipoProducto> rootNode;
     private TreeNode<TipoProducto> selectedNode;
+
+    // Para el formulario
     private TipoProducto filaSeleccionada;
-    private List<TipoProducto> tipoProductoList;
-    private List<TipoProductoCaracteristica> tipoProductoCaracteristicasList;
-    private Long idPadreSeleccionado;
     private CRUD estado = CRUD.NINGUNO;
+
+    // Para el selector de padre
+    private List<TipoProducto> tipoProductoList;
+
+    // Para el tab de características
+    private List<Caracteristica> caracteristicasList;
 
     @PostConstruct
     public void init() {
         estado = CRUD.NINGUNO;
-        filaSeleccionada = new TipoProducto();
-        filaSeleccionada.setActivo(true);
+        filaSeleccionada = instanciarEntidad();
         cargarArbol();
-        getTipoProductoList();
     }
 
-    public void btnNuevo() {
-        filaSeleccionada = new TipoProducto();
-        filaSeleccionada.setActivo(true);
-        estado = CRUD.CREAR;
-        selectedNode = null;
-        //tipoProductoList = null;
-        tipoProductoCaracteristicasList = new ArrayList<>();
-        idPadreSeleccionado = null;
-    }
-
-    public void btnAgregar() {
-        try {
-            if (filaSeleccionada.getNombre() == null || filaSeleccionada.getNombre().trim().isEmpty()) {
-                throw new Exception("validacion.nombre.requerido");
-            }
-
-            if (idPadreSeleccionado != null) {
-                TipoProducto padre = tipoProductoDAO.finById(idPadreSeleccionado);
-                filaSeleccionada.setIdTipoProductoPadre(padre);
-            } else {
-                filaSeleccionada.setIdTipoProductoPadre(null);
-            }
-
-            tipoProductoDAO.crear(filaSeleccionada);
-            cargarArbol();
-            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.crear.exito");
-
-            filaSeleccionada = new TipoProducto();
-            filaSeleccionada.setActivo(true);
-            estado = CRUD.NINGUNO;
-            idPadreSeleccionado = null;
-            tipoProductoList = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            mostrarError("mensaje.crear.error", e);
-        }
-    }
-
-    public void btnActualizar() {
-        try {
-            if (filaSeleccionada.getNombre() == null || filaSeleccionada.getNombre().trim().isEmpty()) {
-                throw new Exception("validacion.nombre.requerido");
-            }
-
-            if (idPadreSeleccionado != null) {
-                TipoProducto padre = tipoProductoDAO.finById(idPadreSeleccionado);
-                filaSeleccionada.setIdTipoProductoPadre(padre);
-            } else {
-                filaSeleccionada.setIdTipoProductoPadre(null);
-            }
-
-            tipoProductoDAO.update(filaSeleccionada);
-            cargarArbol();
-            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.actualizar.exito");
-
-            filaSeleccionada = new TipoProducto();
-            filaSeleccionada.setActivo(true);
-            estado = CRUD.NINGUNO;
-            idPadreSeleccionado = null;
-            tipoProductoList = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            mostrarError("mensaje.actualizar.error", e);
-        }
-    }
-
-    public void btnEliminar() {
-        try {
-            TipoProducto original = tipoProductoDAO.finById(filaSeleccionada.getId());
-            if (original == null) {
-                throw new Exception("validacion.registro.no.existe");
-            }
-            if (!filaSeleccionada.getNombre().equals(original.getNombre())) {
-                throw new Exception("validacion.nombre.cambiado");
-            }
-
-            tipoProductoDAO.delete(filaSeleccionada);
-            cargarArbol();
-            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.eliminar.exito");
-
-            filaSeleccionada = new TipoProducto();
-            filaSeleccionada.setActivo(true);
-            estado = CRUD.NINGUNO;
-            idPadreSeleccionado = null;
-            tipoProductoList = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            mostrarError("mensaje.eliminar.error", e);
-        }
-    }
-
+    /**
+     * Construye el árbol jerárquico de TipoProducto
+     */
     public void cargarArbol() {
         try {
+            // Obtener todos los tipos de producto
             List<TipoProducto> todos = tipoProductoDAO.findRange(0, 1000);
-            rootNode = new DefaultTreeNode<>(null, null);
-            rootNode.setExpanded(true);
 
+            // Crear nodo raíz invisible
+            rootNode = new DefaultTreeNode<>(null, null);    // ✅ Infiere <TipoProducto>
+
+            // Separar nodos raíz (sin padre) y nodos hijos
             List<TipoProducto> raices = todos.stream()
                     .filter(tp -> tp.getIdTipoProductoPadre() == null)
                     .collect(Collectors.toList());
 
+            // Construir el árbol recursivamente
             for (TipoProducto raiz : raices) {
                 construirNodo(raiz, rootNode, todos);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Construye un nodo y sus hijos recursivamente
+     */
     private void construirNodo(TipoProducto tipo, TreeNode<TipoProducto> nodoPadre, List<TipoProducto> todos) {
+        // Crear el nodo actual
         TreeNode<TipoProducto> nodoActual = new DefaultTreeNode<>(tipo, nodoPadre);
-        nodoActual.setExpanded(false);
 
+        // Buscar los hijos de este nodo
         List<TipoProducto> hijos = todos.stream()
                 .filter(tp -> tp.getIdTipoProductoPadre() != null &&
-                        tp.getIdTipoProductoPadre().getId() != null &&
-                        tipo.getId() != null &&
                         tp.getIdTipoProductoPadre().getId().equals(tipo.getId()))
                 .collect(Collectors.toList());
 
+        // Construir recursivamente cada hijo
         for (TipoProducto hijo : hijos) {
             construirNodo(hijo, nodoActual, todos);
         }
     }
 
+    /**
+     * Evento cuando se selecciona un nodo del árbol
+     */
     public void onNodeSelect() {
         if (selectedNode != null) {
             filaSeleccionada = selectedNode.getData();
             estado = CRUD.MODIFICAR;
-
-            if (filaSeleccionada.getIdTipoProductoPadre() != null) {
-                idPadreSeleccionado = filaSeleccionada.getIdTipoProductoPadre().getId();
-            } else {
-                idPadreSeleccionado = null;
-            }
-
-            tipoProductoList = null;
             cargarCaracteristicas();
         }
     }
 
+    /**
+     * Carga las características relacionadas con el TipoProducto seleccionado
+     */
     public void cargarCaracteristicas() {
         try {
             if (filaSeleccionada != null && filaSeleccionada.getId() != null) {
-                tipoProductoCaracteristicasList = tipoProductoCaracteristicaDAO.findByTipoProducto(filaSeleccionada.getId());
-            } else {
-                tipoProductoCaracteristicasList = new ArrayList<>();
+                // Aquí cargaríamos las características a través de TipoProductoCaracteristica
+                // Por ahora, cargamos todas las características disponibles
+                caracteristicasList = caracteristicaDAO.findRange(0, 1000);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            tipoProductoCaracteristicasList = new ArrayList<>();
         }
     }
 
-    private void mostrarError(String errorKey, Exception e) {
-        String errorMsg = e.getMessage();
-        if (errorMsg != null && !errorMsg.contains(" ") && errorMsg.contains(".")) {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", errorMsg);
-        } else {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", errorKey, errorMsg);
-        }
-    }
-
-    private void obtenerDescendientes(Long idPadre, List<TipoProducto> todos, List<Long> idsExcluir) {
-        List<TipoProducto> hijos = todos.stream()
-                .filter(tp -> tp.getIdTipoProductoPadre() != null &&
-                        tp.getIdTipoProductoPadre().getId() != null &&
-                        tp.getIdTipoProductoPadre().getId().equals(idPadre))
-                .collect(Collectors.toList());
-
-        for (TipoProducto hijo : hijos) {
-            idsExcluir.add(hijo.getId());
-            obtenerDescendientes(hijo.getId(), todos, idsExcluir);
-        }
-    }
-
-    private int calcularNivel(TipoProducto tipo, List<TipoProducto> todos) {
-        int nivel = 0;
-        TipoProducto actual = tipo;
-
-        while (actual.getIdTipoProductoPadre() != null) {
-            nivel++;
-            Long idPadre = actual.getIdTipoProductoPadre().getId();
-            TipoProducto padre = todos.stream()
-                    .filter(tp -> tp.getId().equals(idPadre))
-                    .findFirst()
-                    .orElse(null);
-
-            if (padre == null) break;
-            actual = padre;
-        }
-
-        return nivel;
-    }
-
+    /**
+     * Carga la lista de TipoProducto para el selector de padre
+     */
     public List<TipoProducto> getTipoProductoList() {
         if (tipoProductoList == null) {
             try {
-                List<TipoProducto> todos = tipoProductoDAO.findRange(0, 1000);
+                tipoProductoList = tipoProductoDAO.findRange(0, 1000);
 
-                if (estado == CRUD.MODIFICAR && filaSeleccionada != null && filaSeleccionada.getId() != null) {
-                    List<Long> idsExcluir = new ArrayList<>();
-                    idsExcluir.add(filaSeleccionada.getId());
-                    obtenerDescendientes(filaSeleccionada.getId(), todos, idsExcluir);
-
-                    int nivelActual = calcularNivel(filaSeleccionada, todos);
-
-                    tipoProductoList = todos.stream()
-                            .filter(tp -> {
-                                if (idsExcluir.contains(tp.getId())) {
-                                    return false;
-                                }
-                                int nivelTp = calcularNivel(tp, todos);
-                                return nivelTp <= nivelActual;
-                            })
+                // Filtrar para evitar que un tipo se seleccione a sí mismo como padre
+                if (filaSeleccionada != null && filaSeleccionada.getId() != null) {
+                    tipoProductoList = tipoProductoList.stream()
+                            .filter(tp -> !tp.getId().equals(filaSeleccionada.getId()))
                             .collect(Collectors.toList());
-                } else {
-                    tipoProductoList = todos;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -270,7 +140,111 @@ public class TipoProductoFrm implements Serializable {
         return tipoProductoList;
     }
 
-    // Getters y Setters
+    // =================== MÉTODOS CRUD ===================
+
+    public void btnNuevo() {
+        try {
+            filaSeleccionada = instanciarEntidad();
+            selectedNode = null;
+            estado = CRUD.CREAR;
+            tipoProductoList = null; // Resetear para recargar
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void btnAgregar() {
+        try {
+            // Validaciones
+            if (filaSeleccionada.getNombre() == null || filaSeleccionada.getNombre().trim().isEmpty()) {
+                throw new Exception("validacion.nombre.requerido");
+            }
+
+            tipoProductoDAO.crear(filaSeleccionada);
+            cargarArbol();
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.crear.exito");
+            filaSeleccionada = instanciarEntidad();
+            estado = CRUD.NINGUNO;
+            tipoProductoList = null; // Resetear para recargar
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("mensaje.crear.error", e);
+        }
+    }
+
+    public void btnActualizar() {
+        try {
+            // Validaciones
+            if (filaSeleccionada.getNombre() == null || filaSeleccionada.getNombre().trim().isEmpty()) {
+                throw new Exception("validacion.nombre.requerido");
+            }
+
+            tipoProductoDAO.update(filaSeleccionada);
+            cargarArbol();
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.actualizar.exito");
+            filaSeleccionada = instanciarEntidad();
+            estado = CRUD.NINGUNO;
+            tipoProductoList = null; // Resetear para recargar
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("mensaje.actualizar.error", e);
+        }
+    }
+
+    public void btnEliminar() {
+        try {
+            TipoProducto original = tipoProductoDAO.finById(filaSeleccionada.getId());
+
+            if (original == null) {
+                throw new Exception("validacion.registro.no.existe");
+            }
+
+            if (!filaSeleccionada.getNombre().equals(original.getNombre())) {
+                throw new Exception("validacion.nombre.cambiado");
+            }
+
+            tipoProductoDAO.delete(filaSeleccionada);
+            cargarArbol();
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.eliminar.exito");
+            filaSeleccionada = instanciarEntidad();
+            estado = CRUD.NINGUNO;
+            tipoProductoList = null; // Resetear para recargar
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("mensaje.eliminar.error", e);
+        }
+    }
+
+    public void limpiarSeleccionado() {
+        this.filaSeleccionada = null;
+        this.selectedNode = null;
+        this.estado = CRUD.NINGUNO;
+    }
+
+    private TipoProducto instanciarEntidad() {
+        TipoProducto nuevo = new TipoProducto();
+        nuevo.setActivo(true);
+        return nuevo;
+    }
+
+    /**
+     * Muestra un mensaje de error detectando si es una clave i18n o texto directo
+     */
+    private void mostrarError(String errorKey, Exception e) {
+        String errorMsg = e.getMessage();
+
+        // Detectar si es una clave de i18n o un texto normal
+        if (errorMsg != null && !errorMsg.contains(" ") && errorMsg.contains(".")) {
+            // Es una clave como "validacion.nombre.requerido"
+            MessageHelper.addErrorMessage("mensaje.titulo.error", errorMsg);
+        } else {
+            // Es un texto normal o error de base de datos
+            MessageHelper.addErrorMessage("mensaje.titulo.error", errorKey, errorMsg);
+        }
+    }
+
+    // =================== GETTERS Y SETTERS ===================
+
     public TreeNode<TipoProducto> getRootNode() {
         return rootNode;
     }
@@ -289,8 +263,7 @@ public class TipoProductoFrm implements Serializable {
 
     public TipoProducto getFilaSeleccionada() {
         if (filaSeleccionada == null) {
-            filaSeleccionada = new TipoProducto();
-            filaSeleccionada.setActivo(true);
+            filaSeleccionada = instanciarEntidad();
         }
         return filaSeleccionada;
     }
@@ -299,34 +272,39 @@ public class TipoProductoFrm implements Serializable {
         this.filaSeleccionada = filaSeleccionada;
     }
 
-    public List<TipoProductoCaracteristica> getTipoProductoCaracteristicasList() {
-        if (tipoProductoCaracteristicasList == null) {
-            tipoProductoCaracteristicasList = new ArrayList<>();
-        }
-        return tipoProductoCaracteristicasList;
-    }
-
-    public void setTipoProductoCaracteristicasList(List<TipoProductoCaracteristica> tipoProductoCaracteristicasList) {
-        this.tipoProductoCaracteristicasList = tipoProductoCaracteristicasList;
-    }
-
-    public void setTipoProductoList(List<TipoProducto> tipoProductoList) {
-        this.tipoProductoList = tipoProductoList;
-    }
-
-    public Long getIdPadreSeleccionado() {
-        return idPadreSeleccionado;
-    }
-
-    public void setIdPadreSeleccionado(Long idPadreSeleccionado) {
-        this.idPadreSeleccionado = idPadreSeleccionado;
-    }
-
     public CRUD getEstado() {
         return estado;
     }
 
     public void setEstado(CRUD estado) {
         this.estado = estado;
+    }
+
+    public TipoProductoDAO getTipoProductoDAO() {
+        return tipoProductoDAO;
+    }
+
+    public void setTipoProductoDAO(TipoProductoDAO tipoProductoDAO) {
+        this.tipoProductoDAO = tipoProductoDAO;
+    }
+
+    public CaracteristicaDAO getCaracteristicaDAO() {
+        return caracteristicaDAO;
+    }
+
+    public void setCaracteristicaDAO(CaracteristicaDAO caracteristicaDAO) {
+        this.caracteristicaDAO = caracteristicaDAO;
+    }
+
+    public List<Caracteristica> getCaracteristicasList() {
+        return caracteristicasList;
+    }
+
+    public void setCaracteristicasList(List<Caracteristica> caracteristicasList) {
+        this.caracteristicasList = caracteristicasList;
+    }
+
+    public void setTipoProductoList(List<TipoProducto> tipoProductoList) {
+        this.tipoProductoList = tipoProductoList;
     }
 }

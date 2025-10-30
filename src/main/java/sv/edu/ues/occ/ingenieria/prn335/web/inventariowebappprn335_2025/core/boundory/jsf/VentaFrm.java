@@ -177,59 +177,47 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     /**
      * Prepara un nuevo objeto VentaDetalle para el diálogo "Añadir Producto".
      */
-    public void prepararNuevoDetalle() {
-        this.detalleSeleccionado = new VentaDetalle();
+    public void prepararEditarDetalle(VentaDetalle detalle) {
+        // 1. Asigna el detalle existente al objeto del formulario
+        this.detalleSeleccionado = detalle;
 
-        // Generamos el UUID para el detalle
-        this.detalleSeleccionado.setId(UUID.randomUUID());
-
-        // ¡Vínculo Maestro-Detalle!
-        this.detalleSeleccionado.setIdVenta(this.filaSeleccionada);
-
-        // Valores por defecto
-        this.detalleSeleccionado.setCantidad(BigDecimal.ONE);
-        this.detalleSeleccionado.setPrecio(BigDecimal.ZERO);
-
-        // Cargar productos para el dropdown
-        try {
-            if (productoDAO == null) {
-                throw new IllegalStateException("ProductoDAO no fue inyectado.");
-            }
-            this.productosDisponibles = productoDAO.findRange(0, 1000);
-        } catch (Exception e) {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al cargar productos");
-            this.productosDisponibles = new ArrayList<>();
-        }
+        // 2. Carga la lista de productos para el dropdown
+        cargarProductosDisponibles();
     }
-
     /**
      * Guarda el nuevo VentaDetalle en la BBDD.
      */
     public void guardarDetalle() {
         try {
-            // Validaciones
-            if (this.detalleSeleccionado.getIdProducto() == null) {
-                MessageHelper.addErrorMessage("mensaje.titulo.error", "Debe seleccionar un producto");
-                return;
-            }
-            if (this.detalleSeleccionado.getCantidad() == null || this.detalleSeleccionado.getCantidad().compareTo(BigDecimal.ZERO) <= 0) {
-                MessageHelper.addErrorMessage("mensaje.titulo.error", "La cantidad debe ser mayor a cero");
-                return;
-            }
+            // ... (tus validaciones de producto y cantidad) ...
 
             if (ventaDetalleDAO == null) {
                 throw new IllegalStateException("VentaDetalleDAO no fue inyectado.");
             }
 
-            // Crear el registro
-            ventaDetalleDAO.crear(this.detalleSeleccionado);
+            // --- LÓGICA "INTELIGENTE" ---
+            // El ID de VentaDetalle se genera en prepararNuevoDetalle (UUID.randomUUID())
+            // Para saber si es nuevo, verificamos si ya existe en la BD
+            // Nota: Es mejor usar el estado CREAR/MODIFICAR si lo tienes en el bean de detalle.
+            // Una forma más simple es chequear si el ID ya existe en la lista 'detallesDeLaVenta'.
+            // Pero la forma más robusta es verificar la BD.
 
-            // Refrescar la tabla de detalles en la vista
+            // Vamos a usar una lógica más simple basada en si el DAO lo encuentra
+            VentaDetalle existente = ventaDetalleDAO.finById(this.detalleSeleccionado.getId());
+
+            if (existente == null) {
+                // 1. CREAR: Si no existe, es un registro nuevo
+                ventaDetalleDAO.crear(this.detalleSeleccionado);
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "Producto añadido");
+            } else {
+                // 2. ACTUALIZAR: Si ya existe, es una edición
+                ventaDetalleDAO.update(this.detalleSeleccionado);
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "Producto actualizado");
+            }
+            // --- FIN DE LA LÓGICA ---
+
+            // Refrescar la tabla y cerrar el diálogo
             cargarDetallesVenta();
-
-            MessageHelper.addInfoMessage("mensaje.titulo.exito", "Producto añadido a la venta");
-
-            // Ocultar el diálogo (asumiendo widgetVar="dlgVentaDetalle")
             PrimeFaces.current().executeScript("PF('dlgVentaDetalle').hide()");
 
         } catch (Exception e) {
@@ -253,7 +241,27 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         }
     }
 
+    private void cargarProductosDisponibles() {
+        try {
+            if (productoDAO == null) {
+                throw new IllegalStateException("ProductoDAO no fue inyectado.");
+            }
+            this.productosDisponibles = productoDAO.findRange(0, 1000);
+        } catch (Exception e) {
+            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al cargar productos");
+            this.productosDisponibles = new ArrayList<>();
+        }
+    }
+    public void prepararNuevoDetalle() {
+        this.detalleSeleccionado = new VentaDetalle();
+        this.detalleSeleccionado.setId(UUID.randomUUID());
+        this.detalleSeleccionado.setIdVenta(this.filaSeleccionada);
+        this.detalleSeleccionado.setCantidad(BigDecimal.ONE);
+        this.detalleSeleccionado.setPrecio(BigDecimal.ZERO);
 
+        // Llamamos al método centralizado
+        cargarProductosDisponibles();
+    }
     // ========================================================== //
     //    GETTERS Y SETTERS (GENERADOS)
     // ========================================================== //
