@@ -9,129 +9,307 @@
 <ui:composition template="/WEB-INF/templates/template.xhtml">
 
     <ui:define name="pageTitle">
-        #{crud['pagina.unidadMedida']}
+        #{crud['pagina.tipoUnidadMedida']}
     </ui:define>
 
     <ui:define name="content">
 
         <h:form id="form">
 
-            <p:growl id="messages" showDetail="true" life="3000"/>
+            <p:growl id="messages"
+                     showDetail="true"
+                     life="3000"
+                     autoUpdate="true"/>
 
             <h:panelGroup id="tablaZone">
-                <comp:Tabla beanName="#{unidadMedidaBean}"
-                            lazyModel="#{unidadMedidaBean.lazyModel}"
-                            seleccion="#{unidadMedidaBean.filaSeleccionada}"
-                            titulo="#{crud['menu.unidadMedida']}"
-                            widgetVarDialog="dlgUnidadMedida"
+                <comp:Tabla beanName="#{tipoUnidadMedidaBean}"
+                            lazyModel="#{tipoUnidadMedidaBean.lazyModel}"
+                            seleccion="#{tipoUnidadMedidaBean.filaSeleccionada}"
+                            titulo="#{crud['menu.tipoUnidadMedida']}"
+                            widgetVarDialog="dlgTipoUnidadMedida"
                             updateDialog=":form:dialogoWrapper"
-                            rows="5"
+                            rows="3"
                             table="tabla"
                             rowKey="#{tipo.id}">
 
-                    <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
-                        <h:outputText value="#{tipo.id}"/>
+                    <p:column headerText="Id">
+                        <h:outputText value="#{tipo.id}" />
                     </p:column>
 
-                    <p:column headerText="#{crud['tabla.tipoUnidadMedida']}" style="width: 200px;">
-                        <h:outputText value="#{tipo.idTipoUnidadMedida.nombre}"/>
+                    <p:column headerText="#{crud['tabla.nombre']}">
+                        <h:outputText value="#{tipo.nombre}" />
                     </p:column>
 
-                    <p:column headerText="#{crud['tabla.equivalencia']}" style="width: 150px;">
-                        <h:outputText value="#{tipo.equivalencia}">
-                            <f:convertNumber pattern="#0.00"/>
-                        </h:outputText>
+                    <p:column headerText="#{crud['tabla.unidadMedidaBase']}">
+                        <h:outputText value="#{tipo.unidadBase}" />
                     </p:column>
 
-                    <p:column headerText="#{crud['tabla.expresionRegular']}" style="width: 250px;">
-                        <h:outputText value="#{tipo.expresionRegular}"
-                                      style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;"/>
+                    <p:column headerText="#{crud['tabla.activo']}">
+                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
                     </p:column>
 
-                    <p:column headerText="#{crud['tabla.activo']}" style="width: 120px;">
-                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}"/>
+                    <p:column headerText="#{crud['tabla.comentarios']}">
+                        <h:outputText value="#{tipo.comentarios}" />
                     </p:column>
 
                 </comp:Tabla>
             </h:panelGroup>
 
             <h:panelGroup id="dialogoWrapper">
-                <comp:DialogCrud beanName="#{unidadMedidaBean}"
-                                 entidadSeleccionada="#{unidadMedidaBean.filaSeleccionada}"
-                                 widgetVar="dlgUnidadMedida"
-                                 dialogId="dlgCrud"
-                                 updateTabla=":form:tablaZone"
-                                 header="#{crud['pagina.unidadMedida']}"
-                                 width="600"
-                                 maxContentHeight="70vh"
-                                 labelId="#{crud['form.id']}"
-                                 mostrarNombre="false"
-                                 mostrarActivo="true"
-                                 labelActivo="#{crud['form.activo']}"
-                                 atributoActivo="activo"
-                                 mostrarObservaciones="true"
-                                 labelObservaciones="#{crud['form.comentarios']}"
-                                 atributoObservaciones="comentarios">
+                <p:dialog id="dlgTipoUnidadMedida"
+                          widgetVar="dlgTipoUnidadMedida"
+                          header="#{crud['pagina.tipoUnidadMedida']}"
+                          modal="true"
+                          width="800"
+                          height="600">
 
-                    <!-- SELECTOR DE TIPO UNIDAD MEDIDA -->
-                    <f:facet name="tipoUnidadMedida">
+                    <p:tabView id="tabsTipoUnidadMedida" dynamic="false">
+
+                        <p:tab title="#{crud['tabs.generalidades']}" id="tabGeneralidades">
+
+                            <div style="padding: 20px;">
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtId" value="#{crud['form.id']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtId"
+                                                 value="#{tipoUnidadMedidaBean.filaSeleccionada.id}"
+                                                 disabled="true"
+                                                 style="width: 100%; background-color: #f0f0f0;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtNombre" value="#{crud['form.nombre']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtNombre"
+                                                 value="#{tipoUnidadMedidaBean.filaSeleccionada.nombre}"
+                                                 required="true"
+                                                 requiredMessage="#{crud['validacion.nombre.requerido']}"
+                                                 style="width: 100%;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtUnidadBase" value="#{crud['form.unidadBase']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtUnidadBase"
+                                                 value="#{tipoUnidadMedidaBean.filaSeleccionada.unidadBase}"
+                                                 required="false"
+                                                 style="width: 100%;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="chkActivo" value="#{crud['form.activo']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:selectBooleanCheckbox id="chkActivo"
+                                                             value="#{tipoUnidadMedidaBean.filaSeleccionada.activo}"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtAreaComentarios" value="#{crud['form.comentarios']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputTextarea id="txtAreaComentarios"
+                                                     value="#{tipoUnidadMedidaBean.filaSeleccionada.comentarios}"
+                                                     rows="4"
+                                                     style="width: 100%;"/>
+                                </div>
+
+                                <comp:Botones beanName="#{tipoUnidadMedidaBean}"
+                                              widgetVar="dlgTipoUnidadMedida"
+                                              updateTabla=":form:tablaZone"
+                                              processDialog="dlgTipoUnidadMedida"/>
+
+                            </div>
+
+                        </p:tab>
+
+                        <p:tab title="#{crud['menu.unidadMedida']}" id="tabUnidadesMedida"
+                               disabled="#{tipoUnidadMedidaBean.filaSeleccionada.id == null}">
+
+                            <!-- ========== EVENTO PARA PASAR EL ID DEL TIPO SELECCIONADO ========== -->
+                            <f:event type="preRenderView"
+                                     listener="#{unidadMedidaBean.setIdTipoUnidadMedida(tipoUnidadMedidaBean.filaSeleccionada.id)}" />
+
+                            <div style="padding: 20px;">
+
+                                <!-- BOTÓN NUEVO EN LA PARTE SUPERIOR -->
+                                <div style="text-align: right; margin-bottom: 10px;">
+                                    <p:commandButton value="#{crud['boton.nuevo']}"
+                                                     icon="pi pi-plus"
+                                                     styleClass="ui-button-success"
+                                                     action="#{unidadMedidaBean.btnNuevo}"
+                                                     process="@this"
+                                                     update=":form:dialogUnidadMedidaWrapper"
+                                                     oncomplete="PF('dlgUnidadMedidaNested').show()"/>
+                                </div>
+
+                                <h:panelGroup id="tablaUnidadesMedidaZone">
+                                    <comp:Tabla beanName="#{unidadMedidaBean}"
+                                                lazyModel="#{unidadMedidaBean.lazyModel}"
+                                                seleccion="#{unidadMedidaBean.filaSeleccionada}"
+                                                titulo="#{crud['menu.unidadMedida']}"
+                                                widgetVarDialog="dlgUnidadMedidaNested"
+                                                updateDialog=":form:dialogUnidadMedidaWrapper"
+                                                rows="10"
+                                                table="tablaUnidadesMedida"
+                                                rowKey="#{tipo.id}"
+                                                mostrarBotonNuevo="false">
+
+                                        <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                                            <h:outputText value="#{tipo.id}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.equivalencia']}">
+                                            <h:outputText value="#{tipo.equivalencia}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.activo']}" style="width: 100px;">
+                                            <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.expresionRegular']}">
+                                            <h:outputText value="#{tipo.expresionRegular}" />
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.comentarios']}">
+                                            <h:outputText value="#{tipo.comentarios}" />
+                                        </p:column>
+
+                                    </comp:Tabla>
+                                </h:panelGroup>
+
+                            </div>
+
+                        </p:tab>
+
+                    </p:tabView>
+
+                </p:dialog>
+            </h:panelGroup>
+
+            <!-- ========== DIALOG DE UNIDAD MEDIDA SIMPLE ========== -->
+            <h:panelGroup id="dialogUnidadMedidaWrapper">
+                <p:dialog id="dlgUnidadMedidaNested"
+                          widgetVar="dlgUnidadMedidaNested"
+                          header="#{crud['pagina.unidadMedida']}"
+                          modal="true"
+                          width="500">
+
+                    <div style="padding: 15px;">
+
                         <div style="margin-bottom: 15px;">
-                            <h:outputLabel value="#{crud['form.tipoUnidadMedida']}:"
-                                           for="selectTipoUnidadMedida"
+                            <h:outputLabel value="#{crud['form.id']}"
+                                           for="txtIdUnidadMedida"
                                            style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                            <p:selectOneMenu id="selectTipoUnidadMedida"
-                                             value="#{unidadMedidaBean.filaSeleccionada.idTipoUnidadMedida}"
-                                             converter="tipoUnidadMedidaConverter"
-                                             style="width: 100%;"
-                                             required="true"
-                                             requiredMessage="#{crud['validacion.tipounidadmedida.requerido']}">
-                                <f:selectItem itemLabel="#{crud['form.seleccione']}" itemValue="#{null}"/>
-                                <f:selectItems value="#{unidadMedidaBean.tipoUnidadMedidaList}"
-                                               var="t"
-                                               itemLabel="#{t.nombre}"
-                                               itemValue="#{t}"/>
-                            </p:selectOneMenu>
+                            <p:inputText id="txtIdUnidadMedida"
+                                         value="#{unidadMedidaBean.filaSeleccionada.id}"
+                                         disabled="true"
+                                         style="width: 100%; background-color: #f0f0f0;"/>
                         </div>
-                    </f:facet>
 
-                    <!-- CAMPO EQUIVALENCIA -->
-                    <f:facet name="equivalencia">
                         <div style="margin-bottom: 15px;">
-                            <h:outputLabel value="#{crud['form.equivalencia']}:"
+                            <h:outputLabel value="#{crud['form.equivalencia']}"
                                            for="txtEquivalencia"
                                            style="display: block; margin-bottom: 5px; font-weight: bold;"/>
                             <p:inputNumber id="txtEquivalencia"
                                            value="#{unidadMedidaBean.filaSeleccionada.equivalencia}"
                                            decimalPlaces="2"
-                                           minFractionDigits="2"
-                                           decimalSeparator="."
-                                           thousandSeparator=","
-                                           minValue="0"
-                                           maxValue="999999.99"
-                                           style="width: 100%;"
                                            required="true"
-                                           requiredMessage="#{crud['validacion.equivalencia.requerida']}"/>
+                                           requiredMessage="#{crud['validacion.equivalencia.requerida']}"
+                                           style="width: 100%;"/>
                         </div>
-                    </f:facet>
 
-                    <!-- CAMPO EXPRESIÓN REGULAR -->
-                    <f:facet name="expresionRegular">
                         <div style="margin-bottom: 15px;">
-                            <h:outputLabel value="#{crud['form.expresionRegular']}:"
+                            <h:outputLabel value="#{crud['form.expresionRegular']}"
                                            for="txtExpresionRegular"
                                            style="display: block; margin-bottom: 5px; font-weight: bold;"/>
                             <p:inputTextarea id="txtExpresionRegular"
                                              value="#{unidadMedidaBean.filaSeleccionada.expresionRegular}"
-                                             rows="3"
-                                             maxlength="500"
                                              style="width: 100%;"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.activo']}"
+                                           for="chkActivoUnidadMedida"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectBooleanCheckbox id="chkActivoUnidadMedida"
+                                                     value="#{unidadMedidaBean.filaSeleccionada.activo}"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.comentarios']}"
+                                           for="txtComentariosUnidadMedida"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputTextarea id="txtComentariosUnidadMedida"
+                                             value="#{unidadMedidaBean.filaSeleccionada.comentarios}"
+                                             rows="3"
+                                             style="width: 100%;"/>
+                        </div>
+
+                    </div>
+
+                    <f:facet name="footer">
+                        <div style="text-align: center; padding: 10px;">
+
+                            <!-- Botón AGREGAR -->
+                            <p:commandButton value="#{crud['boton.agregar']}"
+                                             icon="pi pi-save"
+                                             styleClass="ui-button-success"
+                                             style="margin: 0 5px;"
+                                             action="#{unidadMedidaBean.btnAgregar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="dlgUnidadMedidaNested"
+                                             rendered="#{unidadMedidaBean.estado.name() == 'CREAR'}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('dlgUnidadMedidaNested').hide();"/>
+
+                            <!-- Botón ACTUALIZAR -->
+                            <p:commandButton value="#{crud['boton.actualizar']}"
+                                             icon="pi pi-refresh"
+                                             styleClass="ui-button-info"
+                                             style="margin: 0 5px;"
+                                             action="#{unidadMedidaBean.btnActualizar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="dlgUnidadMedidaNested"
+                                             rendered="#{unidadMedidaBean.estado.name() == 'MODIFICAR'}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('dlgUnidadMedidaNested').hide();"/>
+
+                            <!-- Botón ELIMINAR -->
+                            <p:commandButton value="#{crud['boton.eliminar']}"
+                                             icon="pi pi-trash"
+                                             styleClass="ui-button-danger"
+                                             style="margin: 0 5px;"
+                                             action="#{unidadMedidaBean.btnEliminar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="@this"
+                                             rendered="#{unidadMedidaBean.estado.name() == 'MODIFICAR'}"
+                                             oncomplete="PF('dlgUnidadMedidaNested').hide();">
+                                <p:confirm header="#{crud['mensaje.confirmar']}"
+                                           message="#{crud['mensaje.eliminar.confirmar']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+
+                            <!-- Botón CANCELAR -->
+                            <p:commandButton value="#{crud['boton.cancelar']}"
+                                             icon="pi pi-times"
+                                             styleClass="ui-button-secondary"
+                                             style="margin: 0 5px;"
+                                             onclick="PF('dlgUnidadMedidaNested').hide(); return false;"
+                                             process="@none"/>
+
                         </div>
                     </f:facet>
 
-                </comp:DialogCrud>
+                </p:dialog>
             </h:panelGroup>
 
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="#{crud['boton.si']}" type="button"
+                                 styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="#{crud['boton.no']}" type="button"
+                                 styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+            </p:confirmDialog>
+
         </h:form>
+
     </ui:define>
 
 </ui:composition>
