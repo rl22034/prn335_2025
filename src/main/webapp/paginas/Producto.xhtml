@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:comp="jakarta.faces.composite/componentes">
 
 <ui:composition template="/WEB-INF/templates/template.xhtml">
 
@@ -13,298 +13,376 @@
     </ui:define>
 
     <ui:define name="content">
+
         <h:form id="form">
 
-            <p:growl id="messages" showDetail="true" life="3000"/>
+            <p:growl id="messages"
+                     showDetail="true"
+                     life="3000"
+                     autoUpdate="true"/>
 
-            <!-- ========== TABLA PRINCIPAL ========== -->
-            <p:panel header="#{crud['menu.producto']}" style="margin-bottom: 20px;">
-
-                <p:commandButton value="#{crud['boton.nuevo']}"
-                                 icon="pi pi-plus"
-                                 action="#{productoBean.btnNuevo}"
-                                 update="dlgProducto"
-                                 oncomplete="PF('dlgProductoWidget').show();"
-                                 styleClass="ui-button-success"
-                                 style="margin-bottom: 10px;"/>
-
-                <p:dataTable id="tablaProductos"
-                             value="#{productoBean.lazyModel}"
-                             var="producto"
-                             lazy="true"
-                             paginator="true"
-                             rows="10"
-                             rowKey="#{producto.id}"
-                             selection="#{productoBean.filaSeleccionada}"
-                             selectionMode="single">
-
-                    <p:ajax event="rowSelect"
-                            listener="#{productoBean.onRowSelect}"
-                            update="dlgProducto"
-                            oncomplete="PF('dlgProductoWidget').show();"/>
+            <!-- ========== TABLA ========== -->
+            <h:panelGroup id="tablaZone">
+                <comp:Tabla beanName="#{productoBean}"
+                            lazyModel="#{productoBean.lazyModel}"
+                            seleccion="#{productoBean.filaSeleccionada}"
+                            titulo="#{crud['menu.producto']}"
+                            widgetVarDialog="dlgProducto"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="10"
+                            table="tabla"
+                            rowKey="#{tipo.id}">
 
                     <p:column headerText="#{crud['tabla.id']}" style="width: 250px;">
-                        <h:outputText value="#{producto.id}" />
+                        <h:outputText value="#{tipo.id}" />
                     </p:column>
 
-                    <p:column headerText="#{crud['tabla.nombre']}" style="width: 150px;">
-                        <h:outputText value="#{producto.nombreProducto}" />
+                    <p:column headerText="#{crud['tabla.nombre']}">
+                        <h:outputText value="#{tipo.nombreProducto}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.referenciaExterna']}" style="width: 200px;">
+                        <h:outputText value="#{tipo.referenciaExterna}" />
                     </p:column>
 
                     <p:column headerText="#{crud['tabla.activo']}" style="width: 100px;">
-                        <h:outputText value="#{producto.activo ? crud['estado.si'] : crud['estado.no']}" />
+                        <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
                     </p:column>
 
-                    <p:column headerText="#{crud['tabla.comentarios']}" style="width: 200px;">
-                        <h:outputText value="#{producto.comentarios}" />
+                    <p:column headerText="#{crud['tabla.comentarios']}" style="width: 250px;">
+                        <h:outputText value="#{tipo.comentarios}"
+                                      style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;"/>
                     </p:column>
 
-                </p:dataTable>
-            </p:panel>
+                </comp:Tabla>
+            </h:panelGroup>
 
             <!-- ========== DIÁLOGO CON TABS ========== -->
-            <p:dialog id="dlgProducto"
-                      widgetVar="dlgProductoWidget"
-                      header="#{crud['pagina.producto']}"
-                      modal="true"
-                      width="800"
-                      height="600"
-                      responsive="true"
-                      closeOnEscape="true">
+            <h:panelGroup id="dialogoWrapper">
+                <p:dialog id="dlgProducto"
+                          widgetVar="dlgProducto"
+                          header="#{crud['pagina.producto']}"
+                          modal="true"
+                          width="800"
+                          height="600">
 
-                <p:tabView id="tabsProducto"
-                           activeIndex="#{productoBean.tabActivo}"
-                           dynamic="true"
-                           cache="false">
+                    <p:tabView id="tabsProducto" dynamic="false">
 
-                    <p:ajax event="tabChange" listener="#{productoBean.onTabChange}"/>
+                        <p:ajax event="tabChange"
+                                listener="#{productoTipoProductoBean.recargarTabla}"
+                                update="tablaProductoTipoProductoZone"/>
 
-                    <!-- ========== TAB 1: GENERALIDADES ========== -->
-                    <p:tab title="#{crud['tab.generalidades']}">
+                        <!-- TAB 1: GENERALIDADES -->
+                        <p:tab title="#{crud['tabs.generalidades']}" id="tabGeneralidades">
+
+                            <div style="padding: 20px;">
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtId" value="#{crud['form.id']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtId"
+                                                 value="#{productoBean.filaSeleccionada.id}"
+                                                 disabled="true"
+                                                 style="width: 100%; background-color: #f0f0f0;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtNombre" value="#{crud['form.nombre']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputText id="txtNombre"
+                                                 value="#{productoBean.filaSeleccionada.nombreProducto}"
+                                                 required="true"
+                                                 requiredMessage="#{crud['validacion.nombre.requerido']}"
+                                                 style="width: 100%;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtReferenciaExterna" value="#{crud['tabla.referenciaExterna']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputTextarea id="txtReferenciaExterna"
+                                                     value="#{productoBean.filaSeleccionada.referenciaExterna}"
+                                                     rows="3"
+                                                     style="width: 100%;"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="chkActivo" value="#{crud['form.activo']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:selectBooleanCheckbox id="chkActivo"
+                                                             value="#{productoBean.filaSeleccionada.activo}"/>
+                                </div>
+
+                                <div style="margin-bottom: 15px;">
+                                    <h:outputLabel for="txtAreaComentarios" value="#{crud['form.comentarios']}"
+                                                   style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                                    <p:inputTextarea id="txtAreaComentarios"
+                                                     value="#{productoBean.filaSeleccionada.comentarios}"
+                                                     rows="4"
+                                                     style="width: 100%;"/>
+                                </div>
+
+                                <comp:Botones beanName="#{productoBean}"
+                                              widgetVar="dlgProducto"
+                                              updateTabla=":form:tablaZone"
+                                              processDialog="dlgProducto"/>
+
+                            </div>
+
+                        </p:tab>
+
+                        <!-- TAB 2: TIPOS DE PRODUCTO -->
+                        <p:tab title="#{crud['tabs.tiposProducto']}" id="tabTiposProducto" disabled="#{productoBean.filaSeleccionada.id == null}">
+
+                            <div style="padding: 20px;">
+
+                                <!-- Título del Producto -->
+                                <h3 style="text-align: center; margin-bottom: 20px;">
+                                    #{productoBean.filaSeleccionada.nombreProducto}
+                                </h3>
+
+                                <!-- Botón Nuevo -->
+                                <div style="text-align: right; margin-bottom: 10px;">
+                                    <p:commandButton value="#{crud['boton.nuevo']}"
+                                                     icon="pi pi-plus"
+                                                     styleClass="ui-button-success"
+                                                     action="#{productoTipoProductoBean.btnNuevo}"
+                                                     process="@this"
+                                                     update=":form:dialogProductoTipoProductoWrapper"
+                                                     oncomplete="PF('dlgProductoTipoProducto').show()"/>
+                                </div>
+
+                                <!-- TABLA DE TIPOS DE PRODUCTO -->
+                                <h:panelGroup id="tablaProductoTipoProductoZone">
+                                    <comp:Tabla beanName="#{productoTipoProductoBean}"
+                                                lazyModel="#{productoTipoProductoBean.lazyModel}"
+                                                seleccion="#{productoTipoProductoBean.filaSeleccionada}"
+                                                titulo="Tipos de Producto Asociados"
+                                                widgetVarDialog="dlgProductoTipoProducto"
+                                                updateDialog=":form:dialogProductoTipoProductoWrapper"
+                                                rows="5"
+                                                table="tablaProductoTipoProducto"
+                                                rowKey="#{tipo.id}"
+                                                mostrarBotonNuevo="false">
+
+                                        <p:column headerText="#{crud['tabla.id']}" style="width: 250px;">
+                                            <h:outputText value="#{tipo.id}" />
+                                        </p:column>
+
+                                        <p:column headerText="Tipo de Producto">
+                                            <h:outputText value="#{tipo.idTipoProducto.nombre}" />
+                                        </p:column>
+
+                                        <p:column headerText="Fecha Creación" style="width: 150px;">
+                                            <h:outputText value="#{tipo.fechaCreacion}">
+                                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                                            </h:outputText>
+                                        </p:column>
+
+                                        <p:column headerText="#{crud['tabla.activo']}" style="width: 100px;">
+                                            <h:outputText value="#{tipo.activo ? crud['estado.si'] : crud['estado.no']}" />
+                                        </p:column>
+
+                                    </comp:Tabla>
+                                </h:panelGroup>
+
+                            </div>
+
+                        </p:tab>
+
+                    </p:tabView>
+
+                </p:dialog>
+            </h:panelGroup>
+
+            <!-- ========== DIALOG DE PRODUCTO TIPO PRODUCTO CON PICKLIST ========== -->
+            <h:panelGroup id="dialogProductoTipoProductoWrapper">
+                <p:dialog id="dlgProductoTipoProducto"
+                          widgetVar="dlgProductoTipoProducto"
+                          header="#{crud['producto.tipoProducto.titulo']}"
+                          modal="true"
+                          width="900"
+                          fitViewport="true"
+                          maximizable="true"
+                          responsive="true">
+
+                    <div style="padding: 20px; max-height: 60vh; overflow-y: auto;">
 
                         <!-- ID -->
                         <div style="margin-bottom: 15px;">
-                            <strong>#{crud['form.id']}:</strong><br/>
-                            <p:inputText value="#{productoBean.filaSeleccionada.id}"
+                            <h:outputLabel value="ID:" style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText value="#{productoTipoProductoBean.filaSeleccionada.id}"
                                          disabled="true"
-                                         style="width: 100%; margin-top: 5px;"/>
+                                         style="width: 100%; background-color: #f0f0f0;"/>
                         </div>
 
-                        <!-- Nombre -->
+                        <!-- Tipo de Producto Selector -->
                         <div style="margin-bottom: 15px;">
-                            <strong>#{crud['form.nombre']}:</strong><br/>
-                            <p:inputText value="#{productoBean.filaSeleccionada.nombreProducto}"
-                                         required="true"
-                                         style="width: 100%; margin-top: 5px;"/>
+                            <h:outputLabel value="#{crud['producto.tipoProducto.tipo']}:"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectOneMenu id="selectTipoProducto"
+                                             value="#{productoTipoProductoBean.tipoProductoSeleccionado}"
+                                             converter="tipoProductoConverter"
+                                             style="width: 100%;"
+                                             required="true"
+                                             requiredMessage="#{crud['validacion.tipoproducto.requerido']}">
+                                <f:selectItem itemLabel="#{crud['form.seleccione']}" itemValue="#{null}"/>
+                                <f:selectItems value="#{productoTipoProductoBean.tiposProductoActivos}"
+                                               var="t"
+                                               itemLabel="#{t.nombre}"
+                                               itemValue="#{t}"/>
+                                <p:ajax listener="#{productoTipoProductoBean.onTipoProductoChange}"
+                                        update="pickListCaracteristicas valoresCaracteristicas"/>
+                            </p:selectOneMenu>
                         </div>
 
-                        <!-- Referencia Externa -->
+                        <!-- Sección de Características -->
                         <div style="margin-bottom: 15px;">
-                            <strong>#{crud['tabla.referenciaExterna']}:</strong><br/>
-                            <p:inputText value="#{productoBean.filaSeleccionada.referenciaExterna}"
-                                         style="width: 100%; margin-top: 5px;"/>
-                        </div>
+                            <h:outputLabel value="#{crud['producto.tipoProducto.caracteristicas']}:"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
 
-                        <!-- Activo -->
-                        <div style="margin-bottom: 15px;">
-                            <p:selectBooleanCheckbox value="#{productoBean.filaSeleccionada.activo}"/>
-                            <span style="margin-left: 8px;">#{crud['form.activo']}</span>
-                        </div>
-
-                        <!-- Comentarios -->
-                        <div style="margin-bottom: 15px;">
-                            <strong>#{crud['form.observaciones']}:</strong><br/>
-                            <p:inputTextarea value="#{productoBean.filaSeleccionada.comentarios}"
-                                             rows="3"
-                                             style="width: 100%; margin-top: 5px;"/>
-                        </div>
-
-                        <!-- Botones CRUD -->
-                        <div style="margin-top: 20px; text-align: right;">
-                            <p:commandButton value="#{crud['boton.agregar']}"
-                                             icon="pi pi-check"
-                                             action="#{productoBean.btnAgregar}"
-                                             rendered="#{productoBean.estado == 'CREAR'}"
-                                             update=":form:tablaProductos :form:messages"
-                                             oncomplete="if(!args.validationFailed) PF('dlgProductoWidget').hide();"
-                                             styleClass="ui-button-success"
-                                             style="margin-right: 10px;"/>
-
-                            <p:commandButton value="#{crud['boton.actualizar']}"
-                                             icon="pi pi-refresh"
-                                             action="#{productoBean.btnActualizar}"
-                                             rendered="#{productoBean.estado == 'MODIFICAR'}"
-                                             update=":form:tablaProductos :form:messages"
-                                             oncomplete="if(!args.validationFailed) PF('dlgProductoWidget').hide();"
-                                             styleClass="ui-button-warning"
-                                             style="margin-right: 10px;"/>
-
-                            <p:commandButton value="#{crud['boton.eliminar']}"
-                                             icon="pi pi-trash"
-                                             action="#{productoBean.btnEliminar}"
-                                             rendered="#{productoBean.estado == 'MODIFICAR'}"
-                                             update=":form:tablaProductos :form:messages"
-                                             oncomplete="if(!args.validationFailed) PF('dlgProductoWidget').hide();"
-                                             styleClass="ui-button-danger"
-                                             style="margin-right: 10px;">
-                                <p:confirm header="#{crud['confirmar.eliminar.titulo']}"
-                                           message="#{crud['confirmar.eliminar.mensaje']}"
-                                           icon="pi pi-exclamation-triangle"/>
-                            </p:commandButton>
-
-                            <p:commandButton value="#{crud['boton.cancelar']}"
-                                             icon="pi pi-times"
-                                             onclick="PF('dlgProductoWidget').hide();"
-                                             styleClass="ui-button-secondary"
-                                             immediate="true"
-                                             process="@this"/>
-                        </div>
-
-                    </p:tab>
-
-                    <!-- ========== TAB 2: TIPOS DE PRODUCTO ========== -->
-                    <p:tab title="#{crud['tab.tiposProducto']}">
-
-                        <h3>#{productoBean.filaSeleccionada.nombreProducto}</h3>
-
-                        <!-- Botones -->
-                        <div style="margin-bottom: 20px;">
-                            <p:commandButton value="#{crud['boton.seleccionarTipo']}"
-                                             icon="pi pi-plus"
-                                             action="#{productoBean.abrirDialogoSeleccionarTipo}"
-                                             update="dlgSeleccionTipo"
-                                             oncomplete="PF('dlgSeleccionTipoWidget').show();"
-                                             styleClass="ui-button-success"
-                                             style="margin-right: 10px;"/>
-
-                            <p:commandButton value="#{crud['boton.cancelarTipos']}"
-                                             icon="pi pi-times"
-                                             action="#{productoBean.cancelarTiposDeProducto}"
-                                             update="panelTipo"
-                                             styleClass="ui-button-secondary"/>
-                        </div>
-
-                        <!-- Panel Tipo Seleccionado -->
-                        <p:panel id="panelTipo"
-                                 header="#{crud['panel.tipo']}"
-                                 rendered="#{productoBean.productoTipoProductoActual != null}">
-
-                            <div style="margin-bottom: 10px;">
-                                <strong>#{crud['form.tipo']}:</strong>
-                                #{productoBean.productoTipoProductoActual.idTipoProducto.nombre}
-                            </div>
-
-                            <!-- PICKLIST -->
-                            <h4 style="margin-top: 20px;">#{crud['titulo.caracteristicas']}</h4>
-
-                            <p:pickList value="#{productoBean.pickListCaracteristicas}"
-                                        var="caract"
-                                        itemLabel="#{caract.idCaracteristica.nombre}"
-                                        itemValue="#{caract}"
+                            <p:pickList id="pickListCaracteristicas"
+                                        value="#{productoTipoProductoBean.caracteristicasPickList}"
+                                        var="carac"
+                                        itemLabel="#{carac.idCaracteristica.nombre}"
+                                        itemValue="#{carac}"
+                                        converter="tipoProductoCaracteristicaConverter"
                                         showSourceControls="true"
                                         showTargetControls="true"
-                                        rendered="#{not empty productoBean.pickListCaracteristicas}"
-                                        converter="omnifaces.SelectItemsConverter">
+                                        responsive="true"
+                                        style="height: 200px;"
+                                        listStyle="height: 200px;">
 
-                                <f:facet name="sourceCaption">#{crud['picklist.disponibles']}</f:facet>
-                                <f:facet name="targetCaption">#{crud['picklist.asignadas']}</f:facet>
+                                <f:facet name="sourceCaption">#{crud['producto.tipoProducto.disponibles']}</f:facet>
+                                <f:facet name="targetCaption">#{crud['producto.tipoProducto.asignadas']}</f:facet>
 
-                                <p:column>
-                                    <h:outputText value="#{caract.idCaracteristica.nombre}"/>
-                                </p:column>
+                                <p:ajax event="transfer" update="valoresCaracteristicas"/>
+
                             </p:pickList>
+                        </div>
 
-                            <!-- Tabla de valores -->
-                            <h:panelGroup rendered="#{not empty productoBean.pickListCaracteristicas.target}">
-                                <h4 style="margin-top: 20px;">#{crud['titulo.caracteristicas.asignadas']}</h4>
+                        <!-- Panel para ingresar valores de características asignadas -->
+                        <h:panelGroup id="valoresCaracteristicas">
+                            <p:panel header="#{crud['producto.tipoProducto.valoresAsignados']}"
+                                     rendered="#{not empty productoTipoProductoBean.caracteristicasPickList.target}"
+                                     style="margin-bottom: 15px;">
 
-                                <p:dataTable value="#{productoBean.pickListCaracteristicas.target}"
-                                             var="caract"
-                                             lazy="false">
+                                <p:dataTable value="#{productoTipoProductoBean.caracteristicasPickList.target}"
+                                             var="caracAsignada"
+                                             style="margin-top: 10px;">
 
-                                    <p:column headerText="#{crud['tabla.nombre']}">
-                                        <h:outputText value="#{caract.idCaracteristica.nombre}"/>
+                                    <p:column headerText="#{crud['producto.tipoProducto.caracteristica']}" style="width: 40%;">
+                                        <h:outputText value="#{caracAsignada.idCaracteristica.nombre}"/>
                                     </p:column>
 
-                                    <p:column headerText="#{crud['tabla.valor']}">
-                                        <p:inputText value="#{productoBean.valoresCaracteristicas[caract.id]}"
+                                    <p:column headerText="#{crud['producto.tipoProducto.valor']}">
+                                        <p:inputText value="#{productoTipoProductoBean.valoresCaracteristicas[caracAsignada.id]}"
+                                                     placeholder="Ingrese el valor"
                                                      style="width: 100%;"/>
                                     </p:column>
 
+                                    <p:column headerText="#{crud['producto.tipoProducto.unidad']}" style="width: 20%;">
+                                        <h:outputText value="#{caracAsignada.idCaracteristica.idTipoUnidadMedida.nombre}"
+                                                      rendered="#{caracAsignada.idCaracteristica.idTipoUnidadMedida != null}"/>
+                                    </p:column>
+
                                 </p:dataTable>
-                            </h:panelGroup>
 
-                            <!-- Botón Guardar -->
-                            <p:commandButton value="#{crud['boton.guardarCaracteristicas']}"
+                            </p:panel>
+                        </h:panelGroup>
+
+                        <!-- Activo -->
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.activo']}"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectBooleanCheckbox value="#{productoTipoProductoBean.filaSeleccionada.activo}"/>
+                        </div>
+
+                        <!-- Fecha de Creación -->
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['producto.tipoProducto.fechaCreacion']}:"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText value="#{productoTipoProductoBean.filaSeleccionada.fechaCreacion}"
+                                         disabled="true"
+                                         style="width: 100%; background-color: #f0f0f0;">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" type="localDateTime"/>
+                            </p:inputText>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['form.observaciones']}"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputTextarea value="#{productoTipoProductoBean.filaSeleccionada.observaciones}"
+                                             rows="2"
+                                             style="width: 100%;"/>
+                        </div>
+
+                    </div>
+
+                    <f:facet name="footer">
+                        <div style="text-align: center; padding: 10px;">
+
+                            <!-- Botón AGREGAR -->
+                            <p:commandButton value="#{crud['boton.agregar']}"
                                              icon="pi pi-save"
-                                             action="#{productoBean.guardarCaracteristicas}"
-                                             update=":form:messages panelTipo"
                                              styleClass="ui-button-success"
-                                             style="margin-top: 20px;"/>
+                                             style="margin: 0 5px;"
+                                             action="#{productoTipoProductoBean.btnAgregar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="dlgProductoTipoProducto"
+                                             rendered="#{productoTipoProductoBean.estado.name() == 'CREAR'}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('dlgProductoTipoProducto').hide();"/>
 
-                        </p:panel>
+                            <!-- Botón ACTUALIZAR -->
+                            <p:commandButton value="#{crud['boton.actualizar']}"
+                                             icon="pi pi-refresh"
+                                             styleClass="ui-button-info"
+                                             style="margin: 0 5px;"
+                                             action="#{productoTipoProductoBean.btnActualizar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="dlgProductoTipoProducto"
+                                             rendered="#{productoTipoProductoBean.estado.name() == 'MODIFICAR'}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('dlgProductoTipoProducto').hide();"/>
 
-                    </p:tab>
+                            <!-- Botón ELIMINAR -->
+                            <p:commandButton value="#{crud['boton.eliminar']}"
+                                             icon="pi pi-trash"
+                                             styleClass="ui-button-danger"
+                                             style="margin: 0 5px;"
+                                             action="#{productoTipoProductoBean.btnEliminar}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="@this"
+                                             rendered="#{productoTipoProductoBean.estado.name() == 'MODIFICAR'}"
+                                             oncomplete="PF('dlgProductoTipoProducto').hide();">
+                                <p:confirm header="#{crud['mensaje.confirmar']}"
+                                           message="#{crud['mensaje.confirmacion.eliminar']}"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
 
-                </p:tabView>
+                            <!-- Botón CANCELAR -->
+                            <p:commandButton value="#{crud['boton.cancelar']}"
+                                             icon="pi pi-times"
+                                             styleClass="ui-button-secondary"
+                                             style="margin: 0 5px;"
+                                             onclick="PF('dlgProductoTipoProducto').hide(); return false;"
+                                             process="@none"/>
 
-            </p:dialog>
+                        </div>
+                    </f:facet>
 
-            <!-- ========== DIÁLOGO SELECCIONAR TIPO ========== -->
-            <p:dialog id="dlgSeleccionTipo"
-                      widgetVar="dlgSeleccionTipoWidget"
-                      header="#{crud['dialogo.seleccionarTipo']}"
-                      modal="true"
-                      width="500">
+                </p:dialog>
+            </h:panelGroup>
 
-                <div style="margin-bottom: 20px;">
-                    <strong style="display: block; margin-bottom: 10px;">#{crud['form.seleccioneTipo']}:</strong>
-
-                    <p:selectOneMenu value="#{productoBean.tipoProductoSeleccionadoId}"
-                                     style="width: 100%;"
-                                     filter="true"
-                                     converter="jakarta.faces.Long">
-                        <f:selectItem itemLabel="#{crud['seleccione.opcion']}"
-                                      itemValue="#{null}"/>
-                        <f:selectItems value="#{productoBean.tipoProductoDisponiblesList}"
-                                       var="tipo"
-                                       itemValue="#{tipo.id}"
-                                       itemLabel="#{tipo.nombre}"/>
-                    </p:selectOneMenu>
-                </div>
-
-                <div style="text-align: right;">
-                    <p:commandButton value="#{crud['boton.seleccionar']}"
-                                     icon="pi pi-check"
-                                     action="#{productoBean.confirmarSeleccionTipo}"
-                                     update=":form:messages :form:tabsProducto:panelTipo"
-                                     oncomplete="if(!args.validationFailed) PF('dlgSeleccionTipoWidget').hide();"
-                                     styleClass="ui-button-success"
-                                     style="margin-right: 10px;"/>
-
-                    <p:commandButton value="#{crud['boton.cancelar']}"
-                                     icon="pi pi-times"
-                                     onclick="PF('dlgSeleccionTipoWidget').hide();"
-                                     styleClass="ui-button-secondary"
-                                     immediate="true"
-                                     process="@this"/>
-                </div>
-
-            </p:dialog>
-
-            <!-- Confirmación -->
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                <p:commandButton value="#{crud['boton.si']}"
-                                 type="button"
-                                 styleClass="ui-confirmdialog-yes"
-                                 icon="pi pi-check"/>
-                <p:commandButton value="#{crud['boton.no']}"
-                                 type="button"
-                                 styleClass="ui-confirmdialog-no ui-button-secondary"
-                                 icon="pi pi-times"/>
+                <p:commandButton value="#{crud['boton.si']}" type="button"
+                                 styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="#{crud['boton.no']}" type="button"
+                                 styleClass="ui-confirmdialog-no" icon="pi pi-times" />
             </p:confirmDialog>
 
         </h:form>
+
     </ui:define>
+
 </ui:composition>
 </html>

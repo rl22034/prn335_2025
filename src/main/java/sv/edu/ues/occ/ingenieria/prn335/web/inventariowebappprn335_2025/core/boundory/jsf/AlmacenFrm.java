@@ -22,7 +22,6 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
     @Inject
     private TipoAlmacenDAO tipoAlmacenDAO;
 
-    // INYECTAR EL BEAN PADRE
     @Inject
     private TipoAlmacenFrm tipoAlmacenBean;
 
@@ -73,40 +72,38 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
         }
     }
 
-    // MODIFICAR PARA FILTRAR POR TIPO ALMACEN
     @Override
     protected List<Almacen> buscarEntidades(int first, int pageSize) throws Exception {
         try {
-            // Obtener el TipoAlmacen seleccionado del bean padre
+            // Obtener el TipoAlmacen seleccionado del bean padre (si existe)
             TipoAlmacen tipoSeleccionado = tipoAlmacenBean != null ? tipoAlmacenBean.getFilaSeleccionada() : null;
 
+            // Si hay un tipo seleccionado, filtrar por ese tipo (maestro-detalle)
             if (tipoSeleccionado != null && tipoSeleccionado.getId() != null) {
-                // Filtrar por el TipoAlmacen seleccionado
                 return almacenDAO.findByTipoAlmacen(tipoSeleccionado.getId(), first, pageSize);
             }
 
-            // Si no hay selección, devolver lista vacía
-            return new ArrayList<>();
+            // Si no hay tipo seleccionado, mostrar TODOS los almacenes (página independiente)
+            return almacenDAO.findRange(first, pageSize);
 
         } catch (Exception e) {
             throw e;
         }
     }
 
-    // ⭐ MODIFICAR PARA CONTAR SOLO LOS DEL TIPO SELECCIONADO
     @Override
     protected Long contarEntidades() throws Exception {
         try {
-            // Obtener el TipoAlmacen seleccionado del bean padre
+            // Obtener el TipoAlmacen seleccionado del bean padre (si existe)
             TipoAlmacen tipoSeleccionado = tipoAlmacenBean != null ? tipoAlmacenBean.getFilaSeleccionada() : null;
 
+            // Si hay un tipo seleccionado, contar solo los de ese tipo (maestro-detalle)
             if (tipoSeleccionado != null && tipoSeleccionado.getId() != null) {
-                // Contar solo los del TipoAlmacen seleccionado
                 return almacenDAO.countByTipoAlmacen(tipoSeleccionado.getId());
             }
 
-            // Si no hay selección, devolver 0
-            return 0L;
+            // Si no hay tipo seleccionado, contar TODOS los almacenes (página independiente)
+            return almacenDAO.count();
 
         } catch (Exception e) {
             throw e;
@@ -134,9 +131,9 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
         Almacen nuevo = new Almacen();
         nuevo.setActivo(true);
 
-        // ASIGNAR AUTOMÁTICAMENTE EL TIPO ALMACEN SELECCIONADO
+        // Si hay un tipo seleccionado, asignarlo automáticamente (maestro-detalle)
         TipoAlmacen tipoSeleccionado = tipoAlmacenBean != null ? tipoAlmacenBean.getFilaSeleccionada() : null;
-        if (tipoSeleccionado != null) {
+        if (tipoSeleccionado != null && tipoSeleccionado.getId() != null) {
             nuevo.setIdTipoAlmacen(tipoSeleccionado);
         }
 

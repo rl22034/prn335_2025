@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.primefaces.event.SelectEvent;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.TipoProductoCaracteristicaDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.CaracteristicaDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProductoCaracteristica;
@@ -24,8 +25,10 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
     @Inject
     private CaracteristicaDAO caracteristicaDAO;
 
+    @Inject
+    private TipoProductoFrm tipoProductoBean;
+
     private List<Caracteristica> caracteristicasList;
-    private TipoProducto tipoProductoActual;
 
     @PostConstruct
     public void init() {
@@ -37,11 +40,20 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
         if (entidad.getIdCaracteristica() == null) {
             throw new Exception("Debe seleccionar una característica");
         }
+        // Obtener el TipoProducto seleccionado del bean padre
+        TipoProducto tipoProductoActual = tipoProductoBean != null ? tipoProductoBean.getFilaSeleccionada() : null;
+        if (tipoProductoActual == null || tipoProductoActual.getId() == null) {
+            throw new Exception("No hay tipo de producto seleccionado");
+        }
         entidad.setIdTipoProducto(tipoProductoActual);
         if (entidad.getFechaCreacion() == null) {
             entidad.setFechaCreacion(OffsetDateTime.now());
         }
         tipoProductoCaracteristicaDAO.crear(entidad);
+        // Recargar la lista en el bean padre
+        if (tipoProductoBean != null) {
+            tipoProductoBean.cargarCaracteristicas();
+        }
     }
 
     @Override
@@ -50,6 +62,10 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
             throw new Exception("Debe seleccionar una característica");
         }
         tipoProductoCaracteristicaDAO.update(entidad);
+        // Recargar la lista en el bean padre
+        if (tipoProductoBean != null) {
+            tipoProductoBean.cargarCaracteristicas();
+        }
     }
 
     @Override
@@ -59,6 +75,10 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
             throw new Exception("validacion.registro.no.existe");
         }
         tipoProductoCaracteristicaDAO.delete(entidad);
+        // Recargar la lista en el bean padre
+        if (tipoProductoBean != null) {
+            tipoProductoBean.cargarCaracteristicas();
+        }
     }
 
     @Override
@@ -84,11 +104,11 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
         return nuevo;
     }
 
-    public void onRowSelect() {
-        if (filaSeleccionada != null) {
-            estado = CRUD.MODIFICAR;
-        }
+    @Override
+    public void onRowSelect(SelectEvent<TipoProductoCaracteristica> event) {
+        super.onRowSelect(event);
     }
+
 
     public List<Caracteristica> getCaracteristicasList() {
         if (caracteristicasList == null) {
@@ -105,13 +125,6 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
         this.caracteristicasList = caracteristicasList;
     }
 
-    public TipoProducto getTipoProductoActual() {
-        return tipoProductoActual;
-    }
-
-    public void setTipoProductoActual(TipoProducto tipoProductoActual) {
-        this.tipoProductoActual = tipoProductoActual;
-    }
 
 }
 

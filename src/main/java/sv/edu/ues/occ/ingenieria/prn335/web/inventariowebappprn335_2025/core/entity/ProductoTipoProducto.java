@@ -7,6 +7,19 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "producto_tipo_producto", schema = "public")
+@NamedQueries({
+    @NamedQuery(
+        name = "ProductoTipoProducto.findByProducto",
+        query = "SELECT ptp FROM ProductoTipoProducto ptp " +
+                "LEFT JOIN FETCH ptp.idTipoProducto " +
+                "LEFT JOIN FETCH ptp.idProducto " +
+                "WHERE ptp.idProducto.id = :idProducto ORDER BY ptp.id"
+    ),
+    @NamedQuery(
+        name = "ProductoTipoProducto.countByProducto",
+        query = "SELECT COUNT(ptp) FROM ProductoTipoProducto ptp WHERE ptp.idProducto.id = :idProducto"
+    )
+})
 public class ProductoTipoProducto {
     @Id
     @Column(name = "id_producto_tipo_producto", nullable = false, columnDefinition = "uuid")

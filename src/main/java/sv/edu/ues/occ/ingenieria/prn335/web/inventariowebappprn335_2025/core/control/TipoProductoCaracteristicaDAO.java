@@ -79,10 +79,17 @@ public class TipoProductoCaracteristicaDAO extends InventarioDefaultDataAccess<T
             // @ManyToOne @JoinColumn(name="id_tipo_producto")
             // private TipoProducto idTipoProducto;
 
-            return getEntityManager()
-                    .createQuery("SELECT tpc FROM TipoProductoCaracteristica tpc WHERE tpc.idTipoProducto.id = :idTipo", TipoProductoCaracteristica.class)
+             return getEntityManager()
+                    .createQuery(
+                            "SELECT tpc FROM TipoProductoCaracteristica tpc " +
+                                    "LEFT JOIN FETCH tpc.idCaracteristica c " +
+                                    "LEFT JOIN FETCH c.idTipoUnidadMedida " +
+                                    "WHERE tpc.idTipoProducto.id = :idTipo " +
+                                    "ORDER BY tpc.id",
+                            TipoProductoCaracteristica.class)
                     .setParameter("idTipo", idTipoProducto)
                     .getResultList();
+
         } catch (Exception e) {
             e.printStackTrace(); // Log the error
             return Collections.emptyList();

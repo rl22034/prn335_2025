@@ -8,8 +8,10 @@ import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.TipoProductoDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.CaracteristicaDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.TipoProductoCaracteristicaDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProducto;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Caracteristica;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.TipoProductoCaracteristica;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,6 +28,9 @@ public class TipoProductoFrm implements Serializable {
     @Inject
     private CaracteristicaDAO caracteristicaDAO;
 
+    @Inject
+    private TipoProductoCaracteristicaDAO tipoProductoCaracteristicaDAO;
+
     // Para el TreeTable
     private TreeNode<TipoProducto> rootNode;
     private TreeNode<TipoProducto> selectedNode;
@@ -38,7 +43,7 @@ public class TipoProductoFrm implements Serializable {
     private List<TipoProducto> tipoProductoList;
 
     // Para el tab de características
-    private List<Caracteristica> caracteristicasList;
+    private List<TipoProductoCaracteristica> caracteristicasList;
 
     @PostConstruct
     public void init() {
@@ -99,6 +104,7 @@ public class TipoProductoFrm implements Serializable {
         if (selectedNode != null) {
             filaSeleccionada = selectedNode.getData();
             estado = CRUD.MODIFICAR;
+            tipoProductoList = null; // ✅ Resetear para que se recalcule la lista de padres válidos
             cargarCaracteristicas();
         }
     }
@@ -109,29 +115,27 @@ public class TipoProductoFrm implements Serializable {
     public void cargarCaracteristicas() {
         try {
             if (filaSeleccionada != null && filaSeleccionada.getId() != null) {
-                // Aquí cargaríamos las características a través de TipoProductoCaracteristica
-                // Por ahora, cargamos todas las características disponibles
-                caracteristicasList = caracteristicaDAO.findRange(0, 1000);
+                // ✅ Cargar solo las características del TipoProducto seleccionado
+                caracteristicasList = tipoProductoCaracteristicaDAO.findByTipoProducto(filaSeleccionada.getId());
+            } else {
+                caracteristicasList = new ArrayList<>();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            caracteristicasList = new ArrayList<>();
         }
     }
 
     /**
-     * Carga la lista de TipoProducto para el selector de padre
+     * Carga la lista de TipoProducto válidos para el selector de padre.
+     * Excluye el nodo actual y todos sus descendientes para evitar ciclos.
      */
     public List<TipoProducto> getTipoProductoList() {
         if (tipoProductoList == null) {
             try {
-                tipoProductoList = tipoProductoDAO.findRange(0, 1000);
-
-                // Filtrar para evitar que un tipo se seleccione a sí mismo como padre
-                if (filaSeleccionada != null && filaSeleccionada.getId() != null) {
-                    tipoProductoList = tipoProductoList.stream()
-                            .filter(tp -> !tp.getId().equals(filaSeleccionada.getId()))
-                            .collect(Collectors.toList());
-                }
+                // Usar el método del DAO que filtra correctamente
+                Long idActual = (filaSeleccionada != null) ? filaSeleccionada.getId() : null;
+                tipoProductoList = tipoProductoDAO.findValidosParaPadre(idActual);
             } catch (Exception e) {
                 e.printStackTrace();
                 tipoProductoList = new ArrayList<>();
@@ -296,11 +300,11 @@ public class TipoProductoFrm implements Serializable {
         this.caracteristicaDAO = caracteristicaDAO;
     }
 
-    public List<Caracteristica> getCaracteristicasList() {
+    public List<TipoProductoCaracteristica> getCaracteristicasList() {
         return caracteristicasList;
     }
 
-    public void setCaracteristicasList(List<Caracteristica> caracteristicasList) {
+    public void setCaracteristicasList(List<TipoProductoCaracteristica> caracteristicasList) {
         this.caracteristicasList = caracteristicasList;
     }
 

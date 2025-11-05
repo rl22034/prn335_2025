@@ -50,6 +50,28 @@ public class UnidadMedidaDAO extends InventarioDefaultDataAccess<UnidadMedida> i
     }
 
     /**
+     * Sobrescribe findRange para hacer JOIN FETCH con TipoUnidadMedida
+     * Esto evita LazyInitializationException al mostrar los datos en la tabla
+     */
+    @Override
+    public List<UnidadMedida> findRange(int first, int max) {
+        try {
+            TypedQuery<UnidadMedida> query = em.createQuery(
+                    "SELECT um FROM UnidadMedida um " +
+                    "LEFT JOIN FETCH um.idTipoUnidadMedida " +
+                    "ORDER BY um.id ASC",
+                    UnidadMedida.class
+            );
+            query.setFirstResult(first);
+            query.setMaxResults(max);
+            return query.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    /**
      * Cuenta las UnidadMedida de un tipo específico
      * @param idTipoUnidadMedida ID del tipo de unidad de medida
      * @return Cantidad de registros
