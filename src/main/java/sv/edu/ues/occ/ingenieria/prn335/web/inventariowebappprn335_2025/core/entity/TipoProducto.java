@@ -1,5 +1,6 @@
 package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity;
 
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
@@ -15,6 +16,11 @@ public class TipoProducto {
     @Column(name = "id_tipo_producto", nullable = false)
     private Long id;
 
+    /*
+    * @JsonbTransient
+    *Ignora este campo al convertir a JSON
+    * */
+   // @JsonbTransient
     @OneToMany(mappedBy = "idTipoProductoPadre", fetch = FetchType.LAZY)
     private List<TipoProducto> tipoProductoList = new ArrayList<>();
 
@@ -34,12 +40,15 @@ public class TipoProducto {
     private String comentarios;
 
 
+  //  @JsonbTransient
     @OneToMany(mappedBy = "idTipoProducto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductoTipoProducto> ProductoTipoProductos = new ArrayList<>();
 
+   // @JsonbTransient
     @OneToMany(mappedBy = "idTipoProducto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TipoProductoCaracteristica> tipoProductoCaracteristicas = new ArrayList<>();
 
+    @JsonbTransient
     public List<TipoProductoCaracteristica> getTipoProductoCaracteristicas() {
         return tipoProductoCaracteristicas;
     }
@@ -48,6 +57,7 @@ public class TipoProducto {
         this.tipoProductoCaracteristicas = tipoProductoCaracteristicas;
     }
 
+    @JsonbTransient
     public List<ProductoTipoProducto> getProductoTipoProductos() {
         return ProductoTipoProductos;
     }
@@ -96,6 +106,7 @@ public class TipoProducto {
         this.comentarios = comentarios;
     }
 
+    @JsonbTransient
     public List<TipoProducto> getTipoProductoList() {
         return tipoProductoList;
     }
