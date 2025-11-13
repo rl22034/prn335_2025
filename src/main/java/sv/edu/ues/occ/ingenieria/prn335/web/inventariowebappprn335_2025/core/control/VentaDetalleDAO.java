@@ -27,38 +27,6 @@ public class VentaDetalleDAO extends InventarioDefaultDataAccess<VentaDetalle> i
         return em;
     }
 
-    // Sobrescribimos los métodos básicos
-
-    @Override
-    public void crear(VentaDetalle entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
-    public void delete(VentaDetalle entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public VentaDetalle finById(Object id) {
-        return super.finById(id);
-    }
-
-    @Override
-    public List<VentaDetalle> findRange(int first, int pageSize) {
-        return super.findRange(first, pageSize);
-    }
-
-    @Override
-    public Long count() {
-        return super.count();
-    }
-
-    @Override
-    public VentaDetalle update(VentaDetalle entidad) {
-        return super.update(entidad);
-    }
-
     /**
      * Método ESENCIAL para la lógica Maestro-Detalle.
      * Busca todos los VentaDetalle asociados a un ID de Venta (UUID).

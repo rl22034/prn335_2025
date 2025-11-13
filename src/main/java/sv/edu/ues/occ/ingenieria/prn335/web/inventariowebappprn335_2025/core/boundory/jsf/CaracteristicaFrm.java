@@ -24,62 +24,36 @@ public class CaracteristicaFrm extends DefaultFrm<Caracteristica> implements Ser
     private List<TipoUnidadMedida> tipoUnidadMedidaList;
 
     @Override
-    protected void crearEntidad(Caracteristica entidad) throws Exception {
-        // Validar TipoUnidadMedida
-        if (entidad.getIdTipoUnidadMedida() == null) {
-            throw new Exception("validacion.tipounidadmedida.requerido");
-        }
-
-        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("validacion.nombre.requerido");
-        }
-
-        caracteristicaDAO.crear(entidad);
+    protected CaracteristicaDAO obtenerDAO() {
+        return caracteristicaDAO;
     }
 
     @Override
-    protected void actualizarEntidad(Caracteristica entidad) throws Exception {
-        // Validar TipoUnidadMedida
+    protected void validarAntesDeCrear(Caracteristica entidad) throws Exception {
         if (entidad.getIdTipoUnidadMedida() == null) {
             throw new Exception("validacion.tipounidadmedida.requerido");
         }
-
-
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
             throw new Exception("validacion.nombre.requerido");
         }
-
-        caracteristicaDAO.update(entidad);
     }
 
     @Override
-    protected void eliminarEntidad(Caracteristica entidad) throws Exception {
-        Caracteristica original = caracteristicaDAO.finById(entidad.getId());
-
-        if (original == null) {
-            throw new Exception("validacion.registro.no.existe");
+    protected void validarAntesDeActualizar(Caracteristica entidad) throws Exception {
+        if (entidad.getIdTipoUnidadMedida() == null) {
+            throw new Exception("validacion.tipounidadmedida.requerido");
         }
+        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
+            throw new Exception("validacion.nombre.requerido");
+        }
+    }
 
+    @Override
+    protected void validarAntesDeEliminar(Caracteristica entidad, Caracteristica original)
+            throws Exception {
         if (!entidad.getNombre().equals(original.getNombre())) {
             throw new Exception("validacion.nombre.cambiado");
         }
-
-        caracteristicaDAO.delete(entidad);
-    }
-
-    @Override
-    protected List<Caracteristica> buscarEntidades(int first, int pageSize) throws Exception {
-        return caracteristicaDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        return caracteristicaDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(Caracteristica entidad) {
-        return entidad.getId();
     }
 
     @Override
@@ -107,23 +81,7 @@ public class CaracteristicaFrm extends DefaultFrm<Caracteristica> implements Ser
         this.tipoUnidadMedidaList = tipoUnidadMedidaList;
     }
 
-    // Getters y setters
-
-    public Caracteristica getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(Caracteristica filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<Caracteristica> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<Caracteristica> entidadesList) {
-        super.setEntidadesList(entidadesList);
-    }
+    // Getters y setters de los DAOs
 
     public CaracteristicaDAO getCaracteristicaDAO() {
         return caracteristicaDAO;

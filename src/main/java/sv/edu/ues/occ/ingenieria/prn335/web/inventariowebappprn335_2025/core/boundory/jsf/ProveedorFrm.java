@@ -17,49 +17,29 @@ public class ProveedorFrm extends DefaultFrm<Proveedor> implements Serializable 
     private ProveedorDAO proveedorDAO;
 
     @Override
-    protected void crearEntidad(Proveedor entidad) throws Exception {
-        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("validacion.nombre.requerido");
-        }
-        proveedorDAO.crear(entidad);
+    protected ProveedorDAO obtenerDAO() {
+        return proveedorDAO;
     }
 
     @Override
-    protected void actualizarEntidad(Proveedor entidad) throws Exception {
+    protected void validarAntesDeCrear(Proveedor entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
             throw new Exception("validacion.nombre.requerido");
         }
-        proveedorDAO.update(entidad);
     }
 
     @Override
-    protected void eliminarEntidad(Proveedor entidad) throws Exception {
-        Proveedor original = proveedorDAO.finById(entidad.getId());
-
-        if (original == null) {
-            throw new Exception("validacion.registro.no.existe");
+    protected void validarAntesDeActualizar(Proveedor entidad) throws Exception {
+        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
+            throw new Exception("validacion.nombre.requerido");
         }
+    }
 
+    @Override
+    protected void validarAntesDeEliminar(Proveedor entidad, Proveedor original) throws Exception {
         if (!entidad.getNombre().equals(original.getNombre())) {
             throw new Exception("validacion.nombre.cambiado");
         }
-
-        proveedorDAO.delete(entidad);
-    }
-
-    @Override
-    protected List<Proveedor> buscarEntidades(int first, int pageSize) throws Exception {
-        return proveedorDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        return proveedorDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(Proveedor entidad) {
-        return entidad.getId();
     }
 
     @Override
@@ -69,25 +49,7 @@ public class ProveedorFrm extends DefaultFrm<Proveedor> implements Serializable 
         return nuevo;
     }
 
-
-
-    // Getters y setters
-
-    public Proveedor getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(Proveedor filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<Proveedor> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<Proveedor> entidadesList) {
-        super.setEntidadesList(entidadesList);
-    }
+    // Getters y setters del DAO
 
     public ProveedorDAO getProveedorDAO() {
         return proveedorDAO;

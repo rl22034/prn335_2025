@@ -33,25 +33,6 @@ public class ProveedorDAO extends InventarioDefaultDataAccess<Proveedor> impleme
         return em;
     }
 
-    @Override
-    public void delete(Proveedor entidad) {
-        // Llamamos a la lógica de eliminación que ya está definida en la clase base.
-        // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
-        super.delete(entidad);
-    }
-
-    @Override
-    public void crear(Proveedor entidad) {
-        // Llamamos a la lógica de eliminación que ya está definida en la clase base.
-        // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
-        super.crear(entidad);
-    }
-
-    @Override
-    public  Proveedor finById(Object id){
-
-        return super.finById(id);
-    }
     public List<Proveedor> findProveedoresActivos() {
         try {
             return em.createQuery(

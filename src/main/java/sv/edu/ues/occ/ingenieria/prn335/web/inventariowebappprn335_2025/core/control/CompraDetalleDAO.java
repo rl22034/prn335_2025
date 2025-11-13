@@ -26,21 +26,6 @@ public class CompraDetalleDAO extends InventarioDefaultDataAccess<CompraDetalle>
         return em;
     }
 
-    @Override
-    public void crear(CompraDetalle entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
-    public void delete(CompraDetalle entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public CompraDetalle finById(Object id) {
-        return super.finById(id);
-    }
-
     public List<CompraDetalle> getDetallesPorCompra(Long idCompra) {
         if (idCompra == null) {
             return java.util.Collections.emptyList();

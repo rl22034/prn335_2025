@@ -42,6 +42,22 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
     private ProveedorDAO proveedorDAO;
 
 
+    @Override
+    protected CompraDAO obtenerDAO() {
+        return compraDAO;
+    }
+
+    // Implementar métodos abstractos (aunque se sobrescriben crearEntidad/actualizarEntidad completos)
+    @Override
+    protected void validarAntesDeCrear(Compra entidad) throws Exception {
+        // La validación se hace en crearEntidad() sobrescrito
+    }
+
+    @Override
+    protected void validarAntesDeActualizar(Compra entidad) throws Exception {
+        // La validación se hace en actualizarEntidad() sobrescrito
+    }
+
     @Override // Sobreescribe este método de DefaultFrm
     public void btnNuevo() {
         super.btnNuevo(); // Llama al método original para instanciar la entidad
@@ -91,31 +107,6 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
         }
 
         compraDAO.update(entidad);
-    }
-
-    @Override
-    protected void eliminarEntidad(Compra entidad) throws Exception {
-        Compra original = compraDAO.finById(entidad.getId());
-        if (original == null) {
-            throw new Exception("La compra no existe en la base de datos");
-        }
-
-        compraDAO.delete(entidad);
-    }
-
-    @Override
-    protected List<Compra> buscarEntidades(int first, int pageSize) throws Exception {
-        return compraDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        return compraDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(Compra entidad) {
-        return entidad.getId();
     }
 
     public CompraDetalleDAO getCompraDetalleDAO() {
@@ -276,22 +267,6 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
 
     public void setProveedorDAO(ProveedorDAO proveedorDAO) {
         this.proveedorDAO = proveedorDAO;
-    }
-
-    public Compra getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(Compra filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<Compra> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<Compra> entidadesList) {
-        super.setEntidadesList(entidadesList);
     }
 
     public CompraDAO getCompraDAO() {

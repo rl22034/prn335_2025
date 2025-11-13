@@ -36,6 +36,22 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
     }
 
     @Override
+    protected TipoProductoCaracteristicaDAO obtenerDAO() {
+        return tipoProductoCaracteristicaDAO;
+    }
+
+    // Implementar métodos abstractos (aunque se sobrescriben crearEntidad/actualizarEntidad completos)
+    @Override
+    protected void validarAntesDeCrear(TipoProductoCaracteristica entidad) throws Exception {
+        // La validación se hace en crearEntidad() sobrescrito
+    }
+
+    @Override
+    protected void validarAntesDeActualizar(TipoProductoCaracteristica entidad) throws Exception {
+        // La validación se hace en actualizarEntidad() sobrescrito
+    }
+
+    @Override
     protected void crearEntidad(TipoProductoCaracteristica entidad) throws Exception {
         if (entidad.getIdCaracteristica() == null) {
             throw new Exception("Debe seleccionar una característica");
@@ -79,21 +95,6 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
         if (tipoProductoBean != null) {
             tipoProductoBean.cargarCaracteristicas();
         }
-    }
-
-    @Override
-    protected List<TipoProductoCaracteristica> buscarEntidades(int first, int pageSize) throws Exception {
-        return tipoProductoCaracteristicaDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        return tipoProductoCaracteristicaDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(TipoProductoCaracteristica entidad) {
-        return entidad.getId();
     }
 
     @Override

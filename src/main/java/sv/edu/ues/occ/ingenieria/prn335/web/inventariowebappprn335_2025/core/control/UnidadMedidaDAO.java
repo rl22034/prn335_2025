@@ -34,21 +34,6 @@ public class UnidadMedidaDAO extends InventarioDefaultDataAccess<UnidadMedida> i
         return em;
     }
 
-    @Override
-    public void delete(UnidadMedida entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public void crear(UnidadMedida entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
-    public UnidadMedida finById(Object id) {
-        return super.finById(id);
-    }
-
     /**
      * Sobrescribe findRange para hacer JOIN FETCH con TipoUnidadMedida
      * Esto evita LazyInitializationException al mostrar los datos en la tabla

@@ -26,40 +26,6 @@ public class TipoProductoCaracteristicaDAO extends InventarioDefaultDataAccess<T
         return em;
     }
 
-    // --- Standard CRUD Overrides ---
-    @Override
-    public void crear(TipoProductoCaracteristica entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
-    public void delete(TipoProductoCaracteristica entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public TipoProductoCaracteristica finById(Object id) {
-        // ID is Bigint according to DDL, usually mapped to Long in Java
-        return super.finById(id);
-    }
-
-    @Override
-    public TipoProductoCaracteristica update(TipoProductoCaracteristica entidad) {
-        return super.update(entidad);
-    }
-
-    @Override
-    public List<TipoProductoCaracteristica> findRange(int first, int pageSize) {
-        return super.findRange(first, pageSize);
-    }
-
-    @Override
-    public Long count() {
-        return super.count();
-    }
-
-    // --- Custom Query Method ---
-
     /**
      * Finds all characteristic definitions associated with a specific TipoProducto.
      * This is essential for displaying the characteristics in the TipoProducto screen's detail tab.

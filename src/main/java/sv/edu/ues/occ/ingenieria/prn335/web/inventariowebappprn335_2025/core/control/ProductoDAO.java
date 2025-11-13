@@ -18,41 +18,8 @@ public class ProductoDAO extends InventarioDefaultDataAccess<Producto> implement
     public ProductoDAO(){super(Producto.class);}
 
     @Override
-    public EntityManager getEntityManager() {return em;}
-
-    @Override
-    public void delete(Producto entidad) {
-        // Llamamos a la lógica de eliminación que ya está definida en la clase base.
-        // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
-        super.delete(entidad);
-    }
-
-    @Override
-    public void crear(Producto entidad) {
-        // Llamamos a la lógica de eliminación que ya está definida en la clase base.
-        // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
-        super.crear(entidad);
-    }
-
-    @Override
-    public  Producto finById(Object id){
-
-        return super.finById(id);
-    }
-
-    @Override
-    public Producto update(Producto entidad) {
-        return super.update(entidad);
-    }
-
-    @Override
-    public List<Producto> findRange(int first, int pageSize) {
-        return super.findRange(first, pageSize);
-    }
-
-    @Override
-    public Long count() {
-        return super.count();
+    public EntityManager getEntityManager() {
+        return em;
     }
 
     public List<Producto> findByCompra(Long idCompra) {

@@ -18,43 +18,22 @@ public class CompraDetalleFrm extends DefaultFrm<CompraDetalle> implements Seria
     private CompraDetalleDAO compraDetalleDAO;
 
     @Override
-    protected void crearEntidad(CompraDetalle entidad) throws Exception {
+    protected CompraDetalleDAO obtenerDAO() {
+        return compraDetalleDAO;
+    }
+
+    @Override
+    protected void validarAntesDeCrear(CompraDetalle entidad) throws Exception {
         if (entidad.getIdCompra() == null || entidad.getIdProducto() == null) {
             throw new Exception("validacion.compra.producto.requerido");
         }
-        compraDetalleDAO.crear(entidad);
     }
 
     @Override
-    protected void actualizarEntidad(CompraDetalle entidad) throws Exception {
+    protected void validarAntesDeActualizar(CompraDetalle entidad) throws Exception {
         if (entidad.getIdCompra() == null || entidad.getIdProducto() == null) {
             throw new Exception("validacion.compra.producto.requerido");
         }
-        compraDetalleDAO.update(entidad);
-    }
-
-    @Override
-    protected void eliminarEntidad(CompraDetalle entidad) throws Exception {
-        CompraDetalle original = compraDetalleDAO.finById(entidad.getId());
-        if (original == null) {
-            throw new Exception("validacion.registro.no.existe");
-        }
-        compraDetalleDAO.delete(entidad);
-    }
-
-    @Override
-    protected List<CompraDetalle> buscarEntidades(int first, int pageSize) throws Exception {
-        return compraDetalleDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        return compraDetalleDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(CompraDetalle entidad) {
-        return entidad.getId();
     }
 
     @Override
@@ -62,24 +41,7 @@ public class CompraDetalleFrm extends DefaultFrm<CompraDetalle> implements Seria
         return new CompraDetalle();
     }
 
-
-    // Getters y setters
-
-    public CompraDetalle getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(CompraDetalle filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<CompraDetalle> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<CompraDetalle> entidadesList) {
-        super.setEntidadesList(entidadesList);
-    }
+    // Getters y setters del DAO
 
     public CompraDetalleDAO getCompraDetalleDAO() {
         return compraDetalleDAO;

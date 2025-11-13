@@ -27,34 +27,22 @@ public class UnidadMedidaFrm extends DefaultFrm<UnidadMedida> implements Seriali
     private Integer idTipoUnidadMedida;
 
     @Override
-    protected void crearEntidad(UnidadMedida entidad) throws Exception {
-        // Validar equivalencia
-        if (entidad.getEquivalencia() == null) {
-            throw new Exception("validacion.equivalencia.requerida");
-        }
-
-        unidadMedidaDAO.crear(entidad);
+    protected UnidadMedidaDAO obtenerDAO() {
+        return unidadMedidaDAO;
     }
 
     @Override
-    protected void actualizarEntidad(UnidadMedida entidad) throws Exception {
-        // Validar equivalencia
+    protected void validarAntesDeCrear(UnidadMedida entidad) throws Exception {
         if (entidad.getEquivalencia() == null) {
             throw new Exception("validacion.equivalencia.requerida");
         }
-
-        unidadMedidaDAO.update(entidad);
     }
 
     @Override
-    protected void eliminarEntidad(UnidadMedida entidad) throws Exception {
-        UnidadMedida original = unidadMedidaDAO.finById(entidad.getId());
-
-        if (original == null) {
-            throw new Exception("validacion.registro.no.existe");
+    protected void validarAntesDeActualizar(UnidadMedida entidad) throws Exception {
+        if (entidad.getEquivalencia() == null) {
+            throw new Exception("validacion.equivalencia.requerida");
         }
-
-        unidadMedidaDAO.delete(entidad);
     }
 
     @Override
@@ -73,11 +61,6 @@ public class UnidadMedidaFrm extends DefaultFrm<UnidadMedida> implements Seriali
             return unidadMedidaDAO.countByTipoUnidadMedida(idTipoUnidadMedida);
         }
         return unidadMedidaDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(UnidadMedida entidad) {
-        return entidad.getId();
     }
 
     @Override
@@ -127,22 +110,6 @@ public class UnidadMedidaFrm extends DefaultFrm<UnidadMedida> implements Seriali
     }
 
     // ========== GETTERS Y SETTERS ==========
-
-    public UnidadMedida getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(UnidadMedida filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<UnidadMedida> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<UnidadMedida> entidadesList) {
-        super.setEntidadesList(entidadesList);
-    }
 
     public UnidadMedidaDAO getUnidadMedidaDAO() {
         return unidadMedidaDAO;

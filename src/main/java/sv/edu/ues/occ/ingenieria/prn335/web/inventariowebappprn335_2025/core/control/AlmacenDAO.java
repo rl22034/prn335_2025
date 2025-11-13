@@ -27,16 +27,6 @@ public class AlmacenDAO extends InventarioDefaultDataAccess<Almacen> implements 
     }
 
     @Override
-    public void delete(Almacen entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public void crear(Almacen entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
     public Almacen finById(Object id) {
         // ✅ Cargar con TipoAlmacen
         try {

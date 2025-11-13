@@ -53,20 +53,22 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     // ========================================================== //
 
     @Override
-    protected void crearEntidad(Venta entidad) throws Exception {
-        if (entidad.getFecha() == null || entidad.getIdCliente() == null || entidad.getEstado() == null) {
-            throw new Exception("Los campos fecha, cliente y estado son obligatorios");
-        }
-        // El ID (UUID) se generó en instanciarEntidad()
-        ventaDAO.crear(entidad);
+    protected VentaDAO obtenerDAO() {
+        return ventaDAO;
     }
 
     @Override
-    protected void actualizarEntidad(Venta entidad) throws Exception {
+    protected void validarAntesDeCrear(Venta entidad) throws Exception {
         if (entidad.getFecha() == null || entidad.getIdCliente() == null || entidad.getEstado() == null) {
             throw new Exception("Los campos fecha, cliente y estado son obligatorios");
         }
-        ventaDAO.update(entidad);
+    }
+
+    @Override
+    protected void validarAntesDeActualizar(Venta entidad) throws Exception {
+        if (entidad.getFecha() == null || entidad.getIdCliente() == null || entidad.getEstado() == null) {
+            throw new Exception("Los campos fecha, cliente y estado son obligatorios");
+        }
     }
 
     @Override
@@ -77,29 +79,6 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
             throw new Exception("No se puede eliminar la venta, tiene productos asociados.");
         }
         ventaDAO.delete(entidad);
-    }
-
-    @Override
-    protected List<Venta> buscarEntidades(int first, int pageSize) throws Exception {
-        // Comprobamos que el DAO no sea nulo
-        if (ventaDAO == null) {
-            throw new IllegalStateException("VentaDAO no fue inyectado.");
-        }
-        return ventaDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        // Comprobamos que el DAO no sea nulo
-        if (ventaDAO == null) {
-            throw new IllegalStateException("VentaDAO no fue inyectado.");
-        }
-        return ventaDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(Venta entidad) {
-        return entidad.getId();
     }
 
     @Override

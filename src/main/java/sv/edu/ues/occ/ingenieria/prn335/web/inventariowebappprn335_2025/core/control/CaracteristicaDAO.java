@@ -24,36 +24,4 @@ public class CaracteristicaDAO extends InventarioDefaultDataAccess<Caracteristic
     public EntityManager getEntityManager() {
         return em;
     }
-
-    // Sobreescribimos los métodos para exponerlos como EJB
-    @Override
-    public void crear(Caracteristica entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
-    public void delete(Caracteristica entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public Caracteristica finById(Object id) {
-        // El ID de Caracteristica es Integer según el DDL
-        return super.finById(id);
-    }
-
-    @Override
-    public Caracteristica update(Caracteristica entidad) {
-        return super.update(entidad);
-    }
-
-    @Override
-    public List<Caracteristica> findRange(int first, int pageSize) {
-        return super.findRange(first, pageSize);
-    }
-
-    @Override
-    public Long count() {
-        return super.count();
-    }
 }

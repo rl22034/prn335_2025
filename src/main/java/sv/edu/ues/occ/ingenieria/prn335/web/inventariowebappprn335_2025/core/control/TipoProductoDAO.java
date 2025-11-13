@@ -46,21 +46,6 @@ public class TipoProductoDAO extends InventarioDefaultDataAccess<TipoProducto> i
         }
     }
 
-    @Override
-    public void delete(TipoProducto entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public void crear(TipoProducto entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
-    public TipoProducto finById(Object id) {
-        return super.finById(id);
-    }
-
     public List<TipoProducto> findHijos(Long idPadre) {
         if (idPadre == null) {
             return Collections.emptyList();

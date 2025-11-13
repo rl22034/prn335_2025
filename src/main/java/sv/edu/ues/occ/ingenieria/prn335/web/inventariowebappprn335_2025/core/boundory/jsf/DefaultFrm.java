@@ -7,6 +7,7 @@ import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.jsf.MessageHelper;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.InventarioDefaultDataAccess;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -21,20 +22,60 @@ public abstract class DefaultFrm<T> implements Serializable {
     protected CRUD estado = CRUD.NINGUNO;
 
     // Métodos abstractos que cada clase hija debe implementar
-    protected abstract void crearEntidad(T entidad) throws Exception;
-    protected abstract void actualizarEntidad(T entidad) throws Exception;
-    protected abstract void eliminarEntidad(T entidad) throws Exception;
-    protected abstract List<T> buscarEntidades(int first, int pageSize) throws Exception;
-    protected abstract Long contarEntidades() throws Exception;
-    protected abstract Object obtenerIdEntidad(T entidad);
+    protected abstract InventarioDefaultDataAccess<T> obtenerDAO();
     protected abstract T instanciarEntidad();
+
+    // Métodos abstractos para validaciones (hooks)
+    protected abstract void validarAntesDeCrear(T entidad) throws Exception;
+    protected abstract void validarAntesDeActualizar(T entidad) throws Exception;
+    protected void validarAntesDeEliminar(T entidad, T original) throws Exception {
+        // Método vacío que puede ser sobrescrito por las clases hijas para agregar validaciones antes de eliminar
+    }
+
+    // Métodos con implementación Template Method
+    protected void crearEntidad(T entidad) throws Exception {
+        validarAntesDeCrear(entidad);
+        obtenerDAO().crear(entidad);
+    }
+
+    protected void actualizarEntidad(T entidad) throws Exception {
+        validarAntesDeActualizar(entidad);
+        obtenerDAO().update(entidad);
+    }
+
+    protected void eliminarEntidad(T entidad) throws Exception{
+        T origianal = obtenerDAO().finById(obtenerIdEntidad(entidad));
+        if (origianal == null){
+            throw new Exception("validacion.registro.no.existe");
+        }
+        validarAntesDeEliminar(entidad, origianal);
+        obtenerDAO().delete(entidad);
+    }
+
+
+    // Métodos con implementación por defecto (pueden ser sobrescritos si se necesita lógica diferente)
+    protected List<T> buscarEntidades(int first, int pageSize) throws Exception {
+        return obtenerDAO().findRange(first, pageSize);
+    }
+
+    protected Long contarEntidades() throws Exception {
+        return obtenerDAO().count();
+    }
+
+    protected Object obtenerIdEntidad(T entidad) {
+        // Asume que todas las entidades tienen un método getId()
+        // Si alguna entidad no lo tiene, el FRM hijo puede sobrescribir este método
+        try {
+            return entidad.getClass().getMethod("getId").invoke(entidad);
+        } catch (Exception e) {
+            throw new RuntimeException("No se pudo obtener el ID de la entidad. Sobrescribe obtenerIdEntidad() en el FRM hijo.", e);
+        }
+    }
 
     @PostConstruct
     public void init() {
         estado = CRUD.NINGUNO;
         filaSeleccionada = instanciarEntidad();
-        findRange();
-        initLazyModel();
     }
 
     public void findRange() {
@@ -202,6 +243,10 @@ public abstract class DefaultFrm<T> implements Serializable {
     }
 
     public LazyDataModel<T> getLazyModel() {
+
+        if (lazyModel == null) {
+            initLazyModel();
+        }
         return lazyModel;
     }
 

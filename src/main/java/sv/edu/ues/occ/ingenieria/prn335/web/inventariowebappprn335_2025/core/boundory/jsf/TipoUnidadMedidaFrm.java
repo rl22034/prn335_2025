@@ -34,19 +34,22 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
     // ========================================================== //
 
     @Override
-    protected void crearEntidad(TipoUnidadMedida entidad) throws Exception {
-        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("El nombre es obligatorio");
-        }
-        tipoUnidadMedidaDAO.crear(entidad);
+    protected TipoUnidadMedidaDAO obtenerDAO() {
+        return tipoUnidadMedidaDAO;
     }
 
     @Override
-    protected void actualizarEntidad(TipoUnidadMedida entidad) throws Exception {
+    protected void validarAntesDeCrear(TipoUnidadMedida entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
             throw new Exception("El nombre es obligatorio");
         }
-        tipoUnidadMedidaDAO.update(entidad);
+    }
+
+    @Override
+    protected void validarAntesDeActualizar(TipoUnidadMedida entidad) throws Exception {
+        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre es obligatorio");
+        }
     }
 
     @Override
@@ -57,27 +60,6 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
             throw new Exception("No se puede eliminar, tiene unidades de medida asociadas.");
         }
         tipoUnidadMedidaDAO.delete(entidad);
-    }
-
-    @Override
-    protected List<TipoUnidadMedida> buscarEntidades(int first, int pageSize) throws Exception {
-        if (tipoUnidadMedidaDAO == null) {
-            throw new IllegalStateException("TipoUnidadMedidaDAO no fue inyectado.");
-        }
-        return tipoUnidadMedidaDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        if (tipoUnidadMedidaDAO == null) {
-            throw new IllegalStateException("TipoUnidadMedidaDAO no fue inyectado.");
-        }
-        return tipoUnidadMedidaDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(TipoUnidadMedida entidad) {
-        return entidad.getId(); // El ID es Integer según DDL
     }
 
     @Override

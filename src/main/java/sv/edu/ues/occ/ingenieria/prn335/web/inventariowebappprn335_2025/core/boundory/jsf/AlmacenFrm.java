@@ -26,49 +26,29 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
     private TipoAlmacenFrm tipoAlmacenBean;
 
     @Override
-    protected void crearEntidad(Almacen entidad) throws Exception {
-        try {
-            if (entidad.getIdTipoAlmacen() == null) {
-                throw new Exception("validacion.tipoalmacen.requerido");
-            }
-
-            almacenDAO.crear(entidad);
-
-        } catch (Exception e) {
-            throw e;
-        }
+    protected AlmacenDAO obtenerDAO() {
+        return almacenDAO;
     }
 
     @Override
-    protected void actualizarEntidad(Almacen entidad) throws Exception {
+    protected void validarAntesDeCrear(Almacen entidad) throws Exception {
         if (entidad.getIdTipoAlmacen() == null) {
             throw new Exception("validacion.tipoalmacen.requerido");
         }
+    }
 
-        try {
-            almacenDAO.update(entidad);
-        } catch (Exception e) {
-            throw e;
+    @Override
+    protected void validarAntesDeActualizar(Almacen entidad) throws Exception {
+        if (entidad.getIdTipoAlmacen() == null) {
+            throw new Exception("validacion.tipoalmacen.requerido");
         }
     }
 
     @Override
-    protected void eliminarEntidad(Almacen entidad) throws Exception {
-        try {
-            Almacen original = almacenDAO.finById(entidad.getId());
-
-            if (original == null) {
-                throw new Exception("validacion.registro.no.existe");
-            }
-
-            if (!entidad.getIdTipoAlmacen().getId().equals(original.getIdTipoAlmacen().getId())) {
-                throw new Exception("validacion.tipoalmacen.cambiado");
-            }
-
-            almacenDAO.delete(entidad);
-
-        } catch (Exception e) {
-            throw e;
+    protected void validarAntesDeEliminar(Almacen entidad, Almacen original)
+            throws Exception {
+        if (!entidad.getIdTipoAlmacen().getId().equals(original.getIdTipoAlmacen().getId())) {
+            throw new Exception("validacion.tipoalmacen.cambiado");
         }
     }
 
@@ -83,8 +63,8 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
                 return almacenDAO.findByTipoAlmacen(tipoSeleccionado.getId(), first, pageSize);
             }
 
-            // Si no hay tipo seleccionado, mostrar TODOS los almacenes (página independiente)
-            return almacenDAO.findRange(first, pageSize);
+            // Si no hay tipo seleccionado, mostrar una lista vacía
+            return new ArrayList<>();
 
         } catch (Exception e) {
             throw e;
@@ -108,11 +88,6 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
         } catch (Exception e) {
             throw e;
         }
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(Almacen entidad) {
-        return entidad.getId();
     }
 
     /**
@@ -140,22 +115,7 @@ public class AlmacenFrm extends DefaultFrm<Almacen> implements Serializable {
         return nuevo;
     }
 
-    // Getters y Setters
-    public Almacen getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(Almacen filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<Almacen> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<Almacen> entidadesList) {
-        super.setEntidadesList(entidadesList);
-    }
+    // Getters y Setters de los DAOs
 
     public AlmacenDAO getAlmacenDAO() {
         return almacenDAO;

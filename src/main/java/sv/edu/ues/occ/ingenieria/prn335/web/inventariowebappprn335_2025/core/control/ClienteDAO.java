@@ -24,38 +24,4 @@ public class ClienteDAO extends InventarioDefaultDataAccess<Cliente> implements 
     public EntityManager getEntityManager() {
         return em;
     }
-
-    @Override
-    public void crear(Cliente entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
-    public void delete(Cliente entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public  Cliente finById(Object id){
-        return super.finById(id);
-    }
-
-    // ========================================================== //
-    //    ¡¡¡AÑADE ESTOS MÉTODOS FALTANTES AQUÍ!!!
-    // ========================================================== //
-
-    @Override
-    public Cliente update(Cliente entidad) {
-        return super.update(entidad);
-    }
-
-    @Override
-    public List<Cliente> findRange(int first, int pageSize) {
-        return super.findRange(first, pageSize);
-    }
-
-    @Override
-    public Long count() {
-        return super.count();
-    }
 }

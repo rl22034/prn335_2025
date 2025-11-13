@@ -18,74 +18,30 @@ public class TipoAlmacenFrm extends DefaultFrm<TipoAlmacen> implements Serializa
     private TipoAlmacenDAO tipoAlmacenDAO;
 
     @Override
-    protected void crearEntidad(TipoAlmacen entidad) throws Exception {
+    protected TipoAlmacenDAO obtenerDAO() {
+        return tipoAlmacenDAO;
+    }
+
+    @Override
+    protected void validarAntesDeCrear(TipoAlmacen entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
             throw new Exception("validacion.nombre.requerido");
         }
-        tipoAlmacenDAO.crear(entidad);
     }
 
     @Override
-    protected void actualizarEntidad(TipoAlmacen entidad) throws Exception {
-        //  Validar con clave
+    protected void validarAntesDeActualizar(TipoAlmacen entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("validacion.nombre.requerido");  // ⭐ Solo la clave
-        }
-
-        try{
-            tipoAlmacenDAO.update(entidad);
-        }catch (Exception e){
-            // Propagar el error real de la BD
-            throw e;
+            throw new Exception("validacion.nombre.requerido");
         }
     }
 
     @Override
-    protected void eliminarEntidad(TipoAlmacen entidad) throws Exception {
-        try {
-            // Obtener el registro actual de la base de datos
-            TipoAlmacen original = tipoAlmacenDAO.finById(entidad.getId());
-
-            // Validar que el registro aún existe
-            if (original == null) {
-                throw new Exception("validacion.registro.no.existe");  // ⭐ Solo la clave
-            }
-
-            // ⭐ Validar que el nombre NO ha cambiado
-            if (!entidad.getNombre().equals(original.getNombre())) {
-                throw new Exception("validacion.nombre.cambiado");  // ⭐ Solo la clave
-            }
-
-            // Si el nombre es igual, proceder con la eliminación
-            tipoAlmacenDAO.delete(entidad);
-
-        } catch (Exception e) {
-            // Propagar el error
-            throw e;
+    protected void validarAntesDeEliminar(TipoAlmacen entidad, TipoAlmacen original)
+            throws Exception {
+        if (!entidad.getNombre().equals(original.getNombre())) {
+            throw new Exception("validacion.nombre.cambiado");
         }
-    }
-
-    @Override
-    protected List<TipoAlmacen> buscarEntidades(int first, int pageSize) throws Exception {
-        try{
-            return tipoAlmacenDAO.findRange(first, pageSize);
-        }catch (Exception e){
-            throw e;
-        }
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        try{
-            return tipoAlmacenDAO.count();
-        }catch (Exception e){
-            throw e;
-        }
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(TipoAlmacen entidad) {
-        return entidad.getId();
     }
 
     @Override
@@ -95,26 +51,7 @@ public class TipoAlmacenFrm extends DefaultFrm<TipoAlmacen> implements Serializa
         return nuevo;
     }
 
-
-
-
-    // Getters y setters
-
-    public TipoAlmacen getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(TipoAlmacen filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<TipoAlmacen> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<TipoAlmacen> entidadesList) {
-        super.setEntidadesList(entidadesList);
-    }
+    // Getters y setters del DAO
 
     public TipoAlmacenDAO getTipoAlmacenDAO() {
         return tipoAlmacenDAO;

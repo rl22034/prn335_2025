@@ -17,49 +17,30 @@ public class ClienteFrm extends DefaultFrm<Cliente> implements Serializable {
     private ClienteDAO clienteDAO;
 
     @Override
-    protected void crearEntidad(Cliente entidad) throws Exception {
-        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("validacion.nombre.requerido");
-        }
-        clienteDAO.crear(entidad);
+    protected ClienteDAO obtenerDAO() {
+        return clienteDAO;
     }
 
     @Override
-    protected void actualizarEntidad(Cliente entidad) throws Exception {
+    protected void validarAntesDeCrear(Cliente entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
             throw new Exception("validacion.nombre.requerido");
         }
-        clienteDAO.update(entidad);
     }
 
     @Override
-    protected void eliminarEntidad(Cliente entidad) throws Exception {
-        Cliente original = clienteDAO.finById(entidad.getId());
-
-        if (original == null) {
-            throw new Exception("validacion.registro.no.existe");
+    protected void validarAntesDeActualizar(Cliente entidad) throws Exception {
+        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
+            throw new Exception("validacion.nombre.requerido");
         }
+    }
 
+    @Override
+    protected void validarAntesDeEliminar(Cliente entidad, Cliente original)
+            throws Exception {
         if (!entidad.getNombre().equals(original.getNombre())) {
             throw new Exception("validacion.nombre.cambiado");
         }
-
-        clienteDAO.delete(entidad);
-    }
-
-    @Override
-    protected List<Cliente> buscarEntidades(int first, int pageSize) throws Exception {
-        return clienteDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        return clienteDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(Cliente entidad) {
-        return entidad.getId();
     }
 
     @Override
@@ -69,23 +50,7 @@ public class ClienteFrm extends DefaultFrm<Cliente> implements Serializable {
         return nuevo;
     }
 
-    // Getters y setters
-
-    public Cliente getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(Cliente filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<Cliente> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<Cliente> entidadesList) {
-        super.setEntidadesList(entidadesList);
-    }
+    // Getters y setters del DAO
 
     public ClienteDAO getClienteDAO() {
         return clienteDAO;

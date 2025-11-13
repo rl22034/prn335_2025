@@ -24,35 +24,4 @@ public class VentaDAO extends InventarioDefaultDataAccess<Venta> implements Seri
     public EntityManager getEntityManager() {
         return em;
     }
-
-    // Sobrescribimos los métodos básicos para que el EJB los exponga
-
-    @Override
-    public void crear(Venta entidad) {
-        super.crear(entidad);
-    }
-
-    @Override
-    public void delete(Venta entidad) {
-        super.delete(entidad);
-    }
-
-    @Override
-    public Venta finById(Object id) {
-        return super.finById(id);
-    }
-
-    @Override
-    public Venta update(Venta entidad) {
-        return super.update(entidad);
-    }
-    @Override
-    public List<Venta> findRange(int first, int pageSize) {
-        return super.findRange(first, pageSize);
-    }
-
-    @Override
-    public Long count() {
-        return super.count();
-    }
 }

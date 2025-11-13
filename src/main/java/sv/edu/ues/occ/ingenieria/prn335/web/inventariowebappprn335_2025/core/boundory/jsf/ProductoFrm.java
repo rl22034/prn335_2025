@@ -16,47 +16,30 @@ public class ProductoFrm extends DefaultFrm<Producto> implements Serializable {
     private ProductoDAO productoDAO;
 
     @Override
-    protected void crearEntidad(Producto entidad) throws Exception {
-        if (entidad.getNombreProducto() == null || entidad.getNombreProducto().trim().isEmpty()) {
-            throw new Exception("validacion.nombre.requerido");
-        }
-        productoDAO.crear(entidad);
+    protected ProductoDAO obtenerDAO() {
+        return productoDAO;
     }
 
     @Override
-    protected void actualizarEntidad(Producto entidad) throws Exception {
+    protected void validarAntesDeCrear(Producto entidad) throws Exception {
         if (entidad.getNombreProducto() == null || entidad.getNombreProducto().trim().isEmpty()) {
             throw new Exception("validacion.nombre.requerido");
         }
-        productoDAO.update(entidad);
     }
 
     @Override
-    protected void eliminarEntidad(Producto entidad) throws Exception {
-        Producto original = productoDAO.finById(entidad.getId());
-        if (original ==  null){
-            throw new Exception("validacion.registro.no.existe");
+    protected void validarAntesDeActualizar(Producto entidad) throws Exception {
+        if (entidad.getNombreProducto() == null || entidad.getNombreProducto().trim().isEmpty()) {
+            throw new Exception("validacion.nombre.requerido");
         }
+    }
 
-        if(!entidad.getNombreProducto().equals(original.getNombreProducto())){
+    @Override
+    protected void validarAntesDeEliminar(Producto entidad, Producto original)
+            throws Exception {
+        if (!entidad.getNombreProducto().equals(original.getNombreProducto())) {
             throw new Exception("validacion.nombre.cambiado");
         }
-        productoDAO.delete(entidad);
-    }
-
-    @Override
-    protected List<Producto> buscarEntidades(int first, int pageSize) throws Exception {
-        return productoDAO.findRange(first, pageSize);
-    }
-
-    @Override
-    protected Long contarEntidades() throws Exception {
-        return productoDAO.count();
-    }
-
-    @Override
-    protected Object obtenerIdEntidad(Producto entidad) {
-        return entidad.getId();
     }
 
     @Override
@@ -67,24 +50,7 @@ public class ProductoFrm extends DefaultFrm<Producto> implements Serializable {
     }
 
     public List<Producto> getProductosDeCompra(Long idCompra) {
-        // Debes implementar el método en ProductoDAO para filtrar por compra
         return productoDAO.findByCompra(idCompra);
-    }
-
-    public Producto getFilaSeleccionada() {
-        return super.getFilaSeleccionada();
-    }
-
-    public void setFilaSeleccionada(Producto filaSeleccionada) {
-        super.setFilaSeleccionada(filaSeleccionada);
-    }
-
-    public List<Producto> getEntidadesList() {
-        return super.getEntidadesList();
-    }
-
-    public void setEntidadesList(List<Producto> almacenList) {
-        super.setEntidadesList(entidadesList);
     }
 
     public ProductoDAO getProductoDAO() {

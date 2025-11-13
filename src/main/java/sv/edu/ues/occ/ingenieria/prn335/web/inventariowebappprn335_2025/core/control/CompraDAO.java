@@ -16,27 +16,7 @@ public class CompraDAO extends InventarioDefaultDataAccess<Compra> implements Se
     public CompraDAO(){super(Compra.class);}
 
     @Override
-    public EntityManager getEntityManager() {return em;}
-
-    @Override
-    public void delete(Compra entidad) {
-        // Llamamos a la lógica de eliminación que ya está definida en la clase base.
-        // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
-        super.delete(entidad);
+    public EntityManager getEntityManager() {
+        return em;
     }
-
-    @Override
-    public void crear(Compra entidad) {
-        // Llamamos a la lógica de eliminación que ya está definida en la clase base.
-        // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
-        super.crear(entidad);
-    }
-
-    @Override
-    public  Compra finById(Object id){
-
-        return super.finById(id);
-
-    }
-
 }
