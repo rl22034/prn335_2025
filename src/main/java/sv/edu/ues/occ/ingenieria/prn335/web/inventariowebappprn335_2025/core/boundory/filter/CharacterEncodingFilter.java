@@ -9,8 +9,7 @@ import java.io.IOException;
 /**
  * Filtro para forzar la codificación UTF-8 en todas las peticiones y respuestas
  */
-public class
-CharacterEncodingFilter implements Filter {
+public class CharacterEncodingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

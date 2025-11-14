@@ -295,6 +295,9 @@ class CaracteristicaFrmTest {
             frm.setFilaSeleccionada(caracteristica);
             frm.setEstado(CRUD.MODIFICAR);
 
+            // Mock finById para validación en DefaultFrm.actualizarEntidad()
+            when(caracteristicaDAO.finById(1)).thenReturn(caracteristica);
+
             // When
             frm.btnActualizar();
 

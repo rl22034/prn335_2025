@@ -254,6 +254,9 @@ class ClienteFrmTest {
             frm.setFilaSeleccionada(cliente);
             frm.setEstado(CRUD.MODIFICAR);
 
+            // Mock finById para validación en DefaultFrm.actualizarEntidad()
+            when(clienteDAO.finById(cliente.getId())).thenReturn(cliente);
+
             // When
             frm.btnActualizar();
 

@@ -242,6 +242,9 @@ class AlmacenFrmTest {
             frm.setFilaSeleccionada(almacen);
             frm.setEstado(CRUD.MODIFICAR);
 
+            // Mock finById para validación en DefaultFrm.actualizarEntidad()
+            when(almacenDAO.finById(1)).thenReturn(almacen);
+
             // When
             frm.btnActualizar();
 
