@@ -195,29 +195,28 @@ public class TipoProductoFrm implements Serializable {
         }
     }
 
-    /**
-     * Valida que el nombre no haya cambiado antes de eliminar.
-     * La validación de existencia ya la hace DefaultFrm automáticamente.
-     */
-    @Override
-    protected void validarAntesDeEliminar(TipoProducto entidad, TipoProducto original) throws Exception {
-        if (!entidad.getNombre().equals(original.getNombre())) {
-            throw new Exception("validacion.nombre.cambiado");
+    public void btnEliminar() {
+        try {
+            TipoProducto original = tipoProductoDAO.finById(filaSeleccionada.getId());
+
+            if (original == null) {
+                throw new Exception("validacion.registro.no.existe");
+            }
+
+            if (!filaSeleccionada.getNombre().equals(original.getNombre())) {
+                throw new Exception("validacion.nombre.cambiado");
+            }
+
+            tipoProductoDAO.delete(filaSeleccionada);
+            cargarArbol();
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.eliminar.exito");
+            filaSeleccionada = instanciarEntidad();
+            estado = CRUD.NINGUNO;
+            tipoProductoList = null; // Resetear para recargar
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("mensaje.eliminar.error", e);
         }
-    }
-
-    /**
-     * Sobrescribe eliminarEntidad para recargar el árbol después de eliminar.
-     * Las validaciones ya las hace DefaultFrm.eliminarEntidad() automáticamente.
-     */
-    @Override
-    protected void eliminarEntidad(TipoProducto entidad) throws Exception {
-        // Llama al padre que hace validaciones + delete
-        super.eliminarEntidad(entidad);
-
-        // Lógica post-eliminación: recargar árbol
-        cargarArbol();
-        tipoProductoList = null; // Resetear para recargar
     }
 
     public void limpiarSeleccionado() {
