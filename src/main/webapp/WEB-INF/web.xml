@@ -28,6 +28,12 @@
         <param-value>20</param-value>
     </context-param>
 
+    <!-- Configuración de encoding UTF-8 para ResourceBundles -->
+    <context-param>
+        <param-name>jakarta.faces.RESOURCE_BUNDLE_CHARACTER_ENCODING</param-name>
+        <param-value>UTF-8</param-value>
+    </context-param>
+
     <!-- Filtro para codificación UTF-8 -->
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>

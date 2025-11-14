@@ -254,6 +254,9 @@ class ProveedorFrmTest {
             frm.setFilaSeleccionada(proveedor);
             frm.setEstado(CRUD.MODIFICAR);
 
+            // Mock finById para validación en DefaultFrm.actualizarEntidad()
+            when(proveedorDAO.finById(1)).thenReturn(proveedor);
+
             // When
             frm.btnActualizar();
 
