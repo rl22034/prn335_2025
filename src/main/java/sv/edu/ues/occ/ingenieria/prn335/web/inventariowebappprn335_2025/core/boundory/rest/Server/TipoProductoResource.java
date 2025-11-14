@@ -116,6 +116,27 @@ public class TipoProductoResource {
         return Response.status(422).header("Missing-Parameters", "id").build();
     }
 
+    /**
+     * Crea un nuevo TipoProducto en la base de datos
+     *
+     * @POST → Indica que este método maneja peticiones HTTP POST
+     *         Se usa para CREAR nuevos recursos
+     *
+     * @Consumes(MediaType.APPLICATION_JSON) → Este método ACEPTA JSON en el body de la petición
+     *                                          El JSON se convierte automáticamente a objeto TipoProducto
+     *
+     * @Produces(MediaType.APPLICATION_JSON) → Este método DEVUELVE JSON en la respuesta
+     *                                          El objeto TipoProducto creado se convierte a JSON
+     *
+     * @Context UriInfo → Inyecta información sobre la URI actual
+     *                     Se usa para construir el header "Location" con la URL del recurso creado
+     *
+     * @param entity - El TipoProducto a crear (viene en el body JSON de la petición)
+     * @param uriInfo - Información de la URI actual (inyectado automáticamente)
+     * @return Response.created() con HTTP 201 si se crea exitosamente
+     *         Response con HTTP 422 si hay errores de validación
+     *         Response con HTTP 500 si hay error en el servidor
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

@@ -60,25 +60,28 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     @Override
     protected void validarAntesDeCrear(Venta entidad) throws Exception {
         if (entidad.getFecha() == null || entidad.getIdCliente() == null || entidad.getEstado() == null) {
-            throw new Exception("Los campos fecha, cliente y estado son obligatorios");
+            throw new Exception("validacion.venta.campos.requeridos");
         }
     }
 
     @Override
     protected void validarAntesDeActualizar(Venta entidad) throws Exception {
         if (entidad.getFecha() == null || entidad.getIdCliente() == null || entidad.getEstado() == null) {
-            throw new Exception("Los campos fecha, cliente y estado son obligatorios");
+            throw new Exception("validacion.venta.campos.requeridos");
         }
     }
 
+    /**
+     * Hook ejecutado antes de eliminar. Valida que no tenga productos asociados.
+     * Las validaciones de existencia ya las hace DefaultFrm automáticamente.
+     */
     @Override
-    protected void eliminarEntidad(Venta entidad) throws Exception {
-        // Verificamos que no tenga detalles antes de borrar
+    protected void validarAntesDeEliminar(Venta entidad, Venta original) throws Exception {
+        // Verificar que no tenga productos asociados
         List<VentaDetalle> detalles = ventaDetalleDAO.getDetallesPorVenta(entidad.getId());
         if (detalles != null && !detalles.isEmpty()) {
-            throw new Exception("No se puede eliminar la venta, tiene productos asociados.");
+            throw new Exception("validacion.venta.tiene.productos");
         }
-        ventaDAO.delete(entidad);
     }
 
     @Override
@@ -118,7 +121,7 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
             // Sería ideal tener un findActivos(), pero findRange funciona
             return clienteDAO.findRange(0, 1000);
         } catch (Exception e) {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al cargar clientes");
+            mostrarError("mensaje.cargar.error", e);
             return new ArrayList<>();
         }
     }
@@ -145,7 +148,7 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
                 }
                 this.detallesDeLaVenta = ventaDetalleDAO.getDetallesPorVenta(this.filaSeleccionada.getId());
             } catch (Exception e) {
-                MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al cargar detalles de venta");
+                mostrarError("mensaje.cargar.error", e);
                 this.detallesDeLaVenta = new ArrayList<>();
             }
         } else {
@@ -187,11 +190,11 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
             if (existente == null) {
                 // 1. CREAR: Si no existe, es un registro nuevo
                 ventaDetalleDAO.crear(this.detalleSeleccionado);
-                MessageHelper.addInfoMessage("mensaje.titulo.exito", "Producto añadido");
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.crear.exito");
             } else {
                 // 2. ACTUALIZAR: Si ya existe, es una edición
                 ventaDetalleDAO.update(this.detalleSeleccionado);
-                MessageHelper.addInfoMessage("mensaje.titulo.exito", "Producto actualizado");
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.actualizar.exito");
             }
             // --- FIN DE LA LÓGICA ---
 
@@ -200,7 +203,7 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
             PrimeFaces.current().executeScript("PF('dlgVentaDetalle').hide()");
 
         } catch (Exception e) {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al guardar detalle: " + e.getMessage());
+            mostrarError("mensaje.crear.error", e);
         }
     }
 
@@ -214,9 +217,9 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
             }
             ventaDetalleDAO.delete(detalle);
             cargarDetallesVenta(); // Refrescar la tabla
-            MessageHelper.addInfoMessage("mensaje.titulo.exito", "Producto eliminado de la venta");
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.eliminar.exito");
         } catch (Exception e) {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al eliminar detalle: " + e.getMessage());
+            mostrarError("mensaje.eliminar.error", e);
         }
     }
 
@@ -227,7 +230,7 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
             }
             this.productosDisponibles = productoDAO.findRange(0, 1000);
         } catch (Exception e) {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al cargar productos");
+            mostrarError("mensaje.cargar.error", e);
             this.productosDisponibles = new ArrayList<>();
         }
     }

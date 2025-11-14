@@ -41,25 +41,28 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
     @Override
     protected void validarAntesDeCrear(TipoUnidadMedida entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("El nombre es obligatorio");
+            throw new Exception("validacion.nombre.requerido");
         }
     }
 
     @Override
     protected void validarAntesDeActualizar(TipoUnidadMedida entidad) throws Exception {
         if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
-            throw new Exception("El nombre es obligatorio");
+            throw new Exception("validacion.nombre.requerido");
         }
     }
 
+    /**
+     * Hook ejecutado antes de eliminar. Valida que no tenga unidades de medida asociadas.
+     * Las validaciones de existencia ya las hace DefaultFrm automáticamente.
+     */
     @Override
-    protected void eliminarEntidad(TipoUnidadMedida entidad) throws Exception {
-        // Verificamos que no tenga detalles antes de borrar
+    protected void validarAntesDeEliminar(TipoUnidadMedida entidad, TipoUnidadMedida original) throws Exception {
+        // Verificar que no tenga unidades de medida asociadas
         List<UnidadMedida> detalles = unidadMedidaDAO.getUnidadesPorTipoUnidadMedida(entidad.getId());
         if (detalles != null && !detalles.isEmpty()) {
-            throw new Exception("No se puede eliminar, tiene unidades de medida asociadas.");
+            throw new Exception("validacion.tipounidadmedida.tiene.unidades");
         }
-        tipoUnidadMedidaDAO.delete(entidad);
     }
 
     @Override
@@ -107,7 +110,7 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
                 // Usamos el método que creamos en el DAO
                 this.unidadesDeMedida = unidadMedidaDAO.getUnidadesPorTipoUnidadMedida(this.filaSeleccionada.getId());
             } catch (Exception e) {
-                MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al cargar unidades de medida");
+                mostrarError("mensaje.cargar.error", e);
                 this.unidadesDeMedida = new ArrayList<>();
             }
         } else {
@@ -149,11 +152,11 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
             if (this.detalleSeleccionado.getId() == null) {
                 // 1. CREAR: Si el ID es nulo, es un registro nuevo
                 unidadMedidaDAO.crear(this.detalleSeleccionado);
-                MessageHelper.addInfoMessage("mensaje.titulo.exito", "Unidad añadida");
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.crear.exito");
             } else {
                 // 2. ACTUALIZAR: Si el ID ya existe, es una edición
                 unidadMedidaDAO.update(this.detalleSeleccionado);
-                MessageHelper.addInfoMessage("mensaje.titulo.exito", "Unidad actualizada");
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.actualizar.exito");
             }
             // --- FIN DE LA LÓGICA ---
 
@@ -162,7 +165,7 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
             PrimeFaces.current().executeScript("PF('dlgUnidadMedida').hide()");
 
         } catch (Exception e) {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al guardar detalle: " + e.getMessage());
+            mostrarError("mensaje.crear.error", e);
         }
     }
 
@@ -176,9 +179,9 @@ public class TipoUnidadMedidaFrm extends DefaultFrm<TipoUnidadMedida> implements
             }
             unidadMedidaDAO.delete(detalle);
             cargarDetalles(); // Refrescar la tabla
-            MessageHelper.addInfoMessage("mensaje.titulo.exito", "Unidad eliminada");
+            MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.eliminar.exito");
         } catch (Exception e) {
-            MessageHelper.addErrorMessage("mensaje.titulo.error", "Error al eliminar detalle: " + e.getMessage());
+            mostrarError("mensaje.eliminar.error", e);
         }
     }
 

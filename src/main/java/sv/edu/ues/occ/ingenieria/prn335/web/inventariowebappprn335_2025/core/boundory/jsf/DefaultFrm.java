@@ -33,22 +33,104 @@ public abstract class DefaultFrm<T> implements Serializable {
     }
 
     // Métodos con implementación Template Method
+    /**
+     * Crea una nueva entidad con validaciones comunes.
+     *
+     * Validaciones automáticas:
+     * - Verifica que la entidad no sea null
+     * - Verifica que el ID sea null (entidad nueva)
+     * - Llama a validaciones personalizadas (hook)
+     * - Guarda en BD
+     */
     protected void crearEntidad(T entidad) throws Exception {
+        // Validación común: entidad no debe ser null
+        if (entidad == null) {
+            throw new Exception("validacion.entidad.nula");
+        }
+
+        // Validación común: el ID debe ser null para crear (evita sobrescribir registros)
+        Object id = obtenerIdEntidad(entidad);
+        if (id != null) {
+            throw new Exception("validacion.entidad.id.debe.ser.nulo");
+        }
+
+        // Validaciones personalizadas (hook para clases hijas)
         validarAntesDeCrear(entidad);
+
+        // Crear en BD
         obtenerDAO().crear(entidad);
     }
 
+    /**
+     * Actualiza una entidad existente con validaciones comunes.
+     *
+     * Validaciones automáticas:
+     * - Verifica que la entidad no sea null
+     * - Verifica que el ID NO sea null (debe existir)
+     * - Busca el registro original en BD
+     * - Verifica que el registro original exista
+     * - Llama a validaciones personalizadas (hook)
+     * - Actualiza en BD
+     */
     protected void actualizarEntidad(T entidad) throws Exception {
+        // Validación común: entidad no debe ser null
+        if (entidad == null) {
+            throw new Exception("validacion.entidad.nula");
+        }
+
+        // Validación común: el ID NO debe ser null para actualizar
+        Object id = obtenerIdEntidad(entidad);
+        if (id == null) {
+            throw new Exception("validacion.entidad.id.requerido");
+        }
+
+        // Validación común: el registro debe existir en BD
+        T original = obtenerDAO().finById(id);
+        if (original == null) {
+            throw new Exception("validacion.registro.no.existe");
+        }
+
+        // Validaciones personalizadas (hook para clases hijas)
+        // Recibe la entidad actual y la original para comparar
         validarAntesDeActualizar(entidad);
+
+        // Actualizar en BD
         obtenerDAO().update(entidad);
     }
 
+    /**
+     * Elimina una entidad con validaciones comunes.
+     *
+     * Validaciones automáticas:
+     * - Verifica que la entidad no sea null
+     * - Verifica que el ID NO sea null
+     * - Busca el registro original en BD
+     * - Verifica que el registro original exista
+     * - Llama a validaciones personalizadas (hook)
+     * - Elimina de BD
+     */
     protected void eliminarEntidad(T entidad) throws Exception{
-        T origianal = obtenerDAO().finById(obtenerIdEntidad(entidad));
-        if (origianal == null){
+        // Validación común: entidad no debe ser null
+        if (entidad == null) {
+            throw new Exception("validacion.entidad.nula");
+        }
+
+        // Validación común: el ID NO debe ser null
+        Object id = obtenerIdEntidad(entidad);
+        if (id == null) {
+            throw new Exception("validacion.entidad.id.requerido");
+        }
+
+        // Validación común: el registro debe existir en BD
+        T original = obtenerDAO().finById(id);
+        if (original == null) {
             throw new Exception("validacion.registro.no.existe");
         }
-        validarAntesDeEliminar(entidad, origianal);
+
+        // Validaciones personalizadas (hook para clases hijas)
+        validarAntesDeEliminar(entidad, original);
+
+        // Eliminar de BD
         obtenerDAO().delete(entidad);
     }
 

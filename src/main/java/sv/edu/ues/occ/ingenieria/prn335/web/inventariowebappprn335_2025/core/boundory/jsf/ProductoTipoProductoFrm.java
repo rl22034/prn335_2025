@@ -132,24 +132,14 @@ public class ProductoTipoProductoFrm extends DefaultFrm<ProductoTipoProducto> im
         }
     }
 
+    /**
+     * Hook ejecutado antes de eliminar. Elimina características relacionadas primero.
+     * Las validaciones de existencia ya las hace DefaultFrm automáticamente.
+     */
     @Override
-    protected void eliminarEntidad(ProductoTipoProducto entidad) throws Exception {
-        try {
-            ProductoTipoProducto original = productoTipoProductoDAO.finById(entidad.getId());
-
-            if (original == null) {
-                throw new Exception("validacion.registro.no.existe");
-            }
-
-            // Eliminar características primero
-            productoTipoProductoCaracteristicaDAO.eliminarPorProductoTipoProducto(entidad.getId());
-
-            // Eliminar ProductoTipoProducto
-            productoTipoProductoDAO.delete(entidad);
-
-        } catch (Exception e) {
-            throw e;
-        }
+    protected void validarAntesDeEliminar(ProductoTipoProducto entidad, ProductoTipoProducto original) throws Exception {
+        // Eliminar características relacionadas primero (CASCADE manual)
+        productoTipoProductoCaracteristicaDAO.eliminarPorProductoTipoProducto(entidad.getId());
     }
 
     @Override

@@ -84,14 +84,16 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
         }
     }
 
+    /**
+     * Sobrescribe eliminarEntidad para recargar la lista en el bean padre después de eliminar.
+     * Las validaciones de existencia ya las hace DefaultFrm.eliminarEntidad() automáticamente.
+     */
     @Override
     protected void eliminarEntidad(TipoProductoCaracteristica entidad) throws Exception {
-        TipoProductoCaracteristica original = tipoProductoCaracteristicaDAO.finById(entidad.getId());
-        if (original == null) {
-            throw new Exception("validacion.registro.no.existe");
-        }
-        tipoProductoCaracteristicaDAO.delete(entidad);
-        // Recargar la lista en el bean padre
+        // Llama al padre que hace validaciones + delete
+        super.eliminarEntidad(entidad);
+
+        // Lógica post-eliminación: recargar lista en bean padre
         if (tipoProductoBean != null) {
             tipoProductoBean.cargarCaracteristicas();
         }
