@@ -17,7 +17,10 @@
 
         <h:form id="form">
 
-            <p:growl id="messages" showDetail="true" life="3000"/>
+            <p:growl id="messages"
+                     showDetail="true"
+                     life="3000"
+                     autoUpdate="true"/>
 
             <h:panelGroup id="tablaZone">
                 <!-- COMPONENTE TABLA REUTILIZABLE -->
@@ -139,44 +142,10 @@
                                                      rows="3"
                                                      style="width: 100%;"/>
                                 </div>
-                                <div style="text-align: right; padding-top: 15px;">
-                                    <p:commandButton value="#{crud['boton.agregar']}"
-                                                     icon="pi pi-check"
-                                                     styleClass="ui-button-success"
-                                                     action="#{compraBean.btnAgregar()}"
-                                                     update=":form:tablaZone :form:messages"
-                                                     process="dlgCompra"
-                                                     oncomplete="if (!args.validationFailed) PF('dlgCompra').hide()"
-                                                     rendered="#{compraBean.isCompraNueva()}" />
-
-                                    <p:commandButton value="#{crud['boton.actualizar']}"
-                                                     icon="pi pi-check"
-                                                     styleClass="ui-button-success"
-                                                     action="#{compraBean.btnActualizar()}"
-                                                     update=":form:tablaZone :form:messages"
-                                                     process="dlgCompra"
-                                                     oncomplete="if (!args.validationFailed) PF('dlgCompra').hide()"
-                                                     rendered="#{!compraBean.isCompraNueva()}" />
-
-                                    <p:commandButton value="#{crud['boton.eliminar']}"
-                                                     icon="pi pi-times"
-                                                     styleClass="ui-button-danger"
-                                                     action="#{compraBean.btnEliminar()}"
-                                                     update=":form:tablaZone :form:messages"
-                                                     process="@this"
-                                                     oncomplete="if (!args.validationFailed) PF('dlgCompra').hide()"
-                                                     rendered="#{!compraBean.isCompraNueva()}" >
-                                        <p:confirm header="Confirmación"
-                                                   message="¿Está seguro de que desea eliminar esta compra?"
-                                                   icon="pi pi-info-circle"/>
-                                    </p:commandButton>
-
-                                    <p:commandButton value="#{crud['boton.cancelar']}"
-                                                     icon="pi pi-times"
-                                                     styleClass="ui-button-secondary"
-                                                     onclick="PF('dlgCompra').hide()"
-                                                     type="button" />
-                                </div>
+                                <comp:Botones beanName="#{compraBean}"
+                                              widgetVar="dlgCompra"
+                                              updateTabla=":form:tablaZone"
+                                              processDialog="dlgCompra"/>
                             </div>
                         </p:tab>
 
@@ -290,8 +259,8 @@
                 </h:panelGroup>
 
                 <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
-                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"/>
-                    <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" />
+                    <p:commandButton value="#{crud['boton.no']}" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
+                    <p:commandButton value="#{crud['boton.si']}" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
                 </p:confirmDialog>
 
             </h:panelGroup>
