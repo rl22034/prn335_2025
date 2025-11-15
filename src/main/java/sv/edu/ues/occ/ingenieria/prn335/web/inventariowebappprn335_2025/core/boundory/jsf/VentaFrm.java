@@ -1,5 +1,6 @@
 package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.jsf;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -15,6 +16,7 @@ import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.ent
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -25,32 +27,27 @@ import java.util.UUID;
 @ViewScoped
 public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
 
-    // --- Inyecciones DAO Maestro ---
     @Inject
     private VentaDAO ventaDAO;
 
     @Inject
     private ClienteDAO clienteDAO;
 
-    // --- Inyecciones DAO Detalle ---
     @Inject
     private VentaDetalleDAO ventaDetalleDAO;
 
     @Inject
     private ProductoDAO productoDAO;
 
-    // --- Propiedades para el Detalle ---
-// En VentaFrm.java
-// ...
-    // --- Propiedades para el Detalle ---
     private List<VentaDetalle> detallesDeLaVenta = new ArrayList<>();
     private VentaDetalle detalleSeleccionado;
     private List<Producto> productosDisponibles = new ArrayList<>();
-// ...
 
-    // ========================================================== //
-    //    MÉTODOS ABSTRACTOS (LÓGICA MAESTRO: VENTA)
-    // ========================================================== //
+    @PostConstruct
+    public void init() {
+        super.init();
+        cargarProductosDisponibles();
+    }
 
     @Override
     protected VentaDAO obtenerDAO() {
@@ -77,7 +74,6 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
      */
     @Override
     protected void validarAntesDeEliminar(Venta entidad, Venta original) throws Exception {
-        // Verificar que no tenga productos asociados
         List<VentaDetalle> detalles = ventaDetalleDAO.getDetallesPorVenta(entidad.getId());
         if (detalles != null && !detalles.isEmpty()) {
             throw new Exception("validacion.venta.tiene.productos");
@@ -87,38 +83,32 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     @Override
     protected Venta instanciarEntidad() {
         Venta nueva = new Venta();
-        // Generamos el UUID aquí porque no es autoincremental
         nueva.setId(UUID.randomUUID());
         nueva.setFecha(OffsetDateTime.now(ZoneId.of("America/El_Salvador")));
         nueva.setEstado("PENDIENTE");
         return nueva;
     }
 
-    // ========================================================== //
-    //    MÉTODOS DEL BEAN (LÓGICA MAESTRO: VENTA)
-    // ========================================================== //
-
     /**
-     * Sobrescribe el btnNuevo de DefaultFrm.
-     * Limpia los detalles al crear una nueva venta.
+     * Sobrescribe el btnNuevo de DefaultFrm
+     * Limpia los detalles al crear una nueva venta
      */
     @Override
     public void btnNuevo() {
-        super.btnNuevo(); // Esto llama a instanciarEntidad()
-        // Limpiamos la lista de detalles para la nueva venta
+        super.btnNuevo();
         this.detallesDeLaVenta = new ArrayList<>();
         this.detalleSeleccionado = null;
     }
 
     /**
-     * Obtiene los clientes para el dropdown.
+     * Obtiene los clientes para el dropdown
+     * @return Lista de clientes activos
      */
     public List<Cliente> getClientesActivos() {
         try {
             if (clienteDAO == null) {
                 throw new IllegalStateException("ClienteDAO no fue inyectado.");
             }
-            // Sería ideal tener un findActivos(), pero findRange funciona
             return clienteDAO.findRange(0, 1000);
         } catch (Exception e) {
             mostrarError("mensaje.cargar.error", e);
@@ -126,19 +116,16 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         }
     }
 
-
+    /**
+     * Verifica si la venta actual es nueva (se está creando)
+     * @return true si el estado es CREAR, false en caso contrario
+     */
     public boolean isVentaNueva() {
-        // Usamos el estado gestionado por la clase padre DefaultFrm
         return this.getEstado() == CRUD.CREAR;
     }
 
-    // ========================================================== //
-    //    MÉTODOS DEL BEAN (LÓGICA DETALLE: VENTA_DETALLE)
-    // ========================================================== //
-
     /**
-     * Carga los detalles (VentaDetalle) de la venta que se está viendo.
-     * Se llama desde el <p:ajax event="tabChange">
+     * Carga los detalles de la venta seleccionada
      */
     public void cargarDetallesVenta() {
         if (this.filaSeleccionada != null && this.filaSeleccionada.getId() != null) {
@@ -157,48 +144,31 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     }
 
     /**
-     * Prepara un nuevo objeto VentaDetalle para el diálogo "Añadir Producto".
+     * Prepara un detalle existente para editar
      */
     public void prepararEditarDetalle(VentaDetalle detalle) {
-        // 1. Asigna el detalle existente al objeto del formulario
         this.detalleSeleccionado = detalle;
-
-        // 2. Carga la lista de productos para el dropdown
-        cargarProductosDisponibles();
     }
+
     /**
-     * Guarda el nuevo VentaDetalle en la BBDD.
+     * Guarda el detalle (CREAR o ACTUALIZAR según si existe en BD)
      */
     public void guardarDetalle() {
         try {
-            // ... (tus validaciones de producto y cantidad) ...
-
             if (ventaDetalleDAO == null) {
                 throw new IllegalStateException("VentaDetalleDAO no fue inyectado.");
             }
 
-            // --- LÓGICA "INTELIGENTE" ---
-            // El ID de VentaDetalle se genera en prepararNuevoDetalle (UUID.randomUUID())
-            // Para saber si es nuevo, verificamos si ya existe en la BD
-            // Nota: Es mejor usar el estado CREAR/MODIFICAR si lo tienes en el bean de detalle.
-            // Una forma más simple es chequear si el ID ya existe en la lista 'detallesDeLaVenta'.
-            // Pero la forma más robusta es verificar la BD.
-
-            // Vamos a usar una lógica más simple basada en si el DAO lo encuentra
             VentaDetalle existente = ventaDetalleDAO.finById(this.detalleSeleccionado.getId());
 
             if (existente == null) {
-                // 1. CREAR: Si no existe, es un registro nuevo
                 ventaDetalleDAO.crear(this.detalleSeleccionado);
                 MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.crear.exito");
             } else {
-                // 2. ACTUALIZAR: Si ya existe, es una edición
                 ventaDetalleDAO.update(this.detalleSeleccionado);
                 MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.actualizar.exito");
             }
-            // --- FIN DE LA LÓGICA ---
 
-            // Refrescar la tabla y cerrar el diálogo
             cargarDetallesVenta();
             PrimeFaces.current().executeScript("PF('dlgVentaDetalle').hide()");
 
@@ -208,7 +178,7 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     }
 
     /**
-     * Elimina un producto (VentaDetalle) de la venta.
+     * Elimina un detalle de la venta
      */
     public void eliminarDetalle(VentaDetalle detalle) {
         try {
@@ -216,10 +186,26 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
                 throw new IllegalStateException("VentaDetalleDAO no fue inyectado.");
             }
             ventaDetalleDAO.delete(detalle);
-            cargarDetallesVenta(); // Refrescar la tabla
+            cargarDetallesVenta();
             MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.eliminar.exito");
         } catch (Exception e) {
             mostrarError("mensaje.eliminar.error", e);
+        }
+    }
+
+    /**
+     * Verifica si el detalle seleccionado es nuevo (no existe en BD)
+     * @return true si es nuevo, false si ya existe
+     */
+    public boolean isDetalleNuevo() {
+        if (this.detalleSeleccionado == null || this.detalleSeleccionado.getId() == null) {
+            return true;
+        }
+        try {
+            VentaDetalle existente = ventaDetalleDAO.finById(this.detalleSeleccionado.getId());
+            return existente == null;
+        } catch (Exception e) {
+            return true;
         }
     }
 
@@ -234,19 +220,17 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
             this.productosDisponibles = new ArrayList<>();
         }
     }
+
+    /**
+     * Prepara un nuevo detalle para agregar a la venta
+     */
     public void prepararNuevoDetalle() {
         this.detalleSeleccionado = new VentaDetalle();
         this.detalleSeleccionado.setId(UUID.randomUUID());
         this.detalleSeleccionado.setIdVenta(this.filaSeleccionada);
         this.detalleSeleccionado.setCantidad(BigDecimal.ONE);
         this.detalleSeleccionado.setPrecio(BigDecimal.ZERO);
-
-        // Llamamos al método centralizado
-        cargarProductosDisponibles();
     }
-    // ========================================================== //
-    //    GETTERS Y SETTERS (GENERADOS)
-    // ========================================================== //
 
     public VentaDAO getVentaDAO() {
         return ventaDAO;
@@ -289,7 +273,6 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     }
 
     public VentaDetalle getDetalleSeleccionado() {
-        // Asegurarse de que nunca sea nulo para el formulario
         if (detalleSeleccionado == null) {
             detalleSeleccionado = new VentaDetalle();
         }
@@ -306,5 +289,31 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
 
     public void setProductosDisponibles(List<Producto> productosDisponibles) {
         this.productosDisponibles = productosDisponibles;
+    }
+
+    /**
+     * Propiedad transient para p:calendar (que solo acepta LocalDateTime)
+     * Convierte desde/hacia OffsetDateTime de la entidad
+     */
+    public LocalDateTime getFechaLocal() {
+        if (this.filaSeleccionada == null || this.filaSeleccionada.getFecha() == null) {
+            return null;
+        }
+        return this.filaSeleccionada.getFecha()
+                .atZoneSameInstant(ZoneId.of("America/El_Salvador"))
+                .toLocalDateTime();
+    }
+
+    public void setFechaLocal(LocalDateTime fechaLocal) {
+        if (this.filaSeleccionada != null) {
+            if (fechaLocal == null) {
+                this.filaSeleccionada.setFecha(null);
+            } else {
+                OffsetDateTime offsetDateTime = fechaLocal
+                        .atZone(ZoneId.of("America/El_Salvador"))
+                        .toOffsetDateTime();
+                this.filaSeleccionada.setFecha(offsetDateTime);
+            }
+        }
     }
 }
