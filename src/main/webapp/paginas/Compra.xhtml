@@ -93,7 +93,7 @@
                                                    style="display: block; margin-bottom: 5px; font-weight: bold;"/>
                                     <p:selectOneMenu id="selectProveedor"
                                                      value="#{compraBean.filaSeleccionada.proveedor}"
-                                                     converter="proveedorConverter"
+                                                     converter="#{proveedorConverter}"
                                                      style="width: 100%;"
                                                      required="true"
                                                      requiredMessage="#{crud['validacion.proveedor.requerido']}">
@@ -108,15 +108,15 @@
                                     <h:outputLabel value="#{crud['tabla.fecha']}:"
                                                    for="dateFecha"
                                                    style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                                    <p:datePicker id="dateFecha"
-                                                  value="#{compraBean.filaSeleccionada.fecha}"
-                                                  converter="offsetDateTimeConverter"
-                                                  pattern="dd/MM/yyyy HH:mm"
-                                                  showTime="true"
-                                                  hourFormat="24"
-                                                  style="width: 100%;"
-                                                  required="true"
-                                                  requiredMessage="#{crud['validacion.fecha.requerida']}"/>
+                                    <p:calendar id="dateFecha"
+                                                value="#{compraBean.fechaLocal}"
+                                                pattern="dd/MM/yyyy HH:mm"
+                                                showTime="true"
+                                                timeOnly="false"
+                                                stepMinute="1"
+                                                style="width: 100%;"
+                                                required="true"
+                                                requiredMessage="#{crud['validacion.fecha.requerida']}"/>
                                 </div>
                                 <div style="margin-bottom: 15px;">
                                     <h:outputLabel value="#{crud['tabla.estado']}:"
@@ -128,9 +128,7 @@
                                                      required="true"
                                                      requiredMessage="#{crud['validacion.estado.requerido']}">
                                         <f:selectItem itemLabel="-- Seleccione un estado --" itemValue="#{null}"/>
-                                        <f:selectItem itemLabel="PENDIENTE" itemValue="PENDIENTE"/>
-                                        <f:selectItem itemLabel="COMPLETADA" itemValue="COMPLETADA"/>
-                                        <f:selectItem itemLabel="CANCELADA" itemValue="CANCELADA"/>
+                                        <f:selectItems value="#{compraBean.estadosDisponibles}"/>
                                     </p:selectOneMenu>
                                 </div>
                                 <div style="margin-bottom: 15px;">
@@ -169,7 +167,14 @@
                                     <p:dataTable id="tablaDetalles"
                                                  var="detalle"
                                                  value="#{compraBean.detallesDeLaCompra}"
+                                                 selectionMode="single"
+                                                 selection="#{compraBean.detalleSeleccionado}"
+                                                 rowKey="#{detalle.id}"
                                                  emptyMessage="Aún no hay productos en esta compra. La compra debe estar guardada para añadir detalles.">
+
+                                        <p:ajax event="rowSelect"
+                                                update=":form:dialogoDetalleWrapper"
+                                                oncomplete="PF('dlgCompraDetalle').show()"/>
 
                                         <p:column headerText="Producto">
                                             <h:outputText value="#{detalle.idProducto.nombreProducto}" />
@@ -182,12 +187,29 @@
                                                 <f:convertNumber type="currency" currencySymbol="$"/>
                                             </h:outputText>
                                         </p:column>
+
+                                        <p:column headerText="Estado" style="width: 120px; text-align: right;">
+                                            <h:outputText value="#{detalle.estado}">
+                                            </h:outputText>
+                                        </p:column>
+
+
                                         <p:column headerText="Subtotal" style="width: 120px; text-align: right;">
                                             <h:outputText value="#{detalle.cantidad * detalle.precio}">
                                                 <f:convertNumber type="currency" currencySymbol="$"/>
                                             </h:outputText>
                                         </p:column>
                                     </p:dataTable>
+
+                                    <!-- Total de la compra -->
+                                    <div style="text-align: right; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                                        <h:outputText value="Total: "
+                                                      style="font-weight: bold; font-size: 1.2em; margin-right: 10px;"/>
+                                        <h:outputText value="#{compraBean.totalCompra}"
+                                                      style="font-weight: bold; font-size: 1.3em; color: #28a745;">
+                                            <f:convertNumber type="currency" currencySymbol="$"/>
+                                        </h:outputText>
+                                    </div>
                                 </h:panelGroup>
                             </div>
                         </p:tab>
@@ -198,7 +220,7 @@
                 <h:panelGroup id="dialogoDetalleWrapper">
                     <p:dialog id="dlgCompraDetalle"
                               widgetVar="dlgCompraDetalle"
-                              header="Añadir Producto a la Compra"
+                              header="Detalle de Compra"
                               modal="true"
                               width="500">
 
@@ -239,20 +261,62 @@
                                                requiredMessage="El precio es requerido"
                                                style="width: 100%;"/>
 
+                                <p:outputLabel value="Estado:" for="selectEstadoDetalle" style="font-weight: bold;"/>
+                                <p:selectOneMenu id="selectEstadoDetalle"
+                                                 value="#{compraBean.detalleSeleccionado.estado}"
+                                                 style="width: 100%;"
+                                                 required="true"
+                                                 requiredMessage="El estado es requerido">
+                                    <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}"/>
+                                    <f:selectItems value="#{compraBean.estadosDisponiblesDetalle}"/>
+                                </p:selectOneMenu>
+
                             </p:panelGrid>
                         </div>
 
                         <f:facet name="footer">
-                            <p:commandButton value="#{crud['boton.guardar']}"
-                                             icon="pi pi-check"
+                            <!-- Botón AGREGAR - Solo visible cuando es nuevo -->
+                            <p:commandButton value="#{crud['boton.agregar']}"
+                                             icon="pi pi-save"
+                                             styleClass="ui-button-success"
+                                             style="margin: 0 5px;"
                                              action="#{compraBean.guardarDetalle}"
-                                             update=":form:tablaDetalleZone :form:messages"
-                                             process="dlgCompraDetalle @this" />
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="dlgCompraDetalle"
+                                             rendered="#{compraBean.detalleNuevo}"/>
+
+                            <!-- Botón ACTUALIZAR - Solo visible cuando es edición -->
+                            <p:commandButton value="#{crud['boton.actualizar']}"
+                                             icon="pi pi-refresh"
+                                             styleClass="ui-button-info"
+                                             style="margin: 0 5px;"
+                                             action="#{compraBean.guardarDetalle}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="dlgCompraDetalle"
+                                             rendered="#{not compraBean.detalleNuevo}"/>
+
+                            <!-- Botón ELIMINAR - Solo visible cuando es edición -->
+                            <p:commandButton value="#{crud['boton.eliminar']}"
+                                             icon="pi pi-trash"
+                                             styleClass="ui-button-danger"
+                                             style="margin: 0 5px;"
+                                             action="#{compraBean.eliminarDetalle(compraBean.detalleSeleccionado)}"
+                                             update=":form:dialogoWrapper :form:messages"
+                                             process="@this"
+                                             oncomplete="PF('dlgCompraDetalle').hide()"
+                                             rendered="#{not compraBean.detalleNuevo}">
+                                <p:confirm header="#{crud['mensaje.titulo.confirmacion']}"
+                                           message="¿Está seguro que desea eliminar este detalle?"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+
+                            <!-- Botón CANCELAR - Siempre visible -->
                             <p:commandButton value="#{crud['boton.cancelar']}"
                                              icon="pi pi-times"
                                              styleClass="ui-button-secondary"
+                                             style="margin: 0 5px;"
                                              onclick="PF('dlgCompraDetalle').hide()"
-                                             type="button" />
+                                             type="button"/>
                         </f:facet>
 
                     </p:dialog>

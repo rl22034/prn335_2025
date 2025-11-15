@@ -5,5 +5,4 @@ public enum CRUD {
         CREAR,       // Creando un nuevo registro
         MODIFICAR,   // Modificando un registro existente
         ELIMINAR     // Eliminando un registro
-
 }
