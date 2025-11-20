@@ -2,7 +2,7 @@
 <!--  Enable features  -->
     <featureManager>
         <feature>jakartaee-10.0</feature>
-        <feature>jms-3.1</feature> <feature>websocket-2.1</feature>
+        <feature>websocket-2.1</feature>
     </featureManager>
 
     <messagingEngine>
