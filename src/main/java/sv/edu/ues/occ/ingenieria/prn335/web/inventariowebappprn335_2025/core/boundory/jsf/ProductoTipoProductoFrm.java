@@ -67,17 +67,6 @@ public class ProductoTipoProductoFrm extends DefaultFrm<ProductoTipoProducto> im
         return productoTipoProductoDAO;
     }
 
-    // Implementar métodos abstractos (aunque se sobrescriben crearEntidad/actualizarEntidad completos)
-    @Override
-    protected void validarAntesDeCrear(ProductoTipoProducto entidad) throws Exception {
-        // La validación se hace en crearEntidad() sobrescrito
-    }
-
-    @Override
-    protected void validarAntesDeActualizar(ProductoTipoProducto entidad) throws Exception {
-        // La validación se hace en actualizarEntidad() sobrescrito
-    }
-
     @Override
     protected void crearEntidad(ProductoTipoProducto entidad) throws Exception {
         try {

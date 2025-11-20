@@ -40,17 +40,6 @@ public class TipoProductoCaracteristicaFrm extends DefaultFrm<TipoProductoCaract
         return tipoProductoCaracteristicaDAO;
     }
 
-    // Implementar métodos abstractos (aunque se sobrescriben crearEntidad/actualizarEntidad completos)
-    @Override
-    protected void validarAntesDeCrear(TipoProductoCaracteristica entidad) throws Exception {
-        // La validación se hace en crearEntidad() sobrescrito
-    }
-
-    @Override
-    protected void validarAntesDeActualizar(TipoProductoCaracteristica entidad) throws Exception {
-        // La validación se hace en actualizarEntidad() sobrescrito
-    }
-
     @Override
     protected void crearEntidad(TipoProductoCaracteristica entidad) throws Exception {
         if (entidad.getIdCaracteristica() == null) {

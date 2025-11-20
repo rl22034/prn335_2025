@@ -25,11 +25,17 @@ public abstract class DefaultFrm<T> implements Serializable {
     protected abstract InventarioDefaultDataAccess<T> obtenerDAO();
     protected abstract T instanciarEntidad();
 
-    // Métodos abstractos para validaciones (hooks)
-    protected abstract void validarAntesDeCrear(T entidad) throws Exception;
-    protected abstract void validarAntesDeActualizar(T entidad) throws Exception;
+    // Métodos hook para validaciones (opcionales - sobrescribir solo si se necesita)
+    protected void validarAntesDeCrear(T entidad) throws Exception {
+        // Método vacío - las clases hijas sobrescriben solo si necesitan validar antes de crear
+    }
+
+    protected void validarAntesDeActualizar(T entidad) throws Exception {
+        // Método vacío - las clases hijas sobrescriben solo si necesitan validar antes de actualizar
+    }
+
     protected void validarAntesDeEliminar(T entidad, T original) throws Exception {
-        // Método vacío que puede ser sobrescrito por las clases hijas para agregar validaciones antes de eliminar
+        // Método vacío - las clases hijas sobrescriben solo si necesitan validar antes de eliminar
     }
 
     // Métodos con implementación Template Method
