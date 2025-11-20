@@ -123,9 +123,7 @@
                                                      required="true"
                                                      requiredMessage="#{crud['validacion.estado.requerido']}">
                                         <f:selectItem itemLabel="-- Seleccione un estado --" itemValue="#{null}"/>
-                                        <f:selectItem itemLabel="PENDIENTE" itemValue="PENDIENTE"/>
-                                        <f:selectItem itemLabel="COMPLETADA" itemValue="COMPLETADA"/>
-                                        <f:selectItem itemLabel="CANCELADA" itemValue="CANCELADA"/>
+                                        <f:selectItems value="#{ventaBean.estadosDisponibles}"/>
                                     </p:selectOneMenu>
                                 </div>
                                 <div style="margin-bottom: 15px;">
@@ -189,6 +187,9 @@
                                                 <f:convertNumber type="currency" currencySymbol="$"/>
                                             </h:outputText>
                                         </p:column>
+                                        <p:column headerText="Estado" style="width: 150px;">
+                                            <h:outputText value="#{detalle.estado}" />
+                                        </p:column>
                                     </p:dataTable>
                                 </h:panelGroup>
                             </div>
@@ -240,6 +241,16 @@
                                                required="true"
                                                requiredMessage="El precio es requerido"
                                                style="width: 100%;"/>
+
+                                <p:outputLabel value="Estado:" for="selectEstadoDetalle" style="font-weight: bold;"/>
+                                <p:selectOneMenu id="selectEstadoDetalle"
+                                                 value="#{ventaBean.detalleSeleccionado.estado}"
+                                                 style="width: 100%;"
+                                                 required="true"
+                                                 requiredMessage="El estado es requerido">
+                                    <f:selectItem itemLabel="-- Seleccione un estado --" itemValue="#{null}"/>
+                                    <f:selectItems value="#{ventaBean.estadosDisponiblesDetalle}"/>
+                                </p:selectOneMenu>
 
                             </p:panelGrid>
                         </div>

@@ -1,6 +1,7 @@
 package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.jsf;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.faces.model.SelectItem;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -230,6 +231,7 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         this.detalleSeleccionado.setIdVenta(this.filaSeleccionada);
         this.detalleSeleccionado.setCantidad(BigDecimal.ONE);
         this.detalleSeleccionado.setPrecio(BigDecimal.ZERO);
+        this.detalleSeleccionado.setEstado("PENDIENTE");
     }
 
     public VentaDAO getVentaDAO() {
@@ -315,5 +317,29 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
                 this.filaSeleccionada.setFecha(offsetDateTime);
             }
         }
+    }
+
+    /**
+     * Obtiene los estados disponibles para el dropdown de venta
+     * @return Lista de SelectItem con los estados de venta
+     */
+    public List<SelectItem> getEstadosDisponibles() {
+        List<SelectItem> estados = new ArrayList<>();
+        for (EstadoVenta estado : EstadoVenta.values()) {
+            estados.add(new SelectItem(estado.name(), estado.getDescripcion()));
+        }
+        return estados;
+    }
+
+    /**
+     * Obtiene los estados disponibles para el dropdown de detalles
+     * @return Lista de SelectItem con los estados del detalle
+     */
+    public List<SelectItem> getEstadosDisponiblesDetalle() {
+        List<SelectItem> estados = new ArrayList<>();
+        for (EstadoVentaDetalle estado : EstadoVentaDetalle.values()) {
+            estados.add(new SelectItem(estado.name(), estado.getDescripcion()));
+        }
+        return estados;
     }
 }
