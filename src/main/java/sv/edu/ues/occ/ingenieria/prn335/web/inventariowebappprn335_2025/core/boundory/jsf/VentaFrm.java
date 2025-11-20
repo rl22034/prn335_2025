@@ -60,6 +60,11 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         if (entidad.getFecha() == null || entidad.getIdCliente() == null || entidad.getEstado() == null) {
             throw new Exception("validacion.venta.campos.requeridos");
         }
+
+        // Generar UUID para la nueva venta
+        if (entidad.getId() == null) {
+            entidad.setId(UUID.randomUUID());
+        }
     }
 
     @Override
@@ -81,10 +86,22 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         }
     }
 
+    /**
+     * Sobrescribe buscarEntidades para ordenar por fecha descendente
+     * (las ventas más recientes primero)
+     */
+    @Override
+    protected List<Venta> buscarEntidades(int first, int pageSize) throws Exception {
+        return ventaDAO.getEntityManager()
+                .createQuery("SELECT v FROM Venta v ORDER BY v.fecha ASC ", Venta.class)
+                .setFirstResult(first)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
     @Override
     protected Venta instanciarEntidad() {
         Venta nueva = new Venta();
-        nueva.setId(UUID.randomUUID());
         nueva.setFecha(OffsetDateTime.now(ZoneId.of("America/El_Salvador")));
         nueva.setEstado("PENDIENTE");
         return nueva;
@@ -233,6 +250,8 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         this.detalleSeleccionado.setPrecio(BigDecimal.ZERO);
         this.detalleSeleccionado.setEstado("PENDIENTE");
     }
+
+
 
     public VentaDAO getVentaDAO() {
         return ventaDAO;
