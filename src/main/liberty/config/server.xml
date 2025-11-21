@@ -5,20 +5,25 @@
         <feature>websocket-2.1</feature>
     </featureManager>
 
+    <!--Nombre de la cola-->
     <messagingEngine>
-        <queue id="KardexQueue" forceReliability="ReliablePersistent">
-            <properties.wasJms queueName="KardexQueue"/>
-        </queue>
+        <queue id="QUEUE1"/>
     </messagingEngine>
 
-    <jmsConnectionFactory jndiName="jms/KardexConnectionFactory" connectionManagerRef="ConMgr">
+    <!--Conexión al motor de mensajería -->
+    <jmsQueueConnectionFactory jndiName="jms/jmsfactory">
         <properties.wasJms/>
-    </jmsConnectionFactory>
-    <connectionManager id="ConMgr" maxPoolSize="10"/>
+    </jmsQueueConnectionFactory>
 
-    <jmsQueue jndiName="jms/KardexQueue" id="jmsKardexQueue">
-        <properties.wasJms queueName="KardexQueue"/>
+    <!--Para conectarse a la cola-->
+    <jmsQueue id="simpleJmsQueue" jndiName="jms/JmsQueue">
+        <properties.wasJms queueName="QUEUE1"/>
     </jmsQueue>
+
+    <jmsActivationSpec id="inventarioWebAppPRN335_2025-1.0-SNAPSHOT/ReceptorKardex">
+        <properties.wasJms destinationRef="QUEUE1" maxConcurrency="200"/>
+    </jmsActivationSpec>
+
 <basicRegistry id="basic" realm="BasicRealm">
 <!--  <user name="yourUserName" password="" />   -->
 </basicRegistry>
@@ -29,7 +34,7 @@
 <!--  Default SSL configuration enables trust for default certificates from the Java runtime  -->
 <ssl id="defaultSSLConfig" trustDefaultCerts="true"/>
 <dataSource id="postgres-driver" jndiName="jdbc/pgdb" jdbcDriverRef="postgresql-driver" type="javax.sql.ConnectionPoolDataSource" transactional="true">
-<properties serverName="localhost" databaseName="Inventario_PRN335" portNumber="5432" user="postgres" password="abc123"/>
+<properties serverName="localhost" databaseName="inventario_prn335" portNumber="5432" user="postgres" password="jonathan"/>
 </dataSource>
 <jdbcDriver id="postgresql-driver" javax.sql.DataSource="org.postgres.ds.PGSimpleDataSource" javax.sql.ConnectionPoolDataSource="org.postgresql.ds.PGConnectionPoolDataSource" libraryRef="postgresql-library"/>
 <library id="postgresql-library">
