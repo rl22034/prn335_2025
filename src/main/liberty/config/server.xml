@@ -2,6 +2,7 @@
 <!--  Enable features  -->
     <featureManager>
         <feature>jakartaee-10.0</feature>
+        <feature>microProfile-7.1</feature>
         <feature>websocket-2.1</feature>
     </featureManager>
 
