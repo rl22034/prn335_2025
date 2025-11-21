@@ -32,6 +32,29 @@ public class TipoAlmacenDAO extends InventarioDefaultDataAccess<TipoAlmacen> imp
         return em;
     }
 
+
+    // Sobreescribimos el método de la clase base y le decimos al contenedor EJB
+    // que inicie una transacción cuando este método sea llamado.
+    @Override
+    public void delete(TipoAlmacen entidad) {
+        // Llamamos a la lógica de eliminación que ya está definida en la clase base.
+        // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
+        super.delete(entidad);
+    }
+
+    @Override
+    public void crear(TipoAlmacen entidad) {
+        // Llamamos a la lógica de eliminación que ya está definida en la clase base.
+        // El contenedor EJB se asegura de hacer el COMMIT después de que esta línea termine.
+        super.crear(entidad);
+    }
+
+    @Override
+    public  TipoAlmacen finById(Object id){
+
+        return super.finById(id);
+    }
+
     public List<TipoAlmacen> findTiposActivos() {
         try {
             return em.createQuery(
