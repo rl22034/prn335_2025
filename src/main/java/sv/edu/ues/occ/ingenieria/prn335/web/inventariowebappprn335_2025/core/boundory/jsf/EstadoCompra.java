@@ -7,6 +7,7 @@ public enum EstadoCompra {
     PENDIENTE("Pendiente"),           // La compra fue creada pero no procesada
     EN_PROCESO("En Proceso"),         // Se están recibiendo/validando productos
     COMPLETADA("Completada"),         // Todo recibido y validado
+    PAGADA("Pagada"),                 // La compra ha sido pagada
     CANCELADA("Cancelada");           // La compra fue cancelada
 
     private final String descripcion;

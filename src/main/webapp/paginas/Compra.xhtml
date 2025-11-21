@@ -144,6 +144,18 @@
                                               widgetVar="dlgCompra"
                                               updateTabla=":form:tablaZone"
                                               processDialog="dlgCompra"/>
+
+                                <!-- Botón adicional: Marcar como Pagada -->
+                                <div style="margin-top: 15px; text-align: center;">
+                                    <p:commandButton value="Marcar como Pagada"
+                                                     icon="pi pi-check-circle"
+                                                     styleClass="ui-button-success"
+                                                     action="#{compraBean.notificarCambioKardex}"
+                                                     update=":form:tablaZone :form:dialogoWrapper :form:messages"
+                                                     process="dlgCompra"
+                                                     disabled="#{compraBean.filaSeleccionada == null or compraBean.filaSeleccionada.id == null}">
+                                    </p:commandButton>
+                                </div>
                             </div>
                         </p:tab>
 
@@ -317,6 +329,7 @@
                                              style="margin: 0 5px;"
                                              onclick="PF('dlgCompraDetalle').hide()"
                                              type="button"/>
+
                         </f:facet>
 
                     </p:dialog>

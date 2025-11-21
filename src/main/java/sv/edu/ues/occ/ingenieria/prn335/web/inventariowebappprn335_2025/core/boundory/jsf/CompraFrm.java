@@ -9,6 +9,7 @@ import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.CompraDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.CompraDetalleDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.NotificadorKardex;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProductoDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProveedorDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Compra;
@@ -40,6 +41,9 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
 
     @Inject
     private ProveedorDAO proveedorDAO;
+
+    @Inject
+    private NotificadorKardex notificadorKardex;
 
     private List<CompraDetalle> detallesDeLaCompra;
     private CompraDetalle detalleSeleccionado;
@@ -320,6 +324,24 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
                         .toOffsetDateTime();
                 this.filaSeleccionada.setFecha(offsetDateTime);
             }
+        }
+    }
+
+    /**
+     * Marca la compra como PAGADA y envía notificación JMS al Kardex
+     */
+    public void notificarCambioKardex() {
+        try {
+            if (this.filaSeleccionada != null && this.filaSeleccionada.getId() != null) {
+                this.filaSeleccionada.setEstado(EstadoCompra.PAGADA.name());
+                actualizarEntidad(filaSeleccionada);
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.actualizar.exito");
+                notificadorKardex.notificarCambioKardex("Cambio en compra ID: " + this.filaSeleccionada.getId());
+                filaSeleccionada = instanciarEntidad();
+                estado = CRUD.NINGUNO;
+            }
+        } catch (Exception e) {
+            mostrarError("mensaje.actualizar.error", e);
         }
     }
 }
