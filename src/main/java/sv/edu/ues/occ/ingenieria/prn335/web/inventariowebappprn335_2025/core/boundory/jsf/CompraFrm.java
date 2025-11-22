@@ -133,6 +133,23 @@ public class CompraFrm extends DefaultFrm<Compra> implements Serializable {
         nuevo.setEstado("PENDIENTE");
         return nuevo;
     }
+
+    /**
+     * Buscar compras excluyendo las PAGADAS (para que no aparezcan en esta tabla)
+     * Las compras PAGADAS solo se ven en RecepcionKardex.xhtml
+     */
+    @Override
+    protected List<Compra> buscarEntidades(int first, int pageSize) throws Exception {
+        return compraDAO.findExcluyendoEstado("PAGADA", first, pageSize);
+    }
+
+    /**
+     * Contar compras excluyendo las PAGADAS
+     */
+    @Override
+    protected Long contarEntidades() throws Exception {
+        return compraDAO.countExcluyendoEstado("PAGADA");
+    }
     public void cargarDetallesCompra() {
         if (this.filaSeleccionada != null && this.filaSeleccionada.getId() != null) {
             this.detallesDeLaCompra = compraDetalleDAO.getDetallesPorCompra(this.filaSeleccionada.getId());
