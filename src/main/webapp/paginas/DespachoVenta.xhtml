@@ -10,7 +10,7 @@
 <ui:composition template="/WEB-INF/templates/template.xhtml">
 
     <ui:define name="pageTitle">
-        #{crud['menu.recepcion.compra']}
+        #{crud['menu.despacho.venta']}
     </ui:define>
 
     <ui:define name="content">
@@ -18,7 +18,7 @@
         <h:form id="form">
 
             <p:remoteCommand name="actualizarTabla"
-                             actionListener="#{recepcionKardexFrm.cargarRegistros}"
+                             actionListener="#{despachoVentaFrm.cargarRegistros}"
                              update="tablaZone"/>
             <p:growl id="messages"
                      showDetail="true"
@@ -27,11 +27,11 @@
 
             <h:panelGroup id="tablaZone">
                 <!-- COMPONENTE TABLA REUTILIZABLE -->
-                <comp:Tabla beanName="#{recepcionKardexFrm}"
-                            lazyModel="#{recepcionKardexFrm.lazyModel}"
-                            seleccion="#{recepcionKardexFrm.filaSeleccionada}"
-                            titulo="#{crud['menu.recepcion.compra']}"
-                            widgetVarDialog="dlgRecepcionKardex"
+                <comp:Tabla beanName="#{despachoVentaFrm}"
+                            lazyModel="#{despachoVentaFrm.lazyModel}"
+                            seleccion="#{despachoVentaFrm.filaSeleccionada}"
+                            titulo="#{crud['menu.despacho.venta']}"
+                            widgetVarDialog="dlgDespachoVenta"
                             updateDialog=":form:dialogoWrapper"
                             rows="10"
                             table="tabla"
@@ -39,12 +39,12 @@
                             mostrarBotonNuevo="false">
 
                     <!-- Columnas dinámicas -->
-                    <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                    <p:column headerText="#{crud['tabla.id']}" style="width: 150px;">
                         <h:outputText value="#{tipo.id}" />
                     </p:column>
 
-                    <p:column headerText="#{crud['tabla.proveedor']}" style="width: 200px;">
-                        <h:outputText value="#{tipo.proveedor.nombre}" />
+                    <p:column headerText="Cliente" style="width: 200px;">
+                        <h:outputText value="#{tipo.idCliente.nombre}" />
                     </p:column>
 
                     <p:column headerText="#{crud['tabla.fecha']}" style="width: 150px;">
@@ -65,11 +65,11 @@
                 </comp:Tabla>
             </h:panelGroup>
 
-            <!-- Diálogo para ver/editar compra PAGADA -->
+            <!-- Diálogo para ver/editar venta DESPACHADA -->
             <h:panelGroup id="dialogoWrapper">
-                <p:dialog id="dlgRecepcionKardex"
-                          widgetVar="dlgRecepcionKardex"
-                          header="#{crud['menu.recepcion.compra']}"
+                <p:dialog id="dlgDespachoVenta"
+                          widgetVar="dlgDespachoVenta"
+                          header="#{crud['menu.despacho.venta']}"
                           modal="true"
                           width="600">
 
@@ -78,17 +78,17 @@
                             <h:outputLabel for="txtId" value="#{crud['form.id']}"
                                            style="display: block; margin-bottom: 5px; font-weight: bold;"/>
                             <p:inputText id="txtId"
-                                         value="#{recepcionKardexFrm.filaSeleccionada.id}"
+                                         value="#{despachoVentaFrm.filaSeleccionada.id}"
                                          disabled="true"
                                          style="width: 100%; background-color: #f0f0f0;"/>
                         </div>
 
                         <div style="margin-bottom: 15px;">
-                            <h:outputLabel value="#{crud['tabla.proveedor']}:"
-                                           for="txtProveedor"
+                            <h:outputLabel value="Cliente:"
+                                           for="txtCliente"
                                            style="display: block; margin-bottom: 5px; font-weight: bold;"/>
-                            <p:inputText id="txtProveedor"
-                                         value="#{recepcionKardexFrm.filaSeleccionada.proveedor.nombre}"
+                            <p:inputText id="txtCliente"
+                                         value="#{despachoVentaFrm.filaSeleccionada.idCliente.nombre}"
                                          disabled="true"
                                          style="width: 100%; background-color: #f0f0f0;"/>
                         </div>
@@ -98,7 +98,7 @@
                                            for="txtFecha"
                                            style="display: block; margin-bottom: 5px; font-weight: bold;"/>
                             <p:inputText id="txtFecha"
-                                         value="#{recepcionKardexFrm.filaSeleccionada.fecha}"
+                                         value="#{despachoVentaFrm.filaSeleccionada.fecha}"
                                          disabled="true"
                                          style="width: 100%; background-color: #f0f0f0;">
                                 <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
@@ -110,12 +110,12 @@
                                            for="selectEstado"
                                            style="display: block; margin-bottom: 5px; font-weight: bold;"/>
                             <p:selectOneMenu id="selectEstado"
-                                             value="#{recepcionKardexFrm.filaSeleccionada.estado}"
+                                             value="#{despachoVentaFrm.filaSeleccionada.estado}"
                                              style="width: 100%;"
                                              required="true"
                                              requiredMessage="#{crud['validacion.estado.requerido']}">
                                 <f:selectItem itemLabel="-- Seleccione un estado --" itemValue="#{null}"/>
-                                <f:selectItems value="#{recepcionKardexFrm.estadosDisponibles}"/>
+                                <f:selectItems value="#{despachoVentaFrm.estadosDisponibles}"/>
                             </p:selectOneMenu>
                         </div>
 
@@ -124,15 +124,15 @@
                                            for="txtObservaciones"
                                            style="display: block; margin-bottom: 5px; font-weight: bold;"/>
                             <p:inputTextarea id="txtObservaciones"
-                                             value="#{recepcionKardexFrm.filaSeleccionada.observaciones}"
+                                             value="#{despachoVentaFrm.filaSeleccionada.observaciones}"
                                              rows="3"
                                              style="width: 100%;"/>
                         </div>
 
-                        <comp:Botones beanName="#{recepcionKardexFrm}"
-                                      widgetVar="dlgRecepcionKardex"
+                        <comp:Botones beanName="#{despachoVentaFrm}"
+                                      widgetVar="dlgDespachoVenta"
                                       updateTabla=":form:tablaZone"
-                                      processDialog="dlgRecepcionKardex"/>
+                                      processDialog="dlgDespachoVenta"/>
                     </div>
                 </p:dialog>
             </h:panelGroup>
@@ -144,7 +144,6 @@
             ws.onmessage = function(event) {
                 let mensaje = event.data;
                 console.log(mensaje);
-                //location.reload();
                 actualizarTabla();
             };
         </script>
