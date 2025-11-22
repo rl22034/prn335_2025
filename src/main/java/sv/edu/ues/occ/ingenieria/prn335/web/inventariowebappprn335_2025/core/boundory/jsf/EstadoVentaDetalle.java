@@ -5,9 +5,7 @@ package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.bo
  */
 public enum EstadoVentaDetalle {
     PENDIENTE("Pendiente"),           // El detalle está pendiente de preparar
-    PREPARANDO("Preparando"),         // El producto se está preparando
     DESPACHADO("Despachado"),         // El producto fue despachado al cliente
-    DEVUELTO("Devuelto"),             // El cliente devolvió el producto
     CANCELADO("Cancelado");           // El detalle fue cancelado
 
     private final String descripcion;

@@ -3,7 +3,6 @@ package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.bo
 public enum EstadoCompraDetalle {
     PENDIENTE("Pendiente"),           // El detalle está pendiente de recibir
     RECIBIDO("Recibido"),             // El producto fue recibido
-    PARCIAL("Parcial"),               // Recibido parcialmente
     CANCELADO("Cancelado");           // El detalle fue cancelado
 
     private final String descripcion;
