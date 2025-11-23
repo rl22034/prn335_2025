@@ -30,7 +30,7 @@
                             table="tablaVentas"
                             rowKey="#{tipo.id}">
 
-                    <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                    <p:column headerText="#{crud['tabla.id']}" style="width: 200px;">
                         <h:outputText value="#{tipo.id}" />
                     </p:column>
 
@@ -139,6 +139,18 @@
                                               widgetVar="dlgVenta"
                                               updateTabla=":form:tablaZone"
                                               processDialog="dlgVenta"/>
+
+                                <!-- Botón adicional: Marcar como Despachada -->
+                                <div style="margin-top: 15px; text-align: center;">
+                                    <p:commandButton value="Marcar como Despachada"
+                                                     icon="pi pi-check-circle"
+                                                     styleClass="ui-button-success"
+                                                     action="#{ventaBean.notificarDespacho}"
+                                                     update=":form:tablaZone :form:dialogoWrapper :form:messages"
+                                                     process="dlgVenta"
+                                                     rendered="#{ventaBean.estado.name() == 'MODIFICAR'}">
+                                    </p:commandButton>
+                                </div>
                             </div>
                         </p:tab>
 

@@ -5,8 +5,6 @@ package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.bo
  */
 public enum EstadoVenta {
     PENDIENTE("Pendiente"),           // La venta fue creada pero no procesada
-    CONFIRMADA("Confirmada"),         // Cliente confirmó la venta
-    PREPARANDO("Preparando"),         // Se están preparando los productos
     DESPACHADA("Despachada"),         // Productos enviados al cliente
     CANCELADA("Cancelada");           // La venta fue cancelada
 

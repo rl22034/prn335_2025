@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.primefaces.PrimeFaces;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ClienteDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.NotificadorKardex;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProductoDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.VentaDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.VentaDetalleDAO;
@@ -39,6 +40,9 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
 
     @Inject
     private ProductoDAO productoDAO;
+
+    @Inject
+    private NotificadorKardex notificadorKardex;
 
     private List<VentaDetalle> detallesDeLaVenta = new ArrayList<>();
     private VentaDetalle detalleSeleccionado;
@@ -87,16 +91,20 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     }
 
     /**
-     * Sobrescribe buscarEntidades para ordenar por fecha descendente
-     * (las ventas más recientes primero)
+     * Buscar ventas excluyendo las DESPACHADAS (para que no aparezcan en esta tabla)
+     * Las ventas DESPACHADAS solo se ven en DespachoVenta.xhtml
      */
     @Override
     protected List<Venta> buscarEntidades(int first, int pageSize) throws Exception {
-        return ventaDAO.getEntityManager()
-                .createQuery("SELECT v FROM Venta v ORDER BY v.fecha ASC ", Venta.class)
-                .setFirstResult(first)
-                .setMaxResults(pageSize)
-                .getResultList();
+        return ventaDAO.findExcluyendoEstado("DESPACHADA", first, pageSize);
+    }
+
+    /**
+     * Contar ventas excluyendo las DESPACHADAS
+     */
+    @Override
+    protected Long contarEntidades() throws Exception {
+        return ventaDAO.countExcluyendoEstado("DESPACHADA");
     }
 
     @Override
@@ -116,6 +124,16 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         super.btnNuevo();
         this.detallesDeLaVenta = new ArrayList<>();
         this.detalleSeleccionado = null;
+    }
+
+    /**
+     * Override onRowSelect para cargar los detalles cuando se selecciona una fila
+     * Esto soluciona el bug de ver los mismos productos en todas las ventas
+     */
+    @Override
+    public void onRowSelect(org.primefaces.event.SelectEvent<Venta> event) {
+        super.onRowSelect(event);  // Cambia estado a MODIFICAR
+        cargarDetallesVenta();      // Carga los detalles específicos de esta venta
     }
 
     /**
@@ -251,7 +269,27 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
         this.detalleSeleccionado.setEstado("PENDIENTE");
     }
 
+    /**
+     * Marca la venta como DESPACHADA y notifica via JMS/WebSocket
+     * La venta desaparece de Venta.xhtml y aparece en DespachoVenta.xhtml
+     */
+    public void notificarDespacho() {
+        try {
+            if (this.filaSeleccionada != null && this.filaSeleccionada.getId() != null) {
+                this.filaSeleccionada.setEstado(EstadoVenta.DESPACHADA.name());
+                actualizarEntidad(filaSeleccionada);
+                MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.actualizar.exito");
 
+                // Enviar notificación asíncrona via JMS
+                notificadorKardex.notificarCambioKardex("Venta despachada ID: " + this.filaSeleccionada.getId());
+
+                filaSeleccionada = instanciarEntidad();
+                estado = CRUD.NINGUNO;
+            }
+        } catch (Exception e) {
+            mostrarError("mensaje.actualizar.error", e);
+        }
+    }
 
     public VentaDAO getVentaDAO() {
         return ventaDAO;

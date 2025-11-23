@@ -1,5 +1,6 @@
 package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.rest.Server;
 
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -12,6 +13,7 @@ import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.ent
 import java.lang.Long;
 import java.util.List;
 
+@RequestScoped
 @Path("tipo_producto")
 public class TipoProductoResource {
 
@@ -181,6 +183,89 @@ public class TipoProductoResource {
                           .build();
         }
     }
+
+    /**
+     * Actualiza un TipoProducto existente en la base de datos
+     *
+     * @PUT → Indica que este método maneja peticiones HTTP PUT
+     *        Se usa para ACTUALIZAR recursos existentes
+     *
+     * @Path("{id}") → Define una VARIABLE en la URL entre llaves {}
+     *                 Ejemplo: PUT /tipo_producto/123
+     *
+     * @PathParam("id") → CAPTURA el valor de {id} desde la URL
+     *
+     * @Consumes(MediaType.APPLICATION_JSON) → Este método ACEPTA JSON en el body de la petición
+     *                                          El JSON se convierte automáticamente a objeto TipoProducto
+     *
+     * @Produces(MediaType.APPLICATION_JSON) → Este método DEVUELVE JSON en la respuesta
+     *                                          El objeto TipoProducto actualizado se convierte a JSON
+     *
+     * @param id - El ID del tipo producto a actualizar (viene de la URL)
+     * @param entity - El TipoProducto con los datos actualizados (viene en el body JSON)
+     * @return Response.ok() con HTTP 200 si se actualiza exitosamente
+     *         Response con HTTP 404 si el registro no existe
+     *         Response con HTTP 422 si hay errores de validación
+     *         Response con HTTP 500 si hay error en el servidor
+     */
+    @PUT
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("id") Long id, TipoProducto entity){
+        if(id == null){
+            return Response.status(422)
+                          .header("Error-Message", "id es null")
+                          .build();
+        }
+
+        if(entity == null){
+            return Response.status(422)
+                          .header("Error-Message", "entity es null")
+                          .build();
+        }
+
+        try{
+            // Verificar que el registro existe
+            TipoProducto existente = tipoProductoDAO.finById(id);
+            if(existente == null){
+                return Response.status(Response.Status.NOT_FOUND)
+                              .header("Error-Message", "Registro con id " + id + " no encontrado")
+                              .build();
+            }
+
+            // Validar padre si viene especificado
+            if(entity.getIdTipoProductoPadre() != null &&
+               entity.getIdTipoProductoPadre().getId() != null){
+
+                TipoProducto padre = tipoProductoDAO.finById(
+                    entity.getIdTipoProductoPadre().getId()
+                );
+
+                if(padre == null){
+                    return Response.status(422)
+                                  .header("Error-Message", "Padre no encontrado")
+                                  .build();
+                }
+
+                entity.setIdTipoProductoPadre(padre);
+            }
+
+            // Asegurar que el ID del entity coincida con el de la URL
+            entity.setId(id);
+
+            // Actualizar el registro
+            tipoProductoDAO.update(entity);
+
+            return Response.ok(entity).build();
+
+        }catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                          .header("Server-Exception", "cannot.update")
+                          .build();
+        }
+    }
 }
+
 
 

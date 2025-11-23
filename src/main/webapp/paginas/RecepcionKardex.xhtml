@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:comp="jakarta.faces.composite/componentes">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="pageTitle">
+        #{crud['menu.recepcion.compra']}
+    </ui:define>
+
+    <ui:define name="content">
+
+        <h:form id="form">
+
+            <p:remoteCommand name="actualizarTabla"
+                             actionListener="#{recepcionKardexFrm.cargarRegistros}"
+                             update="tablaZone"/>
+            <p:growl id="messages"
+                     showDetail="true"
+                     life="3000"
+                     autoUpdate="true"/>
+
+            <h:panelGroup id="tablaZone">
+                <!-- COMPONENTE TABLA REUTILIZABLE -->
+                <comp:Tabla beanName="#{recepcionKardexFrm}"
+                            lazyModel="#{recepcionKardexFrm.lazyModel}"
+                            seleccion="#{recepcionKardexFrm.filaSeleccionada}"
+                            titulo="#{crud['menu.recepcion.compra']}"
+                            widgetVarDialog="dlgRecepcionKardex"
+                            updateDialog=":form:dialogoWrapper"
+                            rows="10"
+                            table="tabla"
+                            rowKey="#{tipo.id}"
+                            mostrarBotonNuevo="false">
+
+                    <!-- Columnas dinámicas -->
+                    <p:column headerText="#{crud['tabla.id']}" style="width: 80px;">
+                        <h:outputText value="#{tipo.id}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.proveedor']}" style="width: 200px;">
+                        <h:outputText value="#{tipo.proveedor.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.fecha']}" style="width: 150px;">
+                        <h:outputText value="#{tipo.fecha}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.estado']}" style="width: 120px;">
+                        <h:outputText value="#{tipo.estado}" />
+                    </p:column>
+
+                    <p:column headerText="#{crud['tabla.observaciones']}">
+                        <h:outputText value="#{tipo.observaciones}"
+                                      style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;"/>
+                    </p:column>
+
+                </comp:Tabla>
+            </h:panelGroup>
+
+            <!-- Diálogo para ver/editar compra PAGADA -->
+            <h:panelGroup id="dialogoWrapper">
+                <p:dialog id="dlgRecepcionKardex"
+                          widgetVar="dlgRecepcionKardex"
+                          header="#{crud['menu.recepcion.compra']}"
+                          modal="true"
+                          width="600">
+
+                    <div style="padding: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel for="txtId" value="#{crud['form.id']}"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtId"
+                                         value="#{recepcionKardexFrm.filaSeleccionada.id}"
+                                         disabled="true"
+                                         style="width: 100%; background-color: #f0f0f0;"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.proveedor']}:"
+                                           for="txtProveedor"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtProveedor"
+                                         value="#{recepcionKardexFrm.filaSeleccionada.proveedor.nombre}"
+                                         disabled="true"
+                                         style="width: 100%; background-color: #f0f0f0;"/>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.fecha']}:"
+                                           for="txtFecha"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputText id="txtFecha"
+                                         value="#{recepcionKardexFrm.filaSeleccionada.fecha}"
+                                         disabled="true"
+                                         style="width: 100%; background-color: #f0f0f0;">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                            </p:inputText>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.estado']}:"
+                                           for="selectEstado"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:selectOneMenu id="selectEstado"
+                                             value="#{recepcionKardexFrm.filaSeleccionada.estado}"
+                                             style="width: 100%;"
+                                             required="true"
+                                             requiredMessage="#{crud['validacion.estado.requerido']}">
+                                <f:selectItem itemLabel="-- Seleccione un estado --" itemValue="#{null}"/>
+                                <f:selectItems value="#{recepcionKardexFrm.estadosDisponibles}"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <h:outputLabel value="#{crud['tabla.observaciones']}:"
+                                           for="txtObservaciones"
+                                           style="display: block; margin-bottom: 5px; font-weight: bold;"/>
+                            <p:inputTextarea id="txtObservaciones"
+                                             value="#{recepcionKardexFrm.filaSeleccionada.observaciones}"
+                                             rows="3"
+                                             style="width: 100%;"/>
+                        </div>
+
+                        <comp:Botones beanName="#{recepcionKardexFrm}"
+                                      widgetVar="dlgRecepcionKardex"
+                                      updateTabla=":form:tablaZone"
+                                      processDialog="dlgRecepcionKardex"/>
+                    </div>
+                </p:dialog>
+            </h:panelGroup>
+
+        </h:form>
+
+        <script>
+            var ws = new WebSocket("ws://localhost:9080/inventarioWebAppPRN335_2025-1.0-SNAPSHOT/kardex");
+            ws.onmessage = function(event) {
+                let mensaje = event.data;
+                console.log(mensaje);
+                //location.reload();
+                actualizarTabla();
+            };
+        </script>
+
+    </ui:define>
+
+</ui:composition>
+</html>
