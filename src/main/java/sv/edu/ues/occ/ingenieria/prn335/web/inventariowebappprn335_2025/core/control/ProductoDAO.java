@@ -22,6 +22,9 @@ public class ProductoDAO extends InventarioDefaultDataAccess<Producto> implement
         return em;
     }
 
+
+
+
     public List<Producto> findByCompra(Long idCompra) {
         return getEntityManager()
                 .createQuery("SELECT cd.idProducto FROM CompraDetalle cd WHERE cd.idCompra.id = :idCompra", Producto.class)
