@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 6.20.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReporteProducto" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="642fecd5-f298-4a58-9673-c826a55b328f">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="InventarioLocalPosgres"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="P_ID_PRODUCTO" class="java.lang.String"/>
+	<parameter name="P_FECHA_INICIO" class="java.sql.Timestamp"/>
+	<parameter name="P_FECHA_FIN" class="java.sql.Timestamp"/>
+	<queryString>
+		<![CDATA[SELECT
+    k.fecha,
+    k.tipo_movimiento,
+    k.cantidad,
+    k.precio,
+    k.cantidad_actual,
+    p.nombre_producto
+FROM
+    public.kardex k
+JOIN
+    public.producto p ON k.id_producto = p.id_producto
+WHERE
+    k.id_producto = $P{P_ID_PRODUCTO}::uuid
+    AND k.fecha BETWEEN $P{P_FECHA_INICIO}::timestamp with time zone AND $P{P_FECHA_FIN}::timestamp with time zone
+ORDER BY
+    k.fecha ASC;]]>
+	</queryString>
+	<field name="fecha" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="fecha"/>
+		<property name="com.jaspersoft.studio.field.label" value="fecha"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="kardex"/>
+	</field>
+	<field name="tipo_movimiento" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="tipo_movimiento"/>
+		<property name="com.jaspersoft.studio.field.label" value="tipo_movimiento"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="kardex"/>
+	</field>
+	<field name="cantidad" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="cantidad"/>
+		<property name="com.jaspersoft.studio.field.label" value="cantidad"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="kardex"/>
+	</field>
+	<field name="precio" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="precio"/>
+		<property name="com.jaspersoft.studio.field.label" value="precio"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="kardex"/>
+	</field>
+	<field name="cantidad_actual" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="cantidad_actual"/>
+		<property name="com.jaspersoft.studio.field.label" value="cantidad_actual"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="kardex"/>
+	</field>
+	<field name="nombre_producto" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nombre_producto"/>
+		<property name="com.jaspersoft.studio.field.label" value="nombre_producto"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="producto"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="40" height="19" uuid="e4df1fbe-c084-4994-bab0-1b41a684c0b7"/>
+				<text><![CDATA[FECHA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="130" y="10" width="80" height="19" uuid="3387c694-886a-4a11-a0ae-9b6d13e9a173"/>
+				<text><![CDATA[MOVIMIENTO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="230" y="10" width="100" height="19" uuid="a9424c1b-6da5-41ab-811a-2968e9122c60"/>
+				<text><![CDATA[CANTIDAD ACTUAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="360" y="0" width="100" height="30" uuid="3b6531a8-69b2-4a4d-b7a8-5c9f4660feda">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e2714994-e57a-45cc-91ed-6a1dbb1c082e"/>
+				</reportElement>
+				<text><![CDATA[nombre_producto]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="10" width="100" height="30" uuid="b2028f91-6933-45dd-a557-2bb5c688d39b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="20a821cf-637d-4ddc-8f09-f60a72cd331e"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="128" y="9" width="72" height="21" uuid="78df6a5f-4b60-4e14-aaf3-af1ec931a4b9">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="7e93cb60-3734-4f0e-a84a-33bb247826dd"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{tipo_movimiento}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="231" y="2" width="100" height="30" uuid="8935c99f-29b4-4826-8c0f-2ec40e8cbd8b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c007cf10-1a69-4af3-b663-a13266ef2bf2"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{cantidad_actual}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="380" y="2" width="100" height="30" uuid="85d25446-b473-4ed2-aab6-20b4b5a79f6a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e2714994-e57a-45cc-91ed-6a1dbb1c082e"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{nombre_producto}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
