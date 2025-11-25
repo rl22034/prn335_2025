@@ -6,11 +6,14 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.primefaces.PrimeFaces;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.AlmacenDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ClienteDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.KardexDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.NotificadorKardex;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProductoDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.VentaDAO;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.VentaDetalleDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Almacen;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Cliente;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Producto;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Venta;
@@ -43,6 +46,12 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
 
     @Inject
     private NotificadorKardex notificadorKardex;
+
+    @Inject
+    private KardexDAO kardexDAO;
+
+    @Inject
+    private AlmacenDAO almacenDAO;
 
     private List<VentaDetalle> detallesDeLaVenta = new ArrayList<>();
     private VentaDetalle detalleSeleccionado;
@@ -270,19 +279,44 @@ public class VentaFrm extends DefaultFrm<Venta> implements Serializable {
     }
 
     /**
-     * Marca la venta como DESPACHADA y notifica via JMS/WebSocket
+     * Marca la venta como DESPACHADA, crea registros Kardex y notifica via JMS/WebSocket
      * La venta desaparece de Venta.xhtml y aparece en DespachoVenta.xhtml
      */
     public void notificarDespacho() {
         try {
             if (this.filaSeleccionada != null && this.filaSeleccionada.getId() != null) {
+                // 1. Actualizar estado a DESPACHADA
                 this.filaSeleccionada.setEstado(EstadoVenta.DESPACHADA.name());
                 actualizarEntidad(filaSeleccionada);
+
+                // 2. Obtener el primer almacén disponible (o null si no hay)
+                List<Almacen> almacenes = almacenDAO.findRange(0, 1);
+                Integer idAlmacen = almacenes.isEmpty() ? null : almacenes.get(0).getId();
+
+                // 3. Crear registros Kardex para cada detalle de la venta (SALIDA)
+                List<VentaDetalle> detalles = ventaDetalleDAO.getDetallesPorVenta(this.filaSeleccionada.getId());
+                for (VentaDetalle detalle : detalles) {
+                    UUID idProducto = detalle.getIdProducto().getId();
+                    BigDecimal cantidadAnterior = kardexDAO.obtenerCantidadActual(idProducto);
+                    BigDecimal cantidadNueva = cantidadAnterior.subtract(detalle.getCantidad());
+
+                    kardexDAO.crearKardexSalida(
+                            UUID.randomUUID(),           // id_kardex
+                            idProducto,                  // id_producto
+                            detalle.getCantidad(),       // cantidad
+                            detalle.getPrecio(),         // precio
+                            cantidadNueva,               // cantidad_actual
+                            detalle.getPrecio(),         // precio_actual
+                            detalle.getId(),             // id_venta_detalle
+                            "Venta #" + this.filaSeleccionada.getId(), // observaciones
+                            idAlmacen                    // id_almacen
+                    );
+                }
+
+                // 4. Notificar via JMS
+                notificadorKardex.notificarCambioKardex("Venta #" + this.filaSeleccionada.getId() + " despachada");
+
                 MessageHelper.addInfoMessage("mensaje.titulo.exito", "mensaje.actualizar.exito");
-
-                // Enviar notificación asíncrona via JMS
-                notificadorKardex.notificarCambioKardex("Venta despachada ID: " + this.filaSeleccionada.getId());
-
                 filaSeleccionada = instanciarEntidad();
                 estado = CRUD.NINGUNO;
             }

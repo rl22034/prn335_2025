@@ -1,4 +1,4 @@
-package sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.jsf;
+package core.boundory.jsf;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,6 +76,11 @@ class DefaultFrmTest {
         }
 
         @Override
+        protected Object obtenerIdEntidad(EntidadPrueba entidad) {
+            return entidad.getId();
+        }
+
+        @Override
         protected void validarAntesDeCrear(EntidadPrueba entidad) throws Exception {
             validarCrearLlamado = true;
             if (debeElanzarExcepcionEnCrear) {
@@ -138,6 +143,11 @@ class DefaultFrmTest {
 
         public Object obtenerIdEntidadPublic(EntidadPrueba entidad) {
             return obtenerIdEntidad(entidad);
+        }
+
+        // Método público para exponer mostrarError para testing
+        public void mostrarErrorPublic(String errorKey, Exception e) {
+            mostrarError(errorKey, e);
         }
     }
 
@@ -746,5 +756,98 @@ class DefaultFrmTest {
         });
 
         assertTrue(exception.getMessage().contains("No se pudo obtener el ID de la entidad"));
+    }
+
+    // ========== 11. TESTS DE MOSTRAR ERROR - DETECCIÓN FK ==========
+
+    @Test
+    void mostrarError_conForeignKeyConstraint_debeMostrarMensajeFKRelacionados() {
+        Exception ex = new Exception("ERROR: update or delete on table violates foreign key constraint");
+        frm.setFilaSeleccionada(new EntidadPrueba(1, "Test"));
+
+        frm.mostrarErrorPublic("mensaje.eliminar.error", ex);
+
+        messageHelperMock.verify(() ->
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "validacion.fk.registros.relacionados"));
+    }
+
+    @Test
+    void mostrarError_conFkEnNombreConstraint_debeMostrarMensajeFKRelacionados() {
+        Exception ex = new Exception("ERROR: violates fk_compra_detalle_producto constraint");
+        frm.setFilaSeleccionada(new EntidadPrueba(1, "Test"));
+
+        frm.mostrarErrorPublic("mensaje.eliminar.error", ex);
+
+        messageHelperMock.verify(() ->
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "validacion.fk.registros.relacionados"));
+    }
+
+    @Test
+    void mostrarError_conStillReferenced_debeMostrarMensajeFKRelacionados() {
+        Exception ex = new Exception("Key is still referenced from table compra_detalle");
+        frm.setFilaSeleccionada(new EntidadPrueba(1, "Test"));
+
+        frm.mostrarErrorPublic("mensaje.eliminar.error", ex);
+
+        messageHelperMock.verify(() ->
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "validacion.fk.registros.relacionados"));
+    }
+
+    @Test
+    void mostrarError_conViolates_debeMostrarMensajeFKRelacionados() {
+        Exception ex = new Exception("ERROR: violates constraint on table");
+        frm.setFilaSeleccionada(new EntidadPrueba(1, "Test"));
+
+        frm.mostrarErrorPublic("mensaje.eliminar.error", ex);
+
+        messageHelperMock.verify(() ->
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "validacion.fk.registros.relacionados"));
+    }
+
+    @Test
+    void mostrarError_conCausaAnidadaFK_debeMostrarMensajeFKRelacionados() {
+        // Simular excepción con causa anidada que contiene el mensaje FK
+        Exception causaRaiz = new Exception("ERROR: violates foreign key constraint");
+        Exception exPrincipal = new Exception("Error de persistencia", causaRaiz);
+        frm.setFilaSeleccionada(new EntidadPrueba(1, "Test"));
+
+        frm.mostrarErrorPublic("mensaje.eliminar.error", exPrincipal);
+
+        messageHelperMock.verify(() ->
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "validacion.fk.registros.relacionados"));
+    }
+
+    @Test
+    void mostrarError_conClaveI18n_debeMostrarMensajeLocalizado() {
+        Exception ex = new Exception("validacion.nombre.requerido");
+        frm.setFilaSeleccionada(new EntidadPrueba(1, "Test"));
+
+        frm.mostrarErrorPublic("mensaje.crear.error", ex);
+
+        messageHelperMock.verify(() ->
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "validacion.nombre.requerido"));
+    }
+
+    @Test
+    void mostrarError_conTextoNormal_debeMostrarMensajeConDetalle() {
+        Exception ex = new Exception("Ocurrió un error inesperado en la base de datos");
+        frm.setFilaSeleccionada(new EntidadPrueba(1, "Test"));
+
+        frm.mostrarErrorPublic("mensaje.crear.error", ex);
+
+        messageHelperMock.verify(() ->
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "mensaje.crear.error",
+                        "Ocurrió un error inesperado en la base de datos"));
+    }
+
+    @Test
+    void mostrarError_conMensajeNull_debeMostrarMensajeConNull() {
+        Exception ex = new Exception((String) null);
+        frm.setFilaSeleccionada(new EntidadPrueba(1, "Test"));
+
+        frm.mostrarErrorPublic("mensaje.crear.error", ex);
+
+        messageHelperMock.verify(() ->
+                MessageHelper.addErrorMessage("mensaje.titulo.error", "mensaje.crear.error", null));
     }
 }

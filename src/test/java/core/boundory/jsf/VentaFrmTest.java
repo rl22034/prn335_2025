@@ -11,14 +11,11 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.primefaces.PrimeFaces;
 import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.boundory.jsf.*;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ClienteDAO;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.ProductoDAO;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.VentaDAO;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.VentaDetalleDAO;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Cliente;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Producto;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.Venta;
-import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.VentaDetalle;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.*;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.AlmacenDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.KardexDAO;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.control.NotificadorKardex;
+import sv.edu.ues.occ.ingenieria.prn335.web.inventariowebappprn335_2025.core.entity.*;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -44,6 +41,12 @@ class VentaFrmTest {
     @Mock
     private ProductoDAO productoDAO;
     @Mock
+    private NotificadorKardex notificadorKardex;
+    @Mock
+    private KardexDAO kardexDAO;
+    @Mock
+    private AlmacenDAO almacenDAO;
+    @Mock
     private EntityManager entityManager;
     @Mock
     private TypedQuery<Venta> typedQuery;
@@ -66,6 +69,9 @@ class VentaFrmTest {
         inyectarCampo("clienteDAO", clienteDAO);
         inyectarCampo("ventaDetalleDAO", ventaDetalleDAO);
         inyectarCampo("productoDAO", productoDAO);
+        inyectarCampo("notificadorKardex", notificadorKardex);
+        inyectarCampo("kardexDAO", kardexDAO);
+        inyectarCampo("almacenDAO", almacenDAO);
 
         when(productoDAO.findRange(0, 1000)).thenReturn(new ArrayList<>());
     }
@@ -239,11 +245,8 @@ class VentaFrmTest {
     // ========== Tests para buscarEntidades ==========
     @Test
     void testBuscarEntidades() {
-        when(ventaDAO.getEntityManager()).thenReturn(entityManager);
-        when(entityManager.createQuery(anyString(), eq(Venta.class))).thenReturn(typedQuery);
-        when(typedQuery.setFirstResult(anyInt())).thenReturn(typedQuery);
-        when(typedQuery.setMaxResults(anyInt())).thenReturn(typedQuery);
-        when(typedQuery.getResultList()).thenReturn(Arrays.asList(crearVenta(UUID.randomUUID())));
+        when(ventaDAO.findExcluyendoEstado(eq("DESPACHADA"), anyInt(), anyInt()))
+                .thenReturn(Arrays.asList(crearVenta(UUID.randomUUID())));
         frm.initLazyModel();
         List<?> result = frm.getLazyModel().load(0, 10, null, null);
         assertEquals(1, result.size());
@@ -567,5 +570,131 @@ class VentaFrmTest {
         frm.setDetalleSeleccionado(null);
         VentaDetalle resultado = frm.getDetalleSeleccionado();
         assertNotNull(resultado);
+    }
+
+    // ========== Tests para notificarDespacho ==========
+    @Test
+    void testNotificarDespachoExitoso() {
+        UUID ventaId = UUID.randomUUID();
+        Venta venta = crearVenta(ventaId);
+        frm.setFilaSeleccionada(venta);
+        frm.setEstado(CRUD.MODIFICAR);
+
+        // Preparar almacén
+        List<Almacen> almacenes = new ArrayList<>();
+        Almacen almacen = new Almacen();
+        almacen.setId(1);
+        almacenes.add(almacen);
+        when(almacenDAO.findRange(0, 1)).thenReturn(almacenes);
+
+        // Preparar detalles
+        VentaDetalle detalle = crearVentaDetalle(UUID.randomUUID());
+        Producto producto = new Producto();
+        producto.setId(UUID.randomUUID());
+        detalle.setIdProducto(producto);
+        List<VentaDetalle> detalles = Arrays.asList(detalle);
+        when(ventaDetalleDAO.getDetallesPorVenta(ventaId)).thenReturn(detalles);
+        when(kardexDAO.obtenerCantidadActual(any())).thenReturn(new BigDecimal("100"));
+
+        // Mock para actualizarEntidad
+        when(ventaDAO.finById(ventaId)).thenReturn(venta);
+
+        frm.notificarDespacho();
+
+        assertEquals(EstadoVenta.DESPACHADA.name(), venta.getEstado());
+        verify(ventaDAO).update(venta);
+        verify(kardexDAO).crearKardexSalida(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(notificadorKardex).notificarCambioKardex(contains("Venta #"));
+        assertEquals(CRUD.NINGUNO, frm.getEstado());
+    }
+
+    @Test
+    void testNotificarDespachoSinVentaSeleccionada() {
+        frm.setFilaSeleccionada(null);
+
+        frm.notificarDespacho();
+
+        verify(ventaDAO, never()).update(any());
+        verify(kardexDAO, never()).crearKardexSalida(any(), any(), any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void testNotificarDespachoSinIdVenta() {
+        Venta venta = new Venta();
+        venta.setId(null);
+        frm.setFilaSeleccionada(venta);
+
+        frm.notificarDespacho();
+
+        verify(ventaDAO, never()).update(any());
+    }
+
+    @Test
+    void testNotificarDespachoSinAlmacen() {
+        UUID ventaId = UUID.randomUUID();
+        Venta venta = crearVenta(ventaId);
+        frm.setFilaSeleccionada(venta);
+        frm.setEstado(CRUD.MODIFICAR);
+
+        // Sin almacenes
+        when(almacenDAO.findRange(0, 1)).thenReturn(new ArrayList<>());
+
+        // Preparar detalles
+        VentaDetalle detalle = crearVentaDetalle(UUID.randomUUID());
+        Producto producto = new Producto();
+        producto.setId(UUID.randomUUID());
+        detalle.setIdProducto(producto);
+        List<VentaDetalle> detalles = Arrays.asList(detalle);
+        when(ventaDetalleDAO.getDetallesPorVenta(ventaId)).thenReturn(detalles);
+        when(kardexDAO.obtenerCantidadActual(any())).thenReturn(BigDecimal.ZERO);
+        when(ventaDAO.finById(ventaId)).thenReturn(venta);
+
+        frm.notificarDespacho();
+
+        // Debe funcionar con idAlmacen = null
+        verify(kardexDAO).crearKardexSalida(any(), any(), any(), any(), any(), any(), any(), any(), isNull());
+    }
+
+    @Test
+    void testNotificarDespachoRestaStock() {
+        UUID ventaId = UUID.randomUUID();
+        Venta venta = crearVenta(ventaId);
+        frm.setFilaSeleccionada(venta);
+        frm.setEstado(CRUD.MODIFICAR);
+
+        // Preparar almacén
+        List<Almacen> almacenes = new ArrayList<>();
+        Almacen almacen = new Almacen();
+        almacen.setId(1);
+        almacenes.add(almacen);
+        when(almacenDAO.findRange(0, 1)).thenReturn(almacenes);
+
+        // Preparar detalles con cantidad 5
+        VentaDetalle detalle = crearVentaDetalle(UUID.randomUUID());
+        detalle.setCantidad(new BigDecimal("5"));
+        Producto producto = new Producto();
+        producto.setId(UUID.randomUUID());
+        detalle.setIdProducto(producto);
+        List<VentaDetalle> detalles = Arrays.asList(detalle);
+        when(ventaDetalleDAO.getDetallesPorVenta(ventaId)).thenReturn(detalles);
+
+        // Stock actual = 100, debe restar 5 = 95
+        when(kardexDAO.obtenerCantidadActual(any())).thenReturn(new BigDecimal("100"));
+        when(ventaDAO.finById(ventaId)).thenReturn(venta);
+
+        frm.notificarDespacho();
+
+        // Verificar que se llama con cantidad_actual = 95 (100 - 5)
+        verify(kardexDAO).crearKardexSalida(
+                any(),                    // id_kardex
+                any(),                    // id_producto
+                eq(new BigDecimal("5")),  // cantidad
+                any(),                    // precio
+                eq(new BigDecimal("95")), // cantidad_actual (100 - 5)
+                any(),                    // precio_actual
+                any(),                    // id_venta_detalle
+                any(),                    // observaciones
+                any()                     // id_almacen
+        );
     }
 }
