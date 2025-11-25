@@ -300,6 +300,21 @@ public abstract class DefaultFrm<T> implements Serializable {
     void mostrarError(String errorKey, Exception e) {
         String errorMsg = e.getMessage();
 
+        // Buscar en toda la cadena de excepciones para errores de FK
+        Throwable causa = e;
+        while (causa != null) {
+            String msg = causa.getMessage();
+            if (msg != null) {
+                String msgLower = msg.toLowerCase();
+                if (msgLower.contains("foreign key") || msgLower.contains("fk_") ||
+                    msgLower.contains("still referenced") || msgLower.contains("violates")) {
+                    MessageHelper.addErrorMessage("mensaje.titulo.error", "validacion.fk.registros.relacionados");
+                    return;
+                }
+            }
+            causa = causa.getCause();
+        }
+
         // Detectar si es una clave de i18n o un texto normal
         if (errorMsg != null && !errorMsg.contains(" ") && errorMsg.contains(".")) {
             // Es una clave como "validacion.nombre.requerido"
