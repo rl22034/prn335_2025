@@ -54,6 +54,10 @@ public class CompraDAOTest {
     TypedQuery<Compra> mockQueryProveedor;
     @Mock
     TypedQuery<Compra> mockQueryEstado;
+    @Mock
+    TypedQuery<Compra> mockQueryExcluyendo;
+    @Mock
+    TypedQuery<Long> mockQueryCountExcluyendo;
 
 
     // Spy e Inyección
@@ -119,6 +123,22 @@ public class CompraDAOTest {
                 eq(Compra.class)
         )).thenReturn(mockQueryEstado);
         when(mockQueryEstado.setParameter(eq("estado"), anyString())).thenReturn(mockQueryEstado);
+
+        // findExcluyendoEstado
+        when(mockEm.createQuery(
+                eq("SELECT c FROM Compra c WHERE c.estado <> :estado ORDER BY c.fecha DESC"),
+                eq(Compra.class)
+        )).thenReturn(mockQueryExcluyendo);
+        when(mockQueryExcluyendo.setParameter(eq("estado"), anyString())).thenReturn(mockQueryExcluyendo);
+        when(mockQueryExcluyendo.setFirstResult(anyInt())).thenReturn(mockQueryExcluyendo);
+        when(mockQueryExcluyendo.setMaxResults(anyInt())).thenReturn(mockQueryExcluyendo);
+
+        // countExcluyendoEstado
+        when(mockEm.createQuery(
+                eq("SELECT COUNT(c) FROM Compra c WHERE c.estado <> :estado"),
+                eq(Long.class)
+        )).thenReturn(mockQueryCountExcluyendo);
+        when(mockQueryCountExcluyendo.setParameter(eq("estado"), anyString())).thenReturn(mockQueryCountExcluyendo);
 
     }
 
@@ -318,5 +338,94 @@ public class CompraDAOTest {
 
         assertTrue(result.isEmpty());
         verify(mockQueryEstado, times(1)).getResultList();
+    }
+
+    // ---
+    // Métodos Específicos (findExcluyendoEstado, countExcluyendoEstado)
+    // ---
+
+    // 📦 Test: findExcluyendoEstado
+
+    @Test
+    void testFindExcluyendoEstado_Success() {
+        when(mockQueryExcluyendo.getResultList()).thenReturn(expectedList);
+
+        List<Compra> result = compraDAO.findExcluyendoEstado("PAGADA", 0, 10);
+
+        assertEquals(expectedList, result);
+        verify(mockQueryExcluyendo, times(1)).setParameter("estado", "PAGADA");
+        verify(mockQueryExcluyendo, times(1)).setFirstResult(0);
+        verify(mockQueryExcluyendo, times(1)).setMaxResults(10);
+        verify(mockQueryExcluyendo, times(1)).getResultList();
+    }
+
+    @Test
+    void testFindExcluyendoEstado_NullInput_ReturnsFindRange() {
+        when(mockTypedQueryCompra.getResultList()).thenReturn(expectedList);
+
+        List<Compra> result = compraDAO.findExcluyendoEstado(null, 0, 10);
+
+        assertEquals(expectedList, result);
+    }
+
+    @Test
+    void testFindExcluyendoEstado_EmptyInput_ReturnsFindRange() {
+        when(mockTypedQueryCompra.getResultList()).thenReturn(expectedList);
+
+        List<Compra> result = compraDAO.findExcluyendoEstado("  ", 0, 10);
+
+        assertEquals(expectedList, result);
+    }
+
+    @Test
+    void testFindExcluyendoEstado_PersistenceException_ReturnsEmptyList() {
+        when(mockQueryExcluyendo.getResultList()).thenThrow(new RuntimeException("DB Error"));
+
+        List<Compra> result = compraDAO.findExcluyendoEstado("PAGADA", 0, 10);
+
+        assertTrue(result.isEmpty());
+    }
+
+    // 🔢 Test: countExcluyendoEstado
+
+    @Test
+    void testCountExcluyendoEstado_Success() {
+        Long expectedCount = 25L;
+        when(mockQueryCountExcluyendo.getSingleResult()).thenReturn(expectedCount);
+
+        Long result = compraDAO.countExcluyendoEstado("PAGADA");
+
+        assertEquals(expectedCount, result);
+        verify(mockQueryCountExcluyendo, times(1)).setParameter("estado", "PAGADA");
+        verify(mockQueryCountExcluyendo, times(1)).getSingleResult();
+    }
+
+    @Test
+    void testCountExcluyendoEstado_NullInput_ReturnsCount() {
+        Long expectedCount = 42L;
+        when(mockTypedQueryLong.getSingleResult()).thenReturn(expectedCount);
+
+        Long result = compraDAO.countExcluyendoEstado(null);
+
+        assertEquals(expectedCount, result);
+    }
+
+    @Test
+    void testCountExcluyendoEstado_EmptyInput_ReturnsCount() {
+        Long expectedCount = 42L;
+        when(mockTypedQueryLong.getSingleResult()).thenReturn(expectedCount);
+
+        Long result = compraDAO.countExcluyendoEstado("  ");
+
+        assertEquals(expectedCount, result);
+    }
+
+    @Test
+    void testCountExcluyendoEstado_PersistenceException_ReturnsZero() {
+        when(mockQueryCountExcluyendo.getSingleResult()).thenThrow(new RuntimeException("DB Error"));
+
+        Long result = compraDAO.countExcluyendoEstado("PAGADA");
+
+        assertEquals(0L, result);
     }
 }

@@ -297,7 +297,7 @@ public abstract class DefaultFrm<T> implements Serializable {
      * @param errorKey Clave del mensaje de error base
      * @param e Excepcion capturada
      */
-    void mostrarError(String errorKey, Exception e) {
+    protected void mostrarError(String errorKey, Exception e) {
         String errorMsg = e.getMessage();
 
         // Buscar en toda la cadena de excepciones para errores de FK
