@@ -114,7 +114,7 @@
                     <serverName>prn335_2025</serverName>
                     <looseApplication>true</looseApplication>
                     <deployPackages>all</deployPackages>
-                    <installDirectory>/usr/local/openliberty/wlp</installDirectory>
+                    <installDirectory>/home/arrocino/Descargas/wlp</installDirectory>
                 </configuration>
             </plugin>
             <plugin>

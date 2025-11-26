@@ -35,7 +35,7 @@
 <!--  Default SSL configuration enables trust for default certificates from the Java runtime  -->
 <ssl id="defaultSSLConfig" trustDefaultCerts="true"/>
 <dataSource id="postgres-driver" jndiName="jdbc/pgdb" jdbcDriverRef="postgresql-driver" type="javax.sql.ConnectionPoolDataSource" transactional="true">
-<properties serverName="localhost" databaseName="inventario_prn335" portNumber="5432" user="postgres" password="jonathan"/>
+<properties serverName="localhost" databaseName="Inventario_PRN335" portNumber="5432" user="postgres" password="abc123"/>
 </dataSource>
 <jdbcDriver id="postgresql-driver" javax.sql.DataSource="org.postgres.ds.PGSimpleDataSource" javax.sql.ConnectionPoolDataSource="org.postgresql.ds.PGConnectionPoolDataSource" libraryRef="postgresql-library"/>
 <library id="postgresql-library">

@@ -19,8 +19,7 @@ public class ReporteKardex {
     private DataSource dataSource;
 
     public void generarPdf(String nombreReporte, Map<String, Object> parametros, OutputStream salida) throws Exception {
-        // 1. Cargar el archivo fuente .jrxml (NO el .jasper)
-        // Asegúrate de copiar el .jrxml a la carpeta resources/reports/
+        // 1. Cargar el archivo fuente .jrxml
         InputStream reporteStream = getClass().getClassLoader().getResourceAsStream("reports/" + nombreReporte + ".jrxml");
 
         if (reporteStream == null) {
@@ -29,7 +28,7 @@ public class ReporteKardex {
 
         try (Connection conexion = dataSource.getConnection()) {
             // 2. COMPILAR EL REPORTE EN TIEMPO DE EJECUCIÓN
-            // Esto elimina el error de versión porque usa la librería actual del proyecto
+
             JasperReport jasperReport = JasperCompileManager.compileReport(reporteStream);
 
             // 3. Llenar el reporte

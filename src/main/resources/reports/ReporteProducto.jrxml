@@ -20,7 +20,7 @@ JOIN
     public.producto p ON k.id_producto = p.id_producto
 WHERE
     k.id_producto = $P{P_ID_PRODUCTO}::uuid
-    AND k.fecha BETWEEN $P{P_FECHA_INICIO}::timestamp with time zone AND $P{P_FECHA_FIN}::timestamp with time zone
+    AND k.fecha BETWEEN $P{P_FECHA_INICIO}::timestamp with time zone AND $P{P_FECHA_FIN}::timestamp with time zone 
 ORDER BY
     k.fecha ASC;]]>
 	</queryString>
@@ -58,7 +58,15 @@ ORDER BY
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="79" splitType="Stretch"/>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement x="137" y="24" width="280" height="30" uuid="3d282b47-40ac-491a-b7bf-8828b99ab4a1"/>
+				<textElement textAlignment="Center">
+					<font size="20"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE KARDEX]]></text>
+			</staticText>
+		</band>
 	</title>
 	<pageHeader>
 		<band height="35" splitType="Stretch"/>
@@ -66,35 +74,41 @@ ORDER BY
 	<columnHeader>
 		<band height="61" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="10" width="40" height="19" uuid="e4df1fbe-c084-4994-bab0-1b41a684c0b7"/>
+				<reportElement x="0" y="0" width="40" height="19" uuid="e4df1fbe-c084-4994-bab0-1b41a684c0b7"/>
 				<text><![CDATA[FECHA]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="130" y="10" width="80" height="19" uuid="3387c694-886a-4a11-a0ae-9b6d13e9a173"/>
+				<reportElement x="124" y="0" width="80" height="19" uuid="3387c694-886a-4a11-a0ae-9b6d13e9a173"/>
 				<text><![CDATA[MOVIMIENTO]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="230" y="10" width="100" height="19" uuid="a9424c1b-6da5-41ab-811a-2968e9122c60"/>
+				<reportElement x="231" y="0" width="100" height="19" uuid="a9424c1b-6da5-41ab-811a-2968e9122c60"/>
 				<text><![CDATA[CANTIDAD ACTUAL]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="360" y="0" width="100" height="30" uuid="3b6531a8-69b2-4a4d-b7a8-5c9f4660feda">
+				<reportElement x="350" y="0" width="100" height="30" uuid="3b6531a8-69b2-4a4d-b7a8-5c9f4660feda">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e2714994-e57a-45cc-91ed-6a1dbb1c082e"/>
 				</reportElement>
-				<text><![CDATA[nombre_producto]]></text>
+				<text><![CDATA[NOMBRE PRODUCTO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="470" y="0" width="100" height="30" uuid="505cef0e-53af-4ae7-8fbc-6dc9a30bac8f">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3876155d-c67d-401e-b8a2-6f436927f8c5"/>
+				</reportElement>
+				<text><![CDATA[PRECIO]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="125" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="10" width="100" height="30" uuid="b2028f91-6933-45dd-a557-2bb5c688d39b">
+				<reportElement x="0" y="10" width="90" height="22" uuid="b2028f91-6933-45dd-a557-2bb5c688d39b">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="20a821cf-637d-4ddc-8f09-f60a72cd331e"/>
 				</reportElement>
 				<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="128" y="9" width="72" height="21" uuid="78df6a5f-4b60-4e14-aaf3-af1ec931a4b9">
+				<reportElement x="124" y="10" width="72" height="21" uuid="78df6a5f-4b60-4e14-aaf3-af1ec931a4b9">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="7e93cb60-3734-4f0e-a84a-33bb247826dd"/>
 				</reportElement>
 				<textFieldExpression><![CDATA[$F{tipo_movimiento}]]></textFieldExpression>
@@ -106,10 +120,16 @@ ORDER BY
 				<textFieldExpression><![CDATA[$F{cantidad_actual}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="380" y="2" width="100" height="30" uuid="85d25446-b473-4ed2-aab6-20b4b5a79f6a">
+				<reportElement x="350" y="0" width="100" height="30" uuid="85d25446-b473-4ed2-aab6-20b4b5a79f6a">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e2714994-e57a-45cc-91ed-6a1dbb1c082e"/>
 				</reportElement>
 				<textFieldExpression><![CDATA[$F{nombre_producto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="470" y="0" width="100" height="30" uuid="afe946e5-708f-435f-9b81-4164bed1cb41">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3876155d-c67d-401e-b8a2-6f436927f8c5"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{precio}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
