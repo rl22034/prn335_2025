@@ -36,3 +36,8 @@ RUN cp src/main/liberty/config/server.xml /home/chepe/wlp/usr/servers/app/server
 
 EXPOSE 9080
 CMD ["/home/chepe/wlp/bin/server", "run", "app"]
+
+#COMANDOS PARA CORRER EL DOCKER
+# docker build -t prn335-app:latest .
+# docker run -d --name prn335_runtime_final -p 9080:9080 --network host prn335-app:latest
+# docker start prn335_runtime_final
